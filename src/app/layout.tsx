@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import ThemeProvider from "./components/ThemeProvider";
 import Navbar from "./components/Navbar/Navbar";
 import "./globals.css";
+import ScrollToTop from "./components/ScrollToTop";
+import Footer from "./components/Footer";
+import AuthContext from "./context/AuthContext";
+import ToasterContext from "./context/ToasterContext";
 
 /*
 const geistSans = Geist({
@@ -30,8 +34,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-bg-900 dark:bg-bg-900">
-        <Navbar />
-        <ThemeProvider>{children} </ThemeProvider>
+        <AuthContext>
+          <ToasterContext />
+          <Navbar />
+          <ThemeProvider>
+            <main>{children} </main>
+            <ScrollToTop />
+            <Footer />
+          </ThemeProvider>
+        </AuthContext>
       </body>
     </html>
   );
