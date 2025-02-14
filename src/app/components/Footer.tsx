@@ -56,7 +56,7 @@ const Footer = () => {
       </footer>
 
       {/* Mobile Footer (screens <640px) */}
-      <footer className="w-full bg-bg-full px-4 mb-14 py-6 text-[var(--text-primary)] block sm:hidden">
+      <footer className="w-full bg-bg-900 dark:bg-bg-900 px-4 mb-14 py-6 text-[var(--text-primary)] block sm:hidden">
         <div className="mx-auto flex max-w-screen-xl flex-col items-center justify-between gap-4 sm:flex-row">
           <p className="text-center text-sm sm:text-left">
             © 2025 Made with ♥ by Bar Kaziro.

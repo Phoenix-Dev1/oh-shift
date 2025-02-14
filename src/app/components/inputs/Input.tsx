@@ -32,7 +32,8 @@ const Input: React.FC<InputProps> = ({
         text-sm
         font-medium
         leading-6
-        text-gray-900"
+        text-black
+        dark:text-white"
         htmlFor={id}
       >
         {label}
@@ -47,12 +48,16 @@ const Input: React.FC<InputProps> = ({
           {...register(id, { required })}
           className={clsx(
             `
-          form-input
           block
+          bg-white
+          dark:bg-bg-800
           w-full
           rounded-md
           border-0
-          py-1.5text-gray-900
+          py-1.5
+          px-1.5
+          dark:text-white
+          text-gray-900
           shasow-sm
           ring-1
           ring-inset
