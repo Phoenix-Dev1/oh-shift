@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 
-const links = ["Home"];
+const links = ["Home", "Dashboard"];
 
 export default function NavbarLinks() {
   const { data: session } = useSession();

@@ -42,6 +42,8 @@ const ShiftsPage = () => {
   const [week, setWeek] = useState<number>(0);
   const { weekDates, weekNumber } = useMemo(() => getWeekDates(week), [week]);
 
+  console.log(session);
+
   useEffect(() => {
     if (status === "unauthenticated") router.push("/");
   }, [status, router]);

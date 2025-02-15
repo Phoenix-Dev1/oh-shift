@@ -24,8 +24,8 @@ model User {
   updatedAt      DateTime   @updatedAt
   role           Role       @default(EMPLOYEE)
   accounts       Account[]
-  shifts         Shift[]
   managedSchedules Schedule[] @relation("ManagedSchedules")
+  employees      Employee[] @relation("ManagerEmployees")
 }
 
 model Account {
@@ -45,15 +45,36 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+model Employee {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  position   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  managerId  String   @db.ObjectId
+  manager    User     @relation(fields: [managerId], references: [id], name: "ManagerEmployees")
+  shifts     ShiftAssignment[]  // Employees can be assigned to shifts
+}
+
 model Shift {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   date        DateTime
   startTime   DateTime
   endTime     DateTime
-  userId      String?   @db.ObjectId
-  user        User?     @relation(fields: [userId], references: [id])
   scheduleId  String    @db.ObjectId
   schedule    Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  assignedEmployees ShiftAssignment[] // Track which employees are assigned
+}
+
+model ShiftAssignment {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  shiftId    String   @db.ObjectId
+  employeeId String   @db.ObjectId
+
+  shift      Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, employeeId]) // Prevent duplicate assignments
 }
 
 model Schedule {
