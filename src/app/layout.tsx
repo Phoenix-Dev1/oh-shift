@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import ThemeProvider from "./components/ThemeProvider";
 import Navbar from "./components/Navbar/Navbar";
@@ -5,21 +6,7 @@ import "./globals.css";
 import ScrollToTop from "./components/ScrollToTop";
 import Footer from "./components/Footer";
 import AuthContext from "./context/AuthContext";
-import ToasterContext from "./context/ToasterContext";
-
-/*
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-*/
-
-// className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+import ToastProvider from "./context/ToastProvider";
 
 export const metadata: Metadata = {
   title: "Oh-Shift",
@@ -33,16 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-bg-900 dark:bg-bg-900">
-        <AuthContext>
-          <ToasterContext />
-          <Navbar />
-          <ThemeProvider>
-            <main>{children} </main>
+      <body className="h-screen bg-bg-900 dark:bg-bg-800 flex flex-col min-h-screen">
+        <ThemeProvider>
+          <AuthContext>
+            <Navbar />
+            <ToastProvider />
+            <main className="flex-1">{children}</main>
             <ScrollToTop />
-            <Footer />
-          </ThemeProvider>
-        </AuthContext>
+          </AuthContext>
+          <Footer />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -7,8 +7,8 @@ import { BsGithub, BsGoogle } from "react-icons/bs";
 import Input from "../../components/inputs/Input";
 import Button from "../../components/Button";
 import AuthSocialButton from "./AuthSocialButton";
-import toast from "react-hot-toast";
 import { signIn, useSession } from "next-auth/react";
+import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 
 type Variant = "LOGIN" | "REGISTER";
@@ -21,7 +21,7 @@ const AuthForm = () => {
 
   useEffect(() => {
     if (session?.status === "authenticated") {
-      router.push("/users");
+      router.push("/shifts");
     }
   }, [session?.status, router]);
 
@@ -38,8 +38,8 @@ const AuthForm = () => {
   } = useForm<FieldValues>({
     defaultValues: {
       name: "",
-      email: "",
-      password: "",
+      email: "barkaziro@gmail.com",
+      password: "1q2w3e4r",
     },
   });
 
@@ -64,7 +64,7 @@ const AuthForm = () => {
           }
           if (callback?.ok && !callback.error) {
             toast.success("Logged in!");
-            router.push("/users");
+            router.push("/shifts");
           }
         })
         .finally(() => setIsLoading(false));
@@ -87,7 +87,7 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-bg-900 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center min-h-screen bg-bg-900 dark:bg-bg-900 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white dark:bg-bg-800 py-12 px-6 shadow-lg rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>

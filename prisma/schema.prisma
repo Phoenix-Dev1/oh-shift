@@ -48,8 +48,8 @@ model Account {
 model Shift {
   id          String    @id @default(auto()) @map("_id") @db.ObjectId
   date        DateTime
-  startTime   String
-  endTime     String
+  startTime   DateTime
+  endTime     DateTime
   userId      String?   @db.ObjectId
   user        User?     @relation(fields: [userId], references: [id])
   scheduleId  String    @db.ObjectId

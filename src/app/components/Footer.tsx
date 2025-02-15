@@ -1,103 +1,57 @@
+// app/components/Footer.tsx
 "use client";
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Linkedin, Github, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
   const [currentYear, setCurrentYear] = useState<number | null>(null);
   useEffect(() => {
-    setCurrentYear(new Date().getFullYear()); // Runs only on the client
+    setCurrentYear(new Date().getFullYear());
   }, []);
 
   return (
-    <>
-      {/* Desktop Footer (screens ≥640px) */}
-      <footer className="w-full bg-bg-900 dark:bg-bg-900 px-4 py-6 text-[var(--text-primary)] hidden sm:block">
-        <div className="mx-auto flex max-w-screen-xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-center text-sm sm:text-left">
-            © {currentYear} Made with ♥ by Bar Kaziro.
-          </p>
-          <div className="flex items-center gap-6">
-            <a
-              aria-label="LinkedIn"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.linkedin.com/in/bar-kaziro/"
-            >
-              <Linkedin size={20} />
-            </a>
-            <a
-              aria-label="GitHub"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://github.com/Phoenix-Dev1"
-            >
-              <Github size={20} />
-            </a>
-            <a
-              aria-label="Instagram"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.instagram.com/barkaziro/"
-            >
-              <Instagram size={20} />
-            </a>
-            <a
-              aria-label="Gmail"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="mailto:barkaziro@gmail.com"
-            >
-              <Mail size={20} />
-            </a>
-          </div>
+    <footer className="w-full bg-bg-900 dark:bg-bg-800 px-4 py-6 text-[var(--text-primary)] mt-auto">
+      <div className="mx-auto flex max-w-screen-xl flex-col items-center justify-between gap-4 sm:flex-row">
+        <p className="text-center text-sm sm:text-left">
+          © {currentYear} Made with ♥ by Bar Kaziro.
+        </p>
+        <div className="flex items-center gap-6">
+          <a
+            aria-label="LinkedIn"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.linkedin.com/in/bar-kaziro/"
+          >
+            <Linkedin size={20} />
+          </a>
+          <a
+            aria-label="GitHub"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://github.com/Phoenix-Dev1"
+          >
+            <Github size={20} />
+          </a>
+          <a
+            aria-label="Instagram"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="https://www.instagram.com/barkaziro/"
+          >
+            <Instagram size={20} />
+          </a>
+          <a
+            aria-label="Gmail"
+            target="_blank"
+            rel="noopener noreferrer"
+            href="mailto:barkaziro@gmail.com"
+          >
+            <Mail size={20} />
+          </a>
         </div>
-      </footer>
-
-      {/* Mobile Footer (screens <640px) */}
-      <footer className="w-full bg-bg-900 dark:bg-bg-900 px-4 mb-14 py-6 text-[var(--text-primary)] block sm:hidden">
-        <div className="mx-auto flex max-w-screen-xl flex-col items-center justify-between gap-4 sm:flex-row">
-          <p className="text-center text-sm sm:text-left">
-            © 2025 Made with ♥ by Bar Kaziro.
-          </p>
-          <div className="flex items-center gap-6">
-            <a
-              aria-label="LinkedIn"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.linkedin.com/in/bar-kaziro/"
-            >
-              <Linkedin size={20} />
-            </a>
-            <a
-              aria-label="GitHub"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://github.com/Phoenix-Dev1"
-            >
-              <Github size={20} />
-            </a>
-            <a
-              aria-label="Instagram"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="https://www.instagram.com/barkaziro/"
-            >
-              <Instagram size={20} />
-            </a>
-            <a
-              aria-label="Gmail"
-              target="_blank"
-              rel="noopener noreferrer"
-              href="mailto:barkaziro@gmail.com"
-            >
-              <Mail size={20} />
-            </a>
-          </div>
-        </div>
-      </footer>
-    </>
+      </div>
+    </footer>
   );
 };
 
