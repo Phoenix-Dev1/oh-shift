@@ -8,6 +8,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ShiftModal from "./ShiftModal";
 import DeleteModal from "./DeleteModal";
+import HoverModal from "./HoverModal";
 import { toast } from "react-toastify";
 import { Employee, Shift } from "../types/index";
 import {
@@ -37,6 +38,13 @@ const ShiftBoard: React.FC = () => {
   // Delete Shift Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
+
+  // Hover Modal State: stores the hovered shift and its mouse coordinates
+  const [hoverModalData, setHoverModalData] = useState<{
+    x: number;
+    y: number;
+    shift: Shift;
+  } | null>(null);
 
   // Fetch data on mount
   useEffect(() => {
@@ -139,6 +147,33 @@ const ShiftBoard: React.FC = () => {
         />
       )}
 
+      <HoverModal
+        x={hoverModalData?.x ?? 0}
+        y={hoverModalData?.y ?? 0}
+        startTime={
+          hoverModalData
+            ? new Date(hoverModalData.shift.startTime).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : ""
+        }
+        endTime={
+          hoverModalData
+            ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : ""
+        }
+        employees={
+          hoverModalData
+            ? hoverModalData.shift.employees.map((emp) => emp.name)
+            : []
+        }
+        isVisible={!!hoverModalData}
+      />
+
       {/* FullCalendar Component */}
       <FullCalendar
         direction="rtl"
@@ -146,6 +181,8 @@ const ShiftBoard: React.FC = () => {
         initialView="timeGridWeek"
         selectable={true}
         editable={true}
+        locale="en-gb"
+        dayHeaderFormat={{ weekday: "short", day: "numeric", month: "numeric" }}
         events={shifts.map((shift) => ({
           id: shift.id,
           title:
@@ -173,6 +210,18 @@ const ShiftBoard: React.FC = () => {
         height="85vh"
         slotMinTime="06:00:00"
         slotMaxTime="24:00:00"
+        eventMouseEnter={(info) => {
+          const { event, jsEvent } = info;
+          const shift = shifts.find((s) => s.id === event.id);
+          if (shift) {
+            setHoverModalData({
+              shift,
+              x: jsEvent.pageX,
+              y: jsEvent.pageY,
+            });
+          }
+        }}
+        eventMouseLeave={() => setHoverModalData(null)}
       />
 
       {/* Employee Loading State */}

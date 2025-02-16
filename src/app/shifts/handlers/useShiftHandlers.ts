@@ -129,7 +129,6 @@ export const handleEventDrop = async (
       setShifts((prevShifts) =>
         prevShifts.map((s) => (s.id === shiftId ? formattedShift : s))
       );
-      toast.success("Shift updated in database.");
     }
   } catch (error) {
     toast.error("Failed to update shift in database.");
