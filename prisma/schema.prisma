@@ -72,7 +72,8 @@ model ShiftAssignment {
   shiftId    String   @db.ObjectId
   employeeId String   @db.ObjectId
   createdAt  DateTime @default(now())
-  shift      Shift    @relation(fields: [shiftId], references: [id])
+
+  shift      Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   employee   Employee @relation(fields: [employeeId], references: [id])
 }
 

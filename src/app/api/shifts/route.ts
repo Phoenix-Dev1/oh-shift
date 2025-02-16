@@ -66,3 +66,33 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const shiftId = searchParams.get("id");
+
+    if (!shiftId) {
+      return NextResponse.json(
+        { error: "Shift ID is required." },
+        { status: 400 }
+      );
+    }
+
+    // Delete Shift and Cascade ShiftAssignments automatically
+    await prisma.shift.delete({
+      where: { id: shiftId },
+    });
+
+    return NextResponse.json(
+      { message: "Shift deleted successfully." },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error deleting shift:", error);
+    return NextResponse.json(
+      { error: "Failed to delete shift", details: error.message },
+      { status: 500 }
+    );
+  }
+}
