@@ -12,7 +12,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { name, position } = await req.json();
+    const { name, position, phone } = await req.json();
 
     if (!name || !position) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -22,6 +22,7 @@ export async function POST(req: Request) {
       data: {
         name,
         position,
+        phone,
         managerId: currentUser.id,
       },
     });

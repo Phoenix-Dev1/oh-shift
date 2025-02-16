@@ -48,33 +48,32 @@ model Account {
 model Employee {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   name       String
+  phone      String?  
   position   String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   managerId  String   @db.ObjectId
   manager    User     @relation(fields: [managerId], references: [id], name: "ManagerEmployees")
-  shifts     ShiftAssignment[]  // Employees can be assigned to shifts
+  shifts     ShiftAssignment[]
 }
 
+
 model Shift {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  date        DateTime
-  startTime   DateTime
-  endTime     DateTime
-  scheduleId  String    @db.ObjectId
-  schedule    Schedule  @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
-  assignedEmployees ShiftAssignment[] // Track which employees are assigned
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  startTime  DateTime
+  endTime    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  assignments ShiftAssignment[]
 }
 
 model ShiftAssignment {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   shiftId    String   @db.ObjectId
   employeeId String   @db.ObjectId
-
-  shift      Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
-  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-
-  @@unique([shiftId, employeeId]) // Prevent duplicate assignments
+  createdAt  DateTime @default(now())
+  shift      Shift    @relation(fields: [shiftId], references: [id])
+  employee   Employee @relation(fields: [employeeId], references: [id])
 }
 
 model Schedule {
@@ -84,7 +83,6 @@ model Schedule {
   isPublic    Boolean   @default(false)
   managerId   String    @db.ObjectId
   manager     User      @relation(fields: [managerId], references: [id], name: "ManagedSchedules")
-  shifts      Shift[]
 }
 
 enum Role {

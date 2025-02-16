@@ -9,6 +9,7 @@ type Employee = {
   id: string;
   name: string;
   position?: string;
+  phone?: string;
   createdAt: string;
 };
 
@@ -25,10 +26,6 @@ export default function EmployeesPage() {
 
   return (
     <main className="p-6">
-      <h1 className="text-3xl font-bold mb-6 dark:text-text-secondary">
-        My Employees
-      </h1>
-
       {employees.length === 0 ? (
         <p>No employees found.</p>
       ) : (
@@ -37,6 +34,7 @@ export default function EmployeesPage() {
             <tr>
               <th className="border border-gray-300 px-4 py-2">Name</th>
               <th className="border border-gray-300 px-4 py-2">Position</th>
+              <th className="border border-gray-300 px-4 py-2">Phone Number</th>
               <th className="border border-gray-300 px-4 py-2">Created At</th>
             </tr>
           </thead>
@@ -48,6 +46,9 @@ export default function EmployeesPage() {
                 </td>
                 <td className="border border-gray-300 px-4 py-2 dark:text-text-secondary">
                   {employee.position || "N/A"}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 dark:text-text-secondary">
+                  {employee.phone || "N/A"}
                 </td>
                 <td className="border border-gray-300 px-4 py-2 dark:text-text-secondary">
                   {new Date(employee.createdAt).toLocaleDateString()}

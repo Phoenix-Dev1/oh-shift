@@ -14,13 +14,14 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { name, position } = await req.json();
+    const { name, position, phone } = await req.json();
 
     const updatedEmployee = await prisma.employee.update({
       where: { id: params.id },
       data: {
         name,
         position,
+        phone,
       },
     });
 

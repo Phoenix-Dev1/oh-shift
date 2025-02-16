@@ -39,10 +39,6 @@ const getWeekDates = (
 const ShiftsPage = () => {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [week, setWeek] = useState<number>(0);
-  const { weekDates, weekNumber } = useMemo(() => getWeekDates(week), [week]);
-
-  console.log(session);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/");
@@ -53,14 +49,7 @@ const ShiftsPage = () => {
   return (
     <div className="flex h-screen dark:bg-bg-800 mb-6 dark:text-text-primary">
       <div className="flex-1 p-6">
-        <div className="flex justify-between items-center mb-6">
-          <Button onClick={() => setWeek((prev) => prev - 1)}>
-            Previous Week
-          </Button>
-          <h2 className="text-xl font-bold">Week {weekNumber}</h2>
-          <Button onClick={() => setWeek((prev) => prev + 1)}>Next Week</Button>
-        </div>
-        <ShiftBoard week={weekNumber} days={weekDates} />
+        <ShiftBoard />
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ import { Users, Home, Calendar, Settings } from "lucide-react";
 const sidebarLinks = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
   { name: "Manage Employees", href: "/dashboard/employees", icon: Users },
-  { name: "Shifts", href: "/dashboard/shifts", icon: Calendar },
+  { name: "Calendar", href: "/shifts", icon: Calendar },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
@@ -43,7 +43,7 @@ export default function Sidebar() {
 
       {/* Footer */}
       <div className="p-4 text-center text-xs text-text-secondary border-t border-bg-700">
-        © {new Date().getFullYear()} Shift Manager
+        Oh-Shift
       </div>
     </aside>
   );
