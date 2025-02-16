@@ -2,20 +2,18 @@
 
 import React, { useState } from "react";
 import { Phone, Info } from "lucide-react"; // npm install lucide-react
-
-interface Employee {
-  id: string;
-  name: string;
-  phone?: string;
-  position?: string;
-}
+import { Shift, Employee } from "../types";
 
 interface ShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { employees: Employee[] }) => void;
+  onSave: (data: {
+    employees: Employee[];
+    startTime?: any;
+    endTime?: any;
+  }) => void; // Allow both types
+  shift?: Shift | null;
   employees: Employee[];
-  shift: { employees: Employee[] };
 }
 
 const ShiftModal: React.FC<ShiftModalProps> = ({

@@ -8,38 +8,24 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import ShiftModal from "./ShiftModal";
 import DeleteModal from "./DeleteModal";
-
-import {
-  handleEventDidMount,
-  deleteShift,
-} from "../handlers/useDeleteHandlers";
-
+import { toast } from "react-toastify";
+import { Employee, Shift } from "../types/index";
 import {
   handleDateSelect,
   handleEventClick,
   handleEventDrop,
   handleEventResize,
 } from "../handlers/useShiftHandlers";
-
+import {
+  handleEventDidMount,
+  deleteShift,
+} from "../handlers/useDeleteHandlers";
 import { fetchEmployees } from "../handlers/useEmployeeHandlers";
 import {
   fetchShiftsFromDB,
+  updateShiftInDB,
   saveShiftToDB,
 } from "../handlers/useDatabaseHandlers";
-
-interface Employee {
-  id: string;
-  name: string;
-  phone?: string;
-  position?: string;
-}
-
-interface Shift {
-  id: string;
-  startTime: string;
-  endTime: string;
-  employees: Employee[];
-}
 
 const ShiftBoard: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -52,13 +38,13 @@ const ShiftBoard: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
 
-  // Fetch Shifts and Employees on Mount
+  // Fetch data on mount
   useEffect(() => {
     fetchEmployees(setEmployees, setLoadingEmployees);
     fetchShiftsFromDB(setShifts);
   }, []);
 
-  // Handle Confirm Shift Deletion
+  // Delete a shift
   const handleDeleteConfirm = async () => {
     if (shiftToDelete) {
       await deleteShift(shiftToDelete, setShifts, setIsDeleteModalOpen);
@@ -66,29 +52,94 @@ const ShiftBoard: React.FC = () => {
     }
   };
 
+  // Save (update) a shift
+  const handleSaveShift = async (shiftData: { employees: Employee[] }) => {
+    if (selectedShift) {
+      // Prepare the updated shift with the new employees
+      const updatedShift: Shift = {
+        ...selectedShift,
+        employees: shiftData.employees,
+      };
+
+      // Optimistically update the local state immediately
+      setShifts((prevShifts) =>
+        prevShifts.map((shift) =>
+          shift.id === updatedShift.id ? updatedShift : shift
+        )
+      );
+
+      // Save the shift (POST if new, PUT if existing)
+      let result: any;
+      try {
+        if (selectedShift.isNew) {
+          result = await saveShiftToDB(updatedShift);
+        } else {
+          result = await updateShiftInDB(updatedShift);
+        }
+
+        if (result) {
+          // Transform the response if it includes assignments rather than a direct employees array.
+          const formattedShift: Shift = {
+            id: result.id,
+            startTime: result.startTime,
+            endTime: result.endTime,
+            employees:
+              result.assignments?.map((assignment: any) => ({
+                id: assignment.employee?.id || "unknown",
+                name: assignment.employee?.name || "Unnamed",
+                position: assignment.employee?.position || "Unknown",
+              })) || updatedShift.employees,
+          };
+
+          // Update state with the formatted response data
+          setShifts((prevShifts) =>
+            prevShifts.map((shift) =>
+              shift.id === formattedShift.id ? formattedShift : shift
+            )
+          );
+
+          toast.success(
+            selectedShift.isNew
+              ? "Shift created successfully."
+              : "Shift updated successfully."
+          );
+        }
+      } catch (error) {
+        console.error("API error:", error);
+        toast.error("There was an error saving the shift.");
+
+        // Optionally, roll back the optimistic update by re-fetching shifts or restoring previous state.
+        // For example:
+        // fetchShiftsFromDB(setShifts);
+      } finally {
+        setIsShiftModalOpen(false);
+      }
+    }
+  };
+
   return (
     <div className="p-4">
-      {/* Delete Modal */}
+      {/* Shift Deletion Confirmation Modal */}
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteConfirm} // ✅ Call deleteShift on confirm
+        onConfirm={handleDeleteConfirm}
         title="Delete Shift"
         message="Are you sure you want to delete this shift?"
       />
 
-      {/* Shift Modal */}
+      {/* Shift Assignment Modal */}
       {isShiftModalOpen && selectedShift && (
         <ShiftModal
           isOpen={isShiftModalOpen}
           onClose={() => setIsShiftModalOpen(false)}
-          onSave={() => {}}
+          onSave={handleSaveShift}
           shift={selectedShift}
           employees={employees}
         />
       )}
 
-      {/* FullCalendar */}
+      {/* FullCalendar Component */}
       <FullCalendar
         direction="rtl"
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -98,25 +149,33 @@ const ShiftBoard: React.FC = () => {
         events={shifts.map((shift) => ({
           id: shift.id,
           title:
-            shift.employees.map((e) => e.name).join(", ") || "No Employees",
+            (shift.employees || []).map((e) => e.name).join(", ") ||
+            "No Employees",
           start: shift.startTime,
           end: shift.endTime,
         }))}
-        select={(info) => handleDateSelect(info, shifts, setShifts)}
-        eventClick={(info) =>
-          handleEventClick(info, shifts, setSelectedShift, setIsShiftModalOpen)
+        select={(selectInfo) => handleDateSelect(selectInfo, shifts, setShifts)}
+        eventClick={(clickInfo) =>
+          handleEventClick(
+            clickInfo,
+            shifts,
+            setSelectedShift,
+            setIsShiftModalOpen
+          )
         }
-        eventDrop={(info) => handleEventDrop(info, shifts, setShifts)}
-        eventResize={(info) => handleEventResize(info, shifts, setShifts)}
+        eventDrop={(dropInfo) => handleEventDrop(dropInfo, shifts, setShifts)}
+        eventResize={(resizeInfo) =>
+          handleEventResize(resizeInfo, shifts, setShifts)
+        }
         eventDidMount={(info) =>
           handleEventDidMount(info, setShiftToDelete, setIsDeleteModalOpen)
-        } // ✅ Show Delete Modal on Right-Click
+        }
         height="85vh"
         slotMinTime="06:00:00"
         slotMaxTime="24:00:00"
       />
 
-      {/* Loading State */}
+      {/* Employee Loading State */}
       {loadingEmployees && (
         <p className="text-center mt-4">Loading employees...</p>
       )}

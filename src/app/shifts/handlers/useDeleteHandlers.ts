@@ -1,5 +1,4 @@
 // src/handlers/useDeleteHandlers.ts
-
 import { toast } from "react-toastify";
 
 // Show Delete Modal on Right-Click
@@ -25,14 +24,24 @@ export const deleteShift = async (
   try {
     const response = await fetch(`/api/shifts?id=${shiftId}`, {
       method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
-    const result = await response.json();
+    // ✅ Gracefully handle non-JSON responses
+    let result;
+    try {
+      result = await response.json();
+    } catch {
+      throw new Error("Invalid response from server");
+    }
+
     if (!response.ok) {
       throw new Error(result.error || "Failed to delete shift");
     }
 
-    // Remove Shift from State
+    // ✅ Update State: Remove Shift from State
     setShifts((prev) => prev.filter((shift) => shift.id !== shiftId));
 
     toast.success(result.message || "Shift deleted successfully.");
