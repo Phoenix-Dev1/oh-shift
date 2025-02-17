@@ -10,5 +10,7 @@ export interface Shift {
   startTime: string;
   endTime: string;
   employees: Employee[];
-  isNew?: boolean; // Only used on the client
+  allDay?: boolean;
+  title?: string;
+  isNew?: boolean;
 }

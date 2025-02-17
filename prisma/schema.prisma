@@ -58,6 +58,8 @@ model Shift {
   endTime     DateTime
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  allDay      Boolean  @default(false)
+  title       String?
   assignments ShiftAssignment[]
   managerId   String   @db.ObjectId
   manager     User     @relation(fields: [managerId], references: [id])

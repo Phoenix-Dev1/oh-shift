@@ -8,24 +8,31 @@ export const handleDateSelect = async (
   shifts: Shift[],
   setShifts: React.Dispatch<React.SetStateAction<Shift[]>>
 ) => {
-  // Create a new shift with a temporary id
+  const startDate = new Date(selectInfo.startStr);
+  const endDate = new Date(selectInfo.endStr);
+  const isAllDay =
+    selectInfo.allDay ||
+    (startDate.getHours() === 0 &&
+      startDate.getMinutes() === 0 &&
+      endDate.getHours() === 0 &&
+      endDate.getMinutes() === 0);
+
   const tempShift: Shift = {
     id: crypto.randomUUID(),
     startTime: selectInfo.startStr,
     endTime: selectInfo.endStr,
     employees: [],
-    isNew: true, // flag to indicate it's not yet persisted
+    isNew: true,
+    allDay: isAllDay,
+    title: isAllDay ? "New All Day Shift" : "",
   };
 
-  // Optimistically update local state with the temporary shift
   setShifts([...shifts, tempShift]);
   toast.info("Creating new shift...");
 
   try {
-    // Persist the new shift immediately
     const persistedShift = await saveShiftToDB(tempShift);
     if (persistedShift) {
-      // Transform the persisted response to match your Shift type.
       const formattedShift: Shift = {
         id: persistedShift.id,
         startTime: persistedShift.startTime,
@@ -36,10 +43,11 @@ export const handleDateSelect = async (
             name: assignment.employee?.name || "Unnamed",
             position: assignment.employee?.position || "Unknown",
           })) || [],
-        isNew: false, // now it’s persisted
+        isNew: false,
+        allDay: isAllDay,
+        title: persistedShift.title || (isAllDay ? "New All Day Shift" : ""),
       };
 
-      // Replace the temporary shift with the persisted shift (using the real id)
       setShifts((prevShifts) =>
         prevShifts.map((shift) =>
           shift.id === tempShift.id ? formattedShift : shift
@@ -49,7 +57,6 @@ export const handleDateSelect = async (
     }
   } catch (error) {
     toast.error("Failed to create shift.");
-    // Optionally, remove the temporary shift from local state
     setShifts((prevShifts) => prevShifts.filter((s) => s.id !== tempShift.id));
   }
 };

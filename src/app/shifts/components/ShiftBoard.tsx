@@ -61,15 +61,26 @@ const ShiftBoard: React.FC = () => {
   };
 
   // Save (update) a shift
-  const handleSaveShift = async (shiftData: { employees: Employee[] }) => {
+  const handleSaveShift = async (shiftData: {
+    title?: string;
+    employees?: Employee[];
+    startTime?: any;
+    endTime?: any;
+  }) => {
     if (selectedShift) {
-      // Prepare the updated shift with the new employees
-      const updatedShift: Shift = {
-        ...selectedShift,
-        employees: shiftData.employees,
-      };
+      let updatedShift: Shift;
+      if (selectedShift.allDay) {
+        // For all-day events, update only the title.
+        updatedShift = { ...selectedShift, title: shiftData.title || "" };
+      } else {
+        // For timed events, update employees.
+        updatedShift = {
+          ...selectedShift,
+          employees: shiftData.employees || [],
+        };
+      }
 
-      // Optimistically update the local state immediately
+      // Optimistically update local state immediately
       setShifts((prevShifts) =>
         prevShifts.map((shift) =>
           shift.id === updatedShift.id ? updatedShift : shift
@@ -86,7 +97,7 @@ const ShiftBoard: React.FC = () => {
         }
 
         if (result) {
-          // Transform the response if it includes assignments rather than a direct employees array.
+          // Transform the response if needed
           const formattedShift: Shift = {
             id: result.id,
             startTime: result.startTime,
@@ -97,6 +108,9 @@ const ShiftBoard: React.FC = () => {
                 name: assignment.employee?.name || "Unnamed",
                 position: assignment.employee?.position || "Unknown",
               })) || updatedShift.employees,
+            allDay: updatedShift.allDay,
+            title: result.title || updatedShift.title,
+            isNew: false,
           };
 
           // Update state with the formatted response data
@@ -115,10 +129,6 @@ const ShiftBoard: React.FC = () => {
       } catch (error) {
         console.error("API error:", error);
         toast.error("There was an error saving the shift.");
-
-        // Optionally, roll back the optimistic update by re-fetching shifts or restoring previous state.
-        // For example:
-        // fetchShiftsFromDB(setShifts);
       } finally {
         setIsShiftModalOpen(false);
       }
@@ -152,14 +162,19 @@ const ShiftBoard: React.FC = () => {
         y={hoverModalData?.y ?? 0}
         startTime={
           hoverModalData
-            ? new Date(hoverModalData.shift.startTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
+            ? hoverModalData.shift.allDay
+              ? hoverModalData.shift.title || ""
+              : new Date(hoverModalData.shift.startTime).toLocaleTimeString(
+                  [],
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )
             : ""
         }
         endTime={
-          hoverModalData
+          hoverModalData && !hoverModalData.shift.allDay
             ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
                 hour: "2-digit",
                 minute: "2-digit",
@@ -167,7 +182,7 @@ const ShiftBoard: React.FC = () => {
             : ""
         }
         employees={
-          hoverModalData
+          hoverModalData && !hoverModalData.shift.allDay
             ? hoverModalData.shift.employees.map((emp) => emp.name)
             : []
         }
@@ -177,20 +192,37 @@ const ShiftBoard: React.FC = () => {
       {/* FullCalendar Component */}
       <FullCalendar
         direction="rtl"
+        allDaySlot={true}
         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
         initialView="timeGridWeek"
         selectable={true}
         editable={true}
         locale="en-gb"
+        eventClassNames={(info) => {
+          return info.event.allDay ? "all-day-event" : "";
+        }}
         dayHeaderFormat={{ weekday: "short", day: "numeric", month: "numeric" }}
-        events={shifts.map((shift) => ({
-          id: shift.id,
-          title:
-            (shift.employees || []).map((e) => e.name).join(", ") ||
-            "No Employees",
-          start: shift.startTime,
-          end: shift.endTime,
-        }))}
+        events={shifts.map((shift) => {
+          if (shift.allDay) {
+            return {
+              id: shift.id,
+              title: shift.title || "All Day Shift",
+              start: shift.startTime,
+              end: shift.endTime,
+              allDay: true,
+            };
+          } else {
+            return {
+              id: shift.id,
+              title:
+                (shift.employees || []).map((e) => e.name).join(", ") ||
+                "No Employees",
+              start: shift.startTime,
+              end: shift.endTime,
+              allDay: false,
+            };
+          }
+        })}
         select={(selectInfo) => handleDateSelect(selectInfo, shifts, setShifts)}
         eventClick={(clickInfo) =>
           handleEventClick(

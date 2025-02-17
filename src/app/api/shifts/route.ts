@@ -41,12 +41,11 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
-
     if (!currentUser || currentUser.role !== "MANAGER") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { startTime, endTime, employees } = await req.json();
+    const { startTime, endTime, employees, allDay, title } = await req.json();
 
     if (!startTime || !endTime || !Array.isArray(employees)) {
       return NextResponse.json(
@@ -55,12 +54,21 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create Shift with Assignments and Manager ID
+    let adjustedStart = new Date(startTime);
+    let adjustedEnd = new Date(endTime);
+    if (allDay) {
+      adjustedStart.setHours(0, 0, 0, 0);
+      adjustedEnd.setHours(0, 0, 0, 0);
+      // Do NOT add an extra day here—assume the frontend sends the correct end time.
+    }
+
     const newShift = await prisma.shift.create({
       data: {
-        startTime: new Date(startTime),
-        endTime: new Date(endTime),
+        startTime: adjustedStart,
+        endTime: adjustedEnd,
         managerId: currentUser.id,
+        allDay: allDay ?? false,
+        title: allDay ? title || "New All Day Shift" : null,
         assignments: {
           create: employees.map((employeeId: string) => ({
             employee: {
@@ -69,7 +77,11 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
-      include: { assignments: true },
+      include: {
+        assignments: {
+          include: { employee: true },
+        },
+      },
     });
 
     return NextResponse.json(newShift, { status: 201 });
@@ -89,7 +101,8 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { id, startTime, endTime, employees } = await req.json();
+    const { id, startTime, endTime, employees, allDay, title } =
+      await req.json();
 
     if (!id || !startTime || !endTime) {
       return NextResponse.json(
@@ -98,13 +111,26 @@ export async function PUT(req: NextRequest) {
       );
     }
 
-    // Build the update data for time changes
+    let adjustedStart = new Date(startTime);
+    let adjustedEnd = new Date(endTime);
+    if (allDay) {
+      adjustedStart.setHours(0, 0, 0, 0);
+      adjustedEnd.setHours(0, 0, 0, 0);
+      // Do NOT add an extra day here.
+    }
+
     const updateData: any = {
-      startTime: new Date(startTime),
-      endTime: new Date(endTime),
+      startTime: adjustedStart,
+      endTime: adjustedEnd,
+      allDay: allDay ?? false,
     };
 
-    // Only update assignments if employees is provided and non-empty.
+    if (allDay) {
+      updateData.title = title || "New All Day Shift";
+    } else {
+      updateData.title = null;
+    }
+
     if (employees && Array.isArray(employees) && employees.length > 0) {
       updateData.assignments = {
         deleteMany: {},
@@ -114,7 +140,6 @@ export async function PUT(req: NextRequest) {
       };
     }
 
-    // Perform the update and include assignments
     const updatedShift = await prisma.shift.update({
       where: { id },
       data: updateData,

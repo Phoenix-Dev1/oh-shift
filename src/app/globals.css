@@ -45,6 +45,11 @@ body {
   --input: 240 5.9% 90%;
   --ring: 240 10% 3.9%;
   --radius: 0.5rem;
+  /*-------------- FullCalendar --------------*/
+  --fc-event-bg-color: #0f915f;
+  --fc-event-text-color: #000000;
+  --fc-today-bg-color: rgba(40, 151, 255, 0.15);
+  --fc-small-font-size: 1.2em;
 }
 
 /* Dark theme */
@@ -78,4 +83,15 @@ html.dark {
   --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
+  /*-------------- FullCalendar --------------*/
+  --fc-event-bg-color: #0f915f;
+  --fc-event-text-color: #fff;
+  --fc-today-bg-color: rgba(40, 151, 255, 0.15);
+  --fc-small-font-size: 1.2em;
+  --fc-hover-bg-color: #c43218;
+}
+
+.all-day-event {
+  background-color: #a294f9 !important;
+  border-color: #a294f9 !important;
 }

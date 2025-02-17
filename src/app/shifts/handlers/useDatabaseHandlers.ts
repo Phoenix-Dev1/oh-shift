@@ -11,6 +11,8 @@ export const saveShiftToDB = async (shift: Shift) => {
         startTime: shift.startTime,
         endTime: shift.endTime,
         employees: shift.employees.map((emp) => emp.id),
+        allDay: shift.allDay, // <-- Add this
+        title: shift.title, // <-- And this
       }),
     });
 
@@ -30,15 +32,15 @@ export const saveShiftToDB = async (shift: Shift) => {
 
 export const updateShiftInDB = async (shift: Shift, timeOnly = false) => {
   try {
-    // Build payload:
     const payload: any = {
       id: shift.id,
       startTime: shift.startTime,
       endTime: shift.endTime,
     };
-    // If it's not a time-only update, include employees:
     if (!timeOnly) {
       payload.employees = shift.employees.map((emp) => emp.id);
+      payload.allDay = shift.allDay; // <-- Include for non-time-only updates
+      payload.title = shift.title; // <-- Include for non-time-only updates
     }
     const response = await fetch("/api/shifts", {
       method: "PUT",
@@ -72,6 +74,8 @@ export const fetchShiftsFromDB = async (
       id: shift.id,
       startTime: shift.startTime,
       endTime: shift.endTime,
+      allDay: shift.allDay, // Add this line
+      title: shift.title, // And this line
       employees:
         shift.assignments?.map((assignment: any) => ({
           id: assignment.employee?.id ?? "unknown",
