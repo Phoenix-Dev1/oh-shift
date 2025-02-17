@@ -20,7 +20,7 @@ export default function Sidebar() {
     <aside className="w-64 h-screen bg-bg-800 text-text-secondary shadow-lg flex flex-col">
       {/* Sidebar Header */}
       <div className="p-5 text-2xl font-bold text-highlight border-b border-bg-700">
-        Shift Manager
+        Oh-Shift
       </div>
 
       {/* Navigation Links */}
