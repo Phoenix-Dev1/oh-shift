@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
-import DeleteModal from "../../../shifts/components/DeleteModal";
+import DeleteModal from "../../../shifts/components/ShiftBoardManager/DeleteModal";
 
 type Employee = {
   id: string;

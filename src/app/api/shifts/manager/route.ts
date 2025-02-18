@@ -1,7 +1,7 @@
 // src/app/api/shifts/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../libs/prismadb";
-import getCurrentUser from "../../actions/getCurrentUser";
+import prisma from "../../../libs/prismadb";
+import getCurrentUser from "../../../actions/getCurrentUser";
 
 // Get All Shifts
 export async function GET() {

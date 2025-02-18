@@ -6,17 +6,16 @@ import DeleteModal from "./DeleteModal";
 import HoverModal from "./HoverModal";
 import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";
-import useIsMobile from "../hooks/useIsMobile";
+import useIsMobile from "../../hooks/useIsMobile";
 import { toast } from "react-toastify";
-import { Employee, Shift } from "../../types/index";
-import { deleteShift } from "../handlers/useDeleteHandlers";
-import { fetchEmployees } from "../handlers/useEmployeeHandlers";
+import { Employee, Shift } from "../../../types/index";
+import { deleteShift } from "../../handlers/useDeleteHandlers";
+import { fetchEmployees } from "../../handlers/useEmployeeHandlers";
 import {
   fetchShiftsFromDB,
   updateShiftInDB,
   saveShiftToDB,
-} from "../handlers/useDatabaseHandlers";
-import { handleCreateSchedule } from "../handlers/useScheduleHandlers";
+} from "../../handlers/useDatabaseHandlers";
 
 const ShiftBoardManager: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -230,14 +229,6 @@ const ShiftBoardManager: React.FC = () => {
       {loadingEmployees && (
         <p className="text-center mt-4">Loading employees...</p>
       )}
-      <div className="p-4">
-        <button
-          onClick={handleCreateSchedule}
-          className="w-full py-2 text-sm font-medium text-white bg-highlight rounded-lg hover:bg-highlight-dark transition"
-        >
-          Create Schedule from Shifts
-        </button>
-      </div>
     </div>
   );
 };

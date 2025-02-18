@@ -1,19 +1,19 @@
 // src/components/CustomFullCalendar.tsx
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Shift } from "../../types";
+import { Shift } from "../../../types";
 import {
   handleDateSelect,
   handleEventClick,
   handleEventDrop,
   handleEventResize,
-} from "../handlers/useShiftHandlers";
-import { handleEventDidMount } from "../handlers/useDeleteHandlers";
+} from "../../handlers/useShiftHandlers";
+import { handleEventDidMount } from "../../handlers/useDeleteHandlers";
 
 interface CustomFullCalendarProps {
   shifts: Shift[];
@@ -38,6 +38,8 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
   setHoverModalData,
   mapShiftsToEvents,
 }) => {
+  const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
+
   return (
     <FullCalendar
       direction="rtl"
@@ -100,17 +102,24 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
       slotMinTime="06:00:00"
       slotMaxTime="24:00:00"
       eventMouseEnter={(info) => {
-        const { event, jsEvent } = info;
-        const shift = shifts.find((s) => s.id === event.id);
-        if (shift) {
-          setHoverModalData({
-            shift,
-            x: jsEvent.pageX,
-            y: jsEvent.pageY,
-          });
-        }
+        const timeout = setTimeout(() => {
+          const { event, jsEvent } = info;
+          const shift = shifts.find((s) => s.id === event.id);
+          if (shift) {
+            setHoverModalData({
+              shift,
+              x: jsEvent.pageX,
+              y: jsEvent.pageY,
+            });
+          }
+        }, 2000); // 2-second delay
+
+        setHoverTimeout(timeout);
       }}
-      eventMouseLeave={() => setHoverModalData(null)}
+      eventMouseLeave={() => {
+        if (hoverTimeout) clearTimeout(hoverTimeout);
+        setHoverModalData(null);
+      }}
     />
   );
 };

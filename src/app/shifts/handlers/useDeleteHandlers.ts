@@ -25,7 +25,7 @@ export const deleteShift = async (
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   try {
-    const response = await fetch(`/api/shifts?id=${shiftId}`, {
+    const response = await fetch(`/api/shifts/manager?id=${shiftId}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",

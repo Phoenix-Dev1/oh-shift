@@ -4,22 +4,10 @@ import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Shift } from "../../types";
-import {
-  handleDateSelect,
-  handleEventClick,
-  handleEventDrop,
-  handleEventResize,
-} from "../handlers/useShiftHandlers";
-import { handleEventDidMount } from "../handlers/useDeleteHandlers";
+import { Shift } from "../../../types";
 
 interface MobileFullCalendarProps {
   shifts: Shift[];
-  setShifts: React.Dispatch<React.SetStateAction<Shift[]>>;
-  setSelectedShift: React.Dispatch<React.SetStateAction<Shift | null>>;
-  setIsShiftModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setShiftToDelete: React.Dispatch<React.SetStateAction<string | null>>;
-  setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setHoverModalData: React.Dispatch<
     React.SetStateAction<{ x: number; y: number; shift: Shift } | null>
   >;
@@ -28,11 +16,6 @@ interface MobileFullCalendarProps {
 
 const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({
   shifts,
-  setShifts,
-  setSelectedShift,
-  setIsShiftModalOpen,
-  setShiftToDelete,
-  setIsDeleteModalOpen,
   setHoverModalData,
   mapShiftsToEvents,
 }) => {
@@ -50,22 +33,6 @@ const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({
       eventClassNames={(info) => (info.event.allDay ? "all-day-event" : "")}
       // In dayGrid, the events will be rendered in a grid
       events={mapShiftsToEvents(shifts)}
-      select={(selectInfo) => handleDateSelect(selectInfo, shifts, setShifts)}
-      eventClick={(clickInfo) =>
-        handleEventClick(
-          clickInfo,
-          shifts,
-          setSelectedShift,
-          setIsShiftModalOpen
-        )
-      }
-      eventDrop={(dropInfo) => handleEventDrop(dropInfo, shifts, setShifts)}
-      eventResize={(resizeInfo) =>
-        handleEventResize(resizeInfo, shifts, setShifts)
-      }
-      eventDidMount={(info) =>
-        handleEventDidMount(info, setShiftToDelete, setIsDeleteModalOpen)
-      }
       height="85vh"
       // In dayGrid view, you don't need slotMinTime/slotMaxTime
       eventMouseEnter={(info) => {

@@ -4,7 +4,7 @@ import { Shift } from "../../types/index";
 
 export const saveShiftToDB = async (shift: Shift) => {
   try {
-    const response = await fetch("/api/shifts", {
+    const response = await fetch("/api/shifts/manager", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -42,7 +42,7 @@ export const updateShiftInDB = async (shift: Shift, timeOnly = false) => {
       payload.allDay = shift.allDay; // <-- Include for non-time-only updates
       payload.title = shift.title; // <-- Include for non-time-only updates
     }
-    const response = await fetch("/api/shifts", {
+    const response = await fetch("/api/shifts/manager", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
@@ -66,7 +66,7 @@ export const fetchShiftsFromDB = async (
   setShifts: React.Dispatch<React.SetStateAction<Shift[]>>
 ) => {
   try {
-    const response = await fetch("/api/shifts");
+    const response = await fetch("/api/shifts/manager");
     if (!response.ok) throw new Error("Failed to load shifts from database");
 
     const shiftsFromDB = await response.json();

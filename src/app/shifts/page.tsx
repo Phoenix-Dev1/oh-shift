@@ -1,28 +1,28 @@
-// app/shifts/page.tsx
-"use client";
+import ShiftBoardManager from "./components/ShiftBoardManager/ShiftBoardManager";
+import EmployeeBoardManager from "./components/EmployeeBoardManager/EmployeeBoardManager";
+import getCurrentUser from "../actions/getCurrentUser";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import ShiftBoardManager from "./components/ShiftBoardManager";
+export default async function ShiftsPage() {
+  const user = await getCurrentUser();
+  const role = user?.role;
 
-const ShiftsPage = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "unauthenticated") router.push("/");
-  }, [status, router]);
-
-  if (status === "loading") return <div>Loading...</div>;
+  if (user?.role !== "MANAGER" && user?.employeeManagerId === null) {
+    return <div className="text-text-primary">Talk to your manager bro</div>;
+  }
 
   return (
     <div className="flex h-screen dark:bg-bg-800 mb-6 dark:text-text-primary">
       <div className="flex-1 p-6">
-        <ShiftBoardManager />
+        {role === "MANAGER" ? (
+          <ShiftBoardManager />
+        ) : role === "EMPLOYEE" ? (
+          <EmployeeBoardManager />
+        ) : (
+          <div className="text-center text-red-500">
+            Unauthorized: Role not recognized
+          </div>
+        )}
       </div>
     </div>
   );
-};
-
-export default ShiftsPage;
+}
