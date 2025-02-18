@@ -50,6 +50,36 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
       eventClassNames={(info) => (info.event.allDay ? "all-day-event" : "")}
       dayHeaderFormat={{ weekday: "short", day: "numeric", month: "numeric" }}
       events={mapShiftsToEvents(shifts)}
+      // Add a custom eventContent callback for desktop version
+      eventContent={(info) => {
+        if (info.event.allDay) {
+          return (
+            <div style={{ direction: "ltr", textAlign: "left" }}>
+              <div>{info.event.title}</div>
+            </div>
+          );
+        }
+        const start = info.event.start
+          ? new Date(info.event.start).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "";
+        const end = info.event.end
+          ? new Date(info.event.end).toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : "";
+        return (
+          <div style={{ direction: "ltr", textAlign: "left" }}>
+            <div className="text-md font-bold">
+              {start} - {end}
+            </div>
+            <div className="text-gray-800">{info.event.title}</div>
+          </div>
+        );
+      }}
       select={(selectInfo) => handleDateSelect(selectInfo, shifts, setShifts)}
       eventClick={(clickInfo) =>
         handleEventClick(

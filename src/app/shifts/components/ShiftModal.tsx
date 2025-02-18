@@ -110,9 +110,8 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
               </label>
               <input
                 type="text"
-                value={localTitle}
+                placeholder={localTitle}
                 onChange={(e) => setLocalTitle(e.target.value)}
-                placeholder="Enter event title"
                 className="mt-1 block w-full p-2 border rounded"
               />
             </div>
