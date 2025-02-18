@@ -18,7 +18,7 @@ export const handleDateSelect = async (
       endDate.getMinutes() === 0);
 
   const tempShift: Shift = {
-    id: crypto.randomUUID(),
+    id: generateUUID(),
     startTime: selectInfo.startStr,
     endTime: selectInfo.endStr,
     employees: [],
@@ -157,4 +157,14 @@ export const handleEventResize = (
     )
   );
   toast.info("Shift resized successfully.");
+};
+
+const generateUUID = (): string => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  // fallback: combine timestamp and random string
+  return (
+    Date.now().toString() + "-" + Math.random().toString(36).substring(2, 15)
+  );
 };

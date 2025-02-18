@@ -12,7 +12,9 @@ interface ShiftModalProps {
     employees?: Employee[];
     startTime?: any;
     endTime?: any;
-  }) => Promise<void> | void;
+  }) => void;
+  // New optional prop for deleting the shift
+  onDelete?: () => void;
   shift?: Shift | null;
   employees: Employee[];
 }
@@ -21,6 +23,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   isOpen,
   onClose,
   onSave,
+  onDelete,
   employees,
   shift,
 }) => {
@@ -80,7 +83,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   };
 
   // Save changes:
-  // If it's an all-day shift, only pass the title.
+  // If it's an all-day event, only pass the title.
   // Otherwise, pass the selected employees.
   const handleSave = () => {
     if (shift?.allDay) {
@@ -97,7 +100,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl w-full">
+      <div className="bg-white dark:bg-bg-800 p-6 rounded-lg shadow-lg max-w-4xl w-full">
         {shift?.allDay ? (
           <>
             <h2 className="text-lg font-bold mb-4">Edit All-Day Shift</h2>
@@ -107,8 +110,9 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
               </label>
               <input
                 type="text"
+                value={localTitle}
                 onChange={(e) => setLocalTitle(e.target.value)}
-                placeholder={localTitle}
+                placeholder="Enter event title"
                 className="mt-1 block w-full p-2 border rounded"
               />
             </div>
@@ -116,7 +120,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
         ) : (
           <>
             <h2 className="text-lg font-bold mb-4">Assign Employees</h2>
-            {/* Employee Columns by Position */}
             <div className="grid grid-cols-3 gap-4 max-h-80 overflow-y-auto">
               {Object.entries(groupEmployeesByPosition()).map(
                 ([position, emps]) => (
@@ -200,6 +203,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
           >
             Cancel
           </button>
+          {/* Show Delete button only if onDelete is provided (mobile mode) */}
+          {onDelete && (
+            <button
+              onClick={onDelete}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+            >
+              Delete
+            </button>
+          )}
           <button
             onClick={handleSave}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"

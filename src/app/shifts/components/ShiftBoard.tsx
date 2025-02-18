@@ -1,26 +1,15 @@
-// src/components/ShiftBoard.tsx
 "use client";
 
 import { useState, useEffect } from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
 import ShiftModal from "./ShiftModal";
 import DeleteModal from "./DeleteModal";
 import HoverModal from "./HoverModal";
+import CustomFullCalendar from "./CustomFullCalendar";
+import MobileFullCalendar from "./MobileFullCalendar";
+import useIsMobile from "../hooks/useIsMobile";
 import { toast } from "react-toastify";
 import { Employee, Shift } from "../types/index";
-import {
-  handleDateSelect,
-  handleEventClick,
-  handleEventDrop,
-  handleEventResize,
-} from "../handlers/useShiftHandlers";
-import {
-  handleEventDidMount,
-  deleteShift,
-} from "../handlers/useDeleteHandlers";
+import { deleteShift } from "../handlers/useDeleteHandlers";
 import { fetchEmployees } from "../handlers/useEmployeeHandlers";
 import {
   fetchShiftsFromDB,
@@ -35,24 +24,33 @@ const ShiftBoard: React.FC = () => {
   const [isShiftModalOpen, setIsShiftModalOpen] = useState(false);
   const [loadingEmployees, setLoadingEmployees] = useState(true);
 
-  // Delete Shift Modal State
+  // Delete Modal State
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [shiftToDelete, setShiftToDelete] = useState<string | null>(null);
-
-  // Hover Modal State: stores the hovered shift and its mouse coordinates
+  // Hover Modal State
   const [hoverModalData, setHoverModalData] = useState<{
     x: number;
     y: number;
     shift: Shift;
   } | null>(null);
 
-  // Fetch data on mount
+  // Mobile detection hook
+  const isMobile = useIsMobile();
+
+  const handleModalDelete = async () => {
+    if (selectedShift) {
+      // Call the delete function for the selected shift
+      await deleteShift(selectedShift.id, setShifts, setIsDeleteModalOpen);
+      setSelectedShift(null);
+      setIsShiftModalOpen(false);
+    }
+  };
+
   useEffect(() => {
     fetchEmployees(setEmployees, setLoadingEmployees);
     fetchShiftsFromDB(setShifts);
   }, []);
 
-  // Delete a shift
   const handleDeleteConfirm = async () => {
     if (shiftToDelete) {
       await deleteShift(shiftToDelete, setShifts, setIsDeleteModalOpen);
@@ -60,7 +58,6 @@ const ShiftBoard: React.FC = () => {
     }
   };
 
-  // Save (update) a shift
   const handleSaveShift = async (shiftData: {
     title?: string;
     employees?: Employee[];
@@ -70,24 +67,18 @@ const ShiftBoard: React.FC = () => {
     if (selectedShift) {
       let updatedShift: Shift;
       if (selectedShift.allDay) {
-        // For all-day events, update only the title.
         updatedShift = { ...selectedShift, title: shiftData.title || "" };
       } else {
-        // For timed events, update employees.
         updatedShift = {
           ...selectedShift,
           employees: shiftData.employees || [],
         };
       }
-
-      // Optimistically update local state immediately
       setShifts((prevShifts) =>
         prevShifts.map((shift) =>
           shift.id === updatedShift.id ? updatedShift : shift
         )
       );
-
-      // Save the shift (POST if new, PUT if existing)
       let result: any;
       try {
         if (selectedShift.isNew) {
@@ -95,9 +86,7 @@ const ShiftBoard: React.FC = () => {
         } else {
           result = await updateShiftInDB(updatedShift);
         }
-
         if (result) {
-          // Transform the response if needed
           const formattedShift: Shift = {
             id: result.id,
             startTime: result.startTime,
@@ -112,14 +101,11 @@ const ShiftBoard: React.FC = () => {
             title: result.title || updatedShift.title,
             isNew: false,
           };
-
-          // Update state with the formatted response data
           setShifts((prevShifts) =>
             prevShifts.map((shift) =>
               shift.id === formattedShift.id ? formattedShift : shift
             )
           );
-
           toast.success(
             selectedShift.isNew
               ? "Shift created successfully."
@@ -135,9 +121,33 @@ const ShiftBoard: React.FC = () => {
     }
   };
 
+  const mapShiftsToEvents = (shifts: Shift[]) => {
+    return shifts.map((shift) => {
+      if (shift.allDay) {
+        return {
+          id: shift.id,
+          title: shift.title || "All Day Shift",
+          start: shift.startTime,
+          end: shift.endTime,
+          allDay: true,
+        };
+      } else {
+        return {
+          id: shift.id,
+          title:
+            (shift.employees || []).map((e) => e.name).join(", ") ||
+            "No Employees",
+          start: shift.startTime,
+          end: shift.endTime,
+          allDay: false,
+        };
+      }
+    });
+  };
+
   return (
     <div className="p-4">
-      {/* Shift Deletion Confirmation Modal */}
+      {/* Delete Modal */}
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -146,12 +156,14 @@ const ShiftBoard: React.FC = () => {
         message="Are you sure you want to delete this shift?"
       />
 
-      {/* Shift Assignment Modal */}
+      {/* Shift Modal */}
       {isShiftModalOpen && selectedShift && (
         <ShiftModal
           isOpen={isShiftModalOpen}
           onClose={() => setIsShiftModalOpen(false)}
           onSave={handleSaveShift}
+          // Pass the onDelete callback if on mobile
+          onDelete={isMobile ? handleModalDelete : undefined}
           shift={selectedShift}
           employees={employees}
         />
@@ -189,74 +201,31 @@ const ShiftBoard: React.FC = () => {
         isVisible={!!hoverModalData}
       />
 
-      {/* FullCalendar Component */}
-      <FullCalendar
-        direction="rtl"
-        allDaySlot={true}
-        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-        initialView="timeGridWeek"
-        selectable={true}
-        editable={true}
-        locale="en-gb"
-        eventClassNames={(info) => {
-          return info.event.allDay ? "all-day-event" : "";
-        }}
-        dayHeaderFormat={{ weekday: "short", day: "numeric", month: "numeric" }}
-        events={shifts.map((shift) => {
-          if (shift.allDay) {
-            return {
-              id: shift.id,
-              title: shift.title || "All Day Shift",
-              start: shift.startTime,
-              end: shift.endTime,
-              allDay: true,
-            };
-          } else {
-            return {
-              id: shift.id,
-              title:
-                (shift.employees || []).map((e) => e.name).join(", ") ||
-                "No Employees",
-              start: shift.startTime,
-              end: shift.endTime,
-              allDay: false,
-            };
-          }
-        })}
-        select={(selectInfo) => handleDateSelect(selectInfo, shifts, setShifts)}
-        eventClick={(clickInfo) =>
-          handleEventClick(
-            clickInfo,
-            shifts,
-            setSelectedShift,
-            setIsShiftModalOpen
-          )
-        }
-        eventDrop={(dropInfo) => handleEventDrop(dropInfo, shifts, setShifts)}
-        eventResize={(resizeInfo) =>
-          handleEventResize(resizeInfo, shifts, setShifts)
-        }
-        eventDidMount={(info) =>
-          handleEventDidMount(info, setShiftToDelete, setIsDeleteModalOpen)
-        }
-        height="85vh"
-        slotMinTime="06:00:00"
-        slotMaxTime="24:00:00"
-        eventMouseEnter={(info) => {
-          const { event, jsEvent } = info;
-          const shift = shifts.find((s) => s.id === event.id);
-          if (shift) {
-            setHoverModalData({
-              shift,
-              x: jsEvent.pageX,
-              y: jsEvent.pageY,
-            });
-          }
-        }}
-        eventMouseLeave={() => setHoverModalData(null)}
-      />
+      {/* Render either the mobile or desktop calendar */}
+      {isMobile ? (
+        <MobileFullCalendar
+          shifts={shifts}
+          setShifts={setShifts}
+          setSelectedShift={setSelectedShift}
+          setIsShiftModalOpen={setIsShiftModalOpen}
+          setShiftToDelete={setShiftToDelete}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          setHoverModalData={setHoverModalData}
+          mapShiftsToEvents={mapShiftsToEvents}
+        />
+      ) : (
+        <CustomFullCalendar
+          shifts={shifts}
+          setShifts={setShifts}
+          setSelectedShift={setSelectedShift}
+          setIsShiftModalOpen={setIsShiftModalOpen}
+          setShiftToDelete={setShiftToDelete}
+          setIsDeleteModalOpen={setIsDeleteModalOpen}
+          setHoverModalData={setHoverModalData}
+          mapShiftsToEvents={mapShiftsToEvents}
+        />
+      )}
 
-      {/* Employee Loading State */}
       {loadingEmployees && (
         <p className="text-center mt-4">Loading employees...</p>
       )}

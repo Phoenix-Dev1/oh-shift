@@ -7,12 +7,15 @@ export const handleEventDidMount = (
   setShiftToDelete: React.Dispatch<React.SetStateAction<string | null>>,
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
-  const eventElement = info.el;
-  eventElement.addEventListener("contextmenu", (e: MouseEvent) => {
-    e.preventDefault(); // Prevent browser context menu
+  // Set a visual cue for right-click
+  info.el.style.cursor = "context-menu";
+  // Use an inline oncontextmenu handler
+  info.el.oncontextmenu = (e: MouseEvent) => {
+    e.preventDefault();
     setShiftToDelete(info.event.id);
     setIsDeleteModalOpen(true);
-  });
+    return false;
+  };
 };
 
 // Delete Shift from Database
