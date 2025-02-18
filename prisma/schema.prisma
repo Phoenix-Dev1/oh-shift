@@ -8,19 +8,22 @@ datasource db {
 }
 
 model User {
-  id             String     @id @default(auto()) @map("_id") @db.ObjectId
-  name           String?
-  email          String?    @unique
-  emailVerified  DateTime?
-  image          String?
-  hashedPassword String?
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-  role           Role       @default(EMPLOYEE)
-  accounts       Account[]
-  managedSchedules Schedule[] @relation("ManagedSchedules")
-  employees      Employee[] @relation("ManagerEmployees")
-  Shift          Shift[]
+  id                 String     @id @default(auto()) @map("_id") @db.ObjectId
+  name               String?
+  email              String?    @unique
+  emailVerified      DateTime?
+  image              String?
+  hashedPassword     String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  role               Role       @default(EMPLOYEE)
+  accounts           Account[]
+
+  employeeManagerId  String?    @db.ObjectId  // Store only manager ID as string
+  
+  managedSchedules   Schedule[] @relation("ManagedSchedules")
+  employees          Employee[] @relation("ManagerEmployees")
+  Shift              Shift[]
 }
 
 model Account {
@@ -79,7 +82,7 @@ model Schedule {
   startDate   DateTime
   endDate     DateTime
   isPublic    Boolean   @default(false)
-  managerId   String    @db.ObjectId
+  managerId   String    @unique @db.ObjectId
   manager     User      @relation(fields: [managerId], references: [id], name: "ManagedSchedules")
 }
 

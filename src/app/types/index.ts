@@ -2,7 +2,9 @@ export interface Employee {
   id: string;
   name: string;
   phone?: string;
+  email?: string | null;
   position?: string;
+  employeeManagerId: string | null;
 }
 
 export interface Shift {

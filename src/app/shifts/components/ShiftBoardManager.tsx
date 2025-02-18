@@ -8,7 +8,7 @@ import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";
 import useIsMobile from "../hooks/useIsMobile";
 import { toast } from "react-toastify";
-import { Employee, Shift } from "../types/index";
+import { Employee, Shift } from "../../types/index";
 import { deleteShift } from "../handlers/useDeleteHandlers";
 import { fetchEmployees } from "../handlers/useEmployeeHandlers";
 import {
@@ -16,8 +16,9 @@ import {
   updateShiftInDB,
   saveShiftToDB,
 } from "../handlers/useDatabaseHandlers";
+import { handleCreateSchedule } from "../handlers/useScheduleHandlers";
 
-const ShiftBoard: React.FC = () => {
+const ShiftBoardManager: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
@@ -229,8 +230,16 @@ const ShiftBoard: React.FC = () => {
       {loadingEmployees && (
         <p className="text-center mt-4">Loading employees...</p>
       )}
+      <div className="p-4">
+        <button
+          onClick={handleCreateSchedule}
+          className="w-full py-2 text-sm font-medium text-white bg-highlight rounded-lg hover:bg-highlight-dark transition"
+        >
+          Create Schedule from Shifts
+        </button>
+      </div>
     </div>
   );
 };
 
-export default ShiftBoard;
+export default ShiftBoardManager;

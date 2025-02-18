@@ -1,24 +1,21 @@
-// src/app/dashboard/employees/page.tsx
-
-import UserEmployees from "./components/UserEmployees";
-import Sidebar from "./components/Sidebar";
+import { redirect } from "next/navigation";
 import getCurrentUser from "../actions/getCurrentUser";
 
-export default async function EmployeesPage() {
+export default async function DashboardPage() {
   const user = await getCurrentUser();
 
-  console.log(user);
-  return (
-    <div className="flex h-screen bg-bg-full">
-      {/* Sidebar */}
-      <Sidebar />
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 bg-bg-900 text-text-primary">
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          {user?.name} Employees
-        </h1>
-        <UserEmployees />
-      </main>
-    </div>
-  );
+  if (!user) {
+    redirect("/login"); // If no user, send to login
+  }
+
+  // Redirect based on user role
+  if (user.role === "EMPLOYEE") {
+    redirect("/dashboard/employee");
+  } else if (user.role === "MANAGER") {
+    redirect("/dashboard/manager");
+  } else {
+    redirect("/login"); // Fallback if no valid role
+  }
+
+  return null; // Just a fallback
 }

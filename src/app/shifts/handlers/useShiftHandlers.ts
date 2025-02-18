@@ -1,5 +1,5 @@
 // src/handlers/useShiftHandlers.ts
-import { Shift } from "../types";
+import { Shift } from "../../types";
 import { updateShiftInDB, saveShiftToDB } from "./useDatabaseHandlers";
 import { toast } from "react-toastify";
 

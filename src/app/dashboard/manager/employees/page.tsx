@@ -3,14 +3,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getEmployees } from "../../actions/getEmployees";
-import { editEmployee } from "../../actions/editEmployee";
-import { deleteEmployee } from "../../actions/deleteEmployee";
+import { getEmployees } from "../../../actions/getEmployees";
+import { editEmployee } from "../../../actions/editEmployee";
+import { deleteEmployee } from "../../../actions/deleteEmployee";
 import { toast } from "react-toastify";
 import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
-import DeleteModal from "../../../app/shifts/components/DeleteModal";
+import DeleteModal from "../../../shifts/components/DeleteModal";
 
 type Employee = {
   id: string;

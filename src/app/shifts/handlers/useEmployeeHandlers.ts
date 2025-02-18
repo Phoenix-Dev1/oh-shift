@@ -1,6 +1,6 @@
 // src/handlers/useEmployeeHandlers.ts
 import { toast } from "react-toastify";
-import { Employee } from "../types";
+import { Employee } from "../../types";
 
 export const fetchEmployees = async (
   setEmployees: React.Dispatch<React.SetStateAction<Employee[]>>,

@@ -4,11 +4,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, Calendar, Settings } from "lucide-react";
+import { Users, Home, Calendar, Settings, Share2 } from "lucide-react";
 
 const sidebarLinks = [
   { name: "Dashboard", href: "/dashboard", icon: Home },
-  { name: "Manage Employees", href: "/dashboard/employees", icon: Users },
+  {
+    name: "Share Calendar",
+    href: "/dashboard/manager/employees/share",
+    icon: Share2,
+  },
+  {
+    name: "Manage Employees",
+    href: "/dashboard/manager/employees",
+    icon: Users,
+  },
   { name: "Calendar", href: "/shifts", icon: Calendar },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];

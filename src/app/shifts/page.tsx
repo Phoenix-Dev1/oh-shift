@@ -4,7 +4,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import ShiftBoard from "./components/ShiftBoard";
+import ShiftBoardManager from "./components/ShiftBoardManager";
 
 const ShiftsPage = () => {
   const { data: session, status } = useSession();
@@ -19,7 +19,7 @@ const ShiftsPage = () => {
   return (
     <div className="flex h-screen dark:bg-bg-800 mb-6 dark:text-text-primary">
       <div className="flex-1 p-6">
-        <ShiftBoard />
+        <ShiftBoardManager />
       </div>
     </div>
   );

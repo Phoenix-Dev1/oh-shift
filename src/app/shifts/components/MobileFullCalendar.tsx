@@ -4,7 +4,7 @@ import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { Shift } from "../types";
+import { Shift } from "../../types";
 import {
   handleDateSelect,
   handleEventClick,

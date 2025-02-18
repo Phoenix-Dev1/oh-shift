@@ -1,6 +1,6 @@
 // src/handlers/useDatabaseHandlers.ts
 import { toast } from "react-toastify";
-import { Shift } from "../types";
+import { Shift } from "../../types/index";
 
 export const saveShiftToDB = async (shift: Shift) => {
   try {

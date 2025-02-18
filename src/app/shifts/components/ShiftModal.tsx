@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Phone, Info } from "lucide-react";
-import { Shift, Employee } from "../types";
+import { Shift, Employee } from "../../types";
 
 interface ShiftModalProps {
   isOpen: boolean;
