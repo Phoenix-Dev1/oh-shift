@@ -29,14 +29,6 @@ interface AssignmentResponse {
   employee?: Employee | null;
 }
 
-interface ShiftResponse {
-  id: string;
-  startTime: string | Date;
-  endTime: string | Date;
-  assignments?: AssignmentResponse[];
-  title?: string;
-}
-
 const ShiftBoardManager: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
