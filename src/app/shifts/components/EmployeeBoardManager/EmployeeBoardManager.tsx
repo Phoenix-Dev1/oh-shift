@@ -40,30 +40,35 @@ const EmployeeBoardManager: React.FC = () => {
   return (
     <div className="p-4">
       {/* Hover Modal */}
-      <HoverModal
-        x={hoverModalData?.x ?? 0}
-        y={hoverModalData?.y ?? 0}
-        startTime={
-          hoverModalData?.shift?.startTime
-            ? new Date(hoverModalData.shift.startTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : ""
-        }
-        endTime={
-          hoverModalData?.shift?.endTime
-            ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : ""
-        }
-        employees={
-          hoverModalData?.shift?.employees?.map((emp) => emp.name) ?? []
-        }
-        isVisible={!!hoverModalData}
-      />
+      {!isMobile && (
+        <HoverModal
+          x={hoverModalData?.x ?? 0}
+          y={hoverModalData?.y ?? 0}
+          startTime={
+            hoverModalData?.shift?.startTime
+              ? new Date(hoverModalData.shift.startTime).toLocaleTimeString(
+                  [],
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )
+              : ""
+          }
+          endTime={
+            hoverModalData?.shift?.endTime
+              ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : ""
+          }
+          employees={
+            hoverModalData?.shift?.employees?.map((emp) => emp.name) ?? []
+          }
+          isVisible={!!hoverModalData}
+        />
+      )}
 
       {isMobile ? (
         <MobileFullCalendar

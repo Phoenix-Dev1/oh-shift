@@ -45,11 +45,38 @@ body {
   --input: 240 5.9% 90%;
   --ring: 240 10% 3.9%;
   --radius: 0.5rem;
-  /*-------------- FullCalendar --------------*/
-  --fc-event-bg-color: #0f915f;
-  --fc-event-text-color: #000000;
+  /*-------------- FullCalendar Light--------------*/
+  --fc-event-bg-color: #4169e1;
+  --fc-event-text-color: #cdd0d4;
   --fc-today-bg-color: rgba(40, 151, 255, 0.15);
   --fc-small-font-size: 1.2em;
+
+  .all-day-event {
+    display: flex;
+    background-color: #09122c !important;
+    border-color: #e0dbdb !important;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  .all-day-event:hover {
+    background-color: #222f55 !important; /* Change color on hover */
+    color: #fff !important; /* Change text color on hover */
+    border-color: #111116 !important;
+  }
+
+  /* Regular Shifts (Time Grid Events) */
+  .fc-event {
+    cursor: pointer !important;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  .fc-event:hover {
+    background-color: #224ed3;
+    color: #fff !important;
+  }
 }
 
 /* Dark theme */
@@ -83,17 +110,36 @@ html.dark {
   --border: 240 3.7% 15.9%;
   --input: 240 3.7% 15.9%;
   --ring: 240 4.9% 83.9%;
-  /*-------------- FullCalendar --------------*/
-  --fc-event-bg-color: #0f915f;
+  /*-------------- FullCalendar Dark --------------*/
+  --fc-event-bg-color: #4169e1;
   --fc-event-text-color: #fff;
   --fc-today-bg-color: rgba(40, 151, 255, 0.15);
   --fc-small-font-size: 1.2em;
-  --fc-hover-bg-color: #c43218;
-}
 
-.all-day-event {
-  display: flex;
-  background-color: #a294f9 !important;
-  border-color: #a294f9 !important;
-  justify-content: center;
+  .all-day-event {
+    display: flex;
+    background-color: #09122c !important;
+    border-color: #e0dbdb !important;
+    justify-content: center;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  .all-day-event:hover {
+    background-color: #222f55 !important; /* Change color on hover */
+    color: #fff !important; /* Change text color on hover */
+    border-color: #111116 !important;
+  }
+
+  /* Regular Shifts (Time Grid Events) */
+  .fc-event {
+    cursor: pointer !important;
+    transition: background-color 0.3s ease-in-out;
+  }
+
+  .fc-event:hover {
+    background-color: #224ed3;
+    color: #fff !important;
+  }
 }

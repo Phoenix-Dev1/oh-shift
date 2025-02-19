@@ -5,6 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Shift } from "../../../types";
+import useIsMobile from "@/src/app/hooks/useIsMobile";
 
 interface MobileFullCalendarProps {
   shifts: Shift[];
@@ -21,6 +22,16 @@ const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({
 }) => {
   return (
     <FullCalendar
+      headerToolbar={{
+        left: "title", // Buttons on the left side
+        center: "prev,next", // Title in the center
+        right: "today", // View selection on the right
+      }}
+      // 🔹 Customize the Title Format
+      titleFormat={{
+        year: "numeric",
+        month: "short",
+      }}
       plugins={[timeGridPlugin, interactionPlugin]}
       initialView="timeGridDay"
       selectable={true}

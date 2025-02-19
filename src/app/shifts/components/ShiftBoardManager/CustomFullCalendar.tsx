@@ -42,6 +42,16 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
 
   return (
     <FullCalendar
+      headerToolbar={{
+        left: "title", // Buttons on the left side
+        center: "prev,next today", // Title in the center
+        right: "timeGridDay,timeGridWeek", // View selection on the right
+      }}
+      // 🔹 Customize the Title Format
+      titleFormat={{
+        year: "numeric",
+        month: "short",
+      }}
       direction="rtl"
       allDaySlot={true}
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -50,7 +60,12 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
       editable={true}
       locale="en-gb"
       eventClassNames={(info) => (info.event.allDay ? "all-day-event" : "")}
-      dayHeaderFormat={{ weekday: "short", day: "numeric", month: "numeric" }}
+      dayHeaderFormat={{
+        weekday: "short",
+        day: "numeric",
+        month: "numeric",
+        omitCommas: true,
+      }}
       events={mapShiftsToEvents(shifts)}
       // Add a custom eventContent callback for desktop version
       eventContent={(info) => {

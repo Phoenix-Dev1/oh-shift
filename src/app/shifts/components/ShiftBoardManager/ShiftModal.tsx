@@ -103,7 +103,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
       <div className="bg-white dark:bg-bg-800 p-6 rounded-lg shadow-lg max-w-4xl w-full">
         {shift?.allDay ? (
           <>
-            <h2 className="text-lg font-bold mb-4">Edit All-Day Shift</h2>
+            <h2 className="text-lg font-bold mb-4">Edit All-Day Event</h2>
             <div className="mb-4">
               <label className="block text-sm font-semibold text-text-primary">
                 Title

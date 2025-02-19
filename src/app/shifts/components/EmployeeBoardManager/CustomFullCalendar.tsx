@@ -25,6 +25,16 @@ const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({
 
   return (
     <FullCalendar
+      headerToolbar={{
+        left: "title", // Buttons on the left side
+        center: "prev,next today", // Title in the center
+        right: "timeGridDay,timeGridWeek", // View selection on the right
+      }}
+      // 🔹 Customize the Title Format
+      titleFormat={{
+        year: "numeric",
+        month: "short",
+      }}
       direction="rtl"
       allDaySlot={true}
       plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}

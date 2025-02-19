@@ -169,37 +169,39 @@ const ShiftBoardManager: React.FC = () => {
         />
       )}
 
-      <HoverModal
-        x={hoverModalData?.x ?? 0}
-        y={hoverModalData?.y ?? 0}
-        startTime={
-          hoverModalData
-            ? hoverModalData.shift.allDay
-              ? hoverModalData.shift.title || ""
-              : new Date(hoverModalData.shift.startTime).toLocaleTimeString(
-                  [],
-                  {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                )
-            : ""
-        }
-        endTime={
-          hoverModalData && !hoverModalData.shift.allDay
-            ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-              })
-            : ""
-        }
-        employees={
-          hoverModalData && !hoverModalData.shift.allDay
-            ? hoverModalData.shift.employees.map((emp) => emp.name)
-            : []
-        }
-        isVisible={!!hoverModalData}
-      />
+      {!isMobile && (
+        <HoverModal
+          x={hoverModalData?.x ?? 0}
+          y={hoverModalData?.y ?? 0}
+          startTime={
+            hoverModalData
+              ? hoverModalData.shift.allDay
+                ? hoverModalData.shift.title || ""
+                : new Date(hoverModalData.shift.startTime).toLocaleTimeString(
+                    [],
+                    {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    }
+                  )
+              : ""
+          }
+          endTime={
+            hoverModalData && !hoverModalData.shift.allDay
+              ? new Date(hoverModalData.shift.endTime).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : ""
+          }
+          employees={
+            hoverModalData && !hoverModalData.shift.allDay
+              ? hoverModalData.shift.employees.map((emp) => emp.name)
+              : []
+          }
+          isVisible={!!hoverModalData}
+        />
+      )}
 
       {/* Render either the mobile or desktop calendar */}
       {isMobile ? (

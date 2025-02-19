@@ -38,6 +38,16 @@ const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({
 }) => {
   return (
     <FullCalendar
+      headerToolbar={{
+        left: "title", // Buttons on the left side
+        center: "prev,next", // Title in the center
+        right: "today", // View selection on the right
+      }}
+      // 🔹 Customize the Title Format
+      titleFormat={{
+        year: "numeric",
+        month: "short",
+      }}
       plugins={[timeGridPlugin, interactionPlugin]}
       initialView="timeGridDay"
       selectable={true}
