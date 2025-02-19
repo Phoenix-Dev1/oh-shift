@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Employee } from "../../../../types/index";
 import Sidebar from "../../../manager/components/Sidebar";
+import ManagerInfo from "../../components/ManagerInfo"; // adjust path as needed
 
 export default function CalendarSharePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [managerId, setManagerId] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all employees
   const fetchEmployees = async () => {
@@ -70,6 +72,12 @@ export default function CalendarSharePage() {
     fetchEmployees();
   }, []);
 
+  // Filter employees based on search term (by email)
+  const filteredEmployees = employees.filter(
+    (employee) =>
+      employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ?? false
+  );
+
   return (
     <div className="flex h-screen bg-bg-full text-text-primary">
       {/* Sidebar */}
@@ -79,14 +87,14 @@ export default function CalendarSharePage() {
       <main className="flex-1 overflow-y-auto p-6 bg-bg-900">
         <h1 className="text-3xl font-bold text-center mb-6">Calendar Share</h1>
 
-        {/* Manager Input */}
+        {/* Search Input */}
         <div className="flex justify-center items-center mb-6">
           <input
             type="text"
-            placeholder="Enter your Manager ID"
-            value={managerId}
-            onChange={(e) => setManagerId(e.target.value)}
-            className="p-2 border rounded-lg bg-bg-800 text-text-primary"
+            placeholder="Search by employee email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="p-2 border rounded-lg bg-bg-800 text-text-primary w-full max-w-md"
           />
         </div>
 
@@ -95,7 +103,7 @@ export default function CalendarSharePage() {
           <p className="text-center text-lg">Loading employees...</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {employees.map((employee) => (
+            {filteredEmployees.map((employee) => (
               <div
                 key={employee.id}
                 className="bg-bg-700 p-4 rounded-lg shadow-lg border border-bg-600"
@@ -104,14 +112,12 @@ export default function CalendarSharePage() {
                 <p className="text-sm text-text-secondary">
                   {employee.email || "No email available"}
                 </p>
-                <p className="text-sm">
-                  Current Manager ID:{" "}
-                  <span className="font-medium">
-                    {employee.employeeManagerId || "None"}
-                  </span>
-                </p>
+                {/* Manger ID for assigned users */}
+                {employee.employeeManagerId && (
+                  <ManagerInfo managerId={employee.employeeManagerId} />
+                )}
 
-                {/* Show only one button depending on assignment status */}
+                {/* Show the appropriate button */}
                 {!employee.employeeManagerId ? (
                   <button
                     onClick={() => assignManager(employee.id)}
