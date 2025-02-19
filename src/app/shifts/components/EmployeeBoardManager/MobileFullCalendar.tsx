@@ -3,16 +3,16 @@
 import React from "react";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid";
+import { EventInput } from "@fullcalendar/core";
 import interactionPlugin from "@fullcalendar/interaction";
 import { Shift } from "../../../types";
-import useIsMobile from "@/src/app/hooks/useIsMobile";
 
 interface MobileFullCalendarProps {
   shifts: Shift[];
   setHoverModalData: React.Dispatch<
     React.SetStateAction<{ x: number; y: number; shift: Shift } | null>
   >;
-  mapShiftsToEvents: (shifts: Shift[]) => any[];
+  mapShiftsToEvents: (shifts: Shift[]) => EventInput[];
 }
 
 const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({

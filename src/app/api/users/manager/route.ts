@@ -1,4 +1,3 @@
-// src/app/api/users/manager/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../libs/prismadb";
 
@@ -6,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const managerId = searchParams.get("managerId");
+
     if (!managerId) {
       return NextResponse.json(
         { error: "Manager ID is required" },
@@ -23,8 +23,13 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(manager, { status: 200 });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching manager:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Internal Server Error",
+      },
+      { status: 500 }
+    );
   }
 }

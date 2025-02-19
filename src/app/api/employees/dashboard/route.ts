@@ -86,7 +86,6 @@ export async function GET(request: NextRequest) {
         weekIndex
       ));
     } else if (yearParam && monthParam) {
-      // Entire month: from the first day to the last day
       const year = Number(yearParam);
       const month = Number(monthParam);
       periodStart = new Date(year, month - 1, 1);
@@ -94,7 +93,6 @@ export async function GET(request: NextRequest) {
       periodEnd = new Date(year, month, 0);
       periodEnd.setHours(23, 59, 59, 999);
     } else {
-      // Default: current week based on Sunday start
       periodStart = getStartOfWeek(new Date());
       periodEnd = new Date(periodStart);
       periodEnd.setDate(periodEnd.getDate() + 6);
@@ -106,12 +104,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    // Get all employees for the current manager.
     const employees = await prisma.employee.findMany({
       where: { managerId: currentUser.id },
     });
 
-    // For each employee, calculate aggregates for the given period.
     const results = await Promise.all(
       employees.map(async (employee) => {
         const assignments = await prisma.shiftAssignment.findMany({
@@ -144,8 +140,19 @@ export async function GET(request: NextRequest) {
     );
 
     return NextResponse.json(results, { status: 200 });
-  } catch (error: any) {
-    console.error("Error fetching employee aggregates:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    console.error(
+      "Error fetching employee aggregates:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      },
+      { status: 500 }
+    );
   }
 }

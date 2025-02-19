@@ -31,10 +31,18 @@ export async function GET() {
     });
 
     return NextResponse.json(shifts, { status: 200 });
-  } catch (error: any) {
-    console.error("Error fetching employee shifts:", error);
+  } catch (error: unknown) {
+    console.error(
+      "Error fetching employee shifts:",
+      error instanceof Error ? error.message : "Unknown error"
+    );
     return NextResponse.json(
-      { error: "Failed to fetch shifts", details: error.message },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "An unexpected error occurred",
+      },
       { status: 500 }
     );
   }

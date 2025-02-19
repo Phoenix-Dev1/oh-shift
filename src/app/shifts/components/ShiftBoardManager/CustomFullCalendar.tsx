@@ -3,6 +3,7 @@
 
 import React, { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
+import { EventInput } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -25,7 +26,7 @@ interface CustomFullCalendarProps {
   setHoverModalData: React.Dispatch<
     React.SetStateAction<{ x: number; y: number; shift: Shift } | null>
   >;
-  mapShiftsToEvents: (shifts: Shift[]) => any[];
+  mapShiftsToEvents: (shifts: Shift[]) => EventInput[];
 }
 
 const CustomFullCalendar: React.FC<CustomFullCalendarProps> = ({

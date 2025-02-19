@@ -5,7 +5,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
-import NavbarLinks from "./NavbarLinks";
 
 const MobileNavbar = () => {
   const { data: session } = useSession();

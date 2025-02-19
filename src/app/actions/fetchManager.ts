@@ -1,4 +1,3 @@
-// src/actions/fetchManager.ts
 export const fetchManagerName = async (
   managerId: string
 ): Promise<string | null> => {
@@ -7,10 +6,14 @@ export const fetchManagerName = async (
     if (!response.ok) {
       throw new Error("Failed to fetch manager details");
     }
-    const data = await response.json();
+    const data: { name: string } = await response.json();
     return data.name;
-  } catch (error: any) {
-    console.error("Error in fetchManagerName:", error);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error in fetchManagerName:", error.message);
+    } else {
+      console.error("An unknown error occurred in fetchManagerName.");
+    }
     return null;
   }
 };

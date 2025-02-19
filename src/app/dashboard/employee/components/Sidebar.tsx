@@ -4,7 +4,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, Calendar, Settings } from "lucide-react";
+import { Home } from "lucide-react";
 
 const sidebarLinks = [{ name: "Dashboard", href: "/dashboard", icon: Home }];
 

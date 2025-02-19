@@ -9,7 +9,7 @@ import ManagerInfo from "../../components/ManagerInfo"; // adjust path as needed
 export default function CalendarSharePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
-  const [managerId, setManagerId] = useState("");
+  const [managerId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
   // Fetch all employees
@@ -19,7 +19,7 @@ export default function CalendarSharePage() {
       const response = await fetch("/api/users/");
       const data = await response.json();
       setEmployees(data);
-    } catch (error) {
+    } catch {
       toast.error("Failed to fetch employees.");
     } finally {
       setLoading(false);
@@ -42,7 +42,7 @@ export default function CalendarSharePage() {
         const errorData = await response.json();
         toast.error(errorData.error || "Failed to assign manager.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error assigning manager.");
     }
   };
@@ -63,7 +63,7 @@ export default function CalendarSharePage() {
         const errorData = await response.json();
         toast.error(errorData.error || "Failed to unassign manager.");
       }
-    } catch (error) {
+    } catch {
       toast.error("Error unassigning manager.");
     }
   };

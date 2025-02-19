@@ -54,7 +54,7 @@ export default function CreateEmployeeForm({
       } else {
         throw new Error(data.error || "Failed to create employee.");
       }
-    } catch (error) {
+    } catch {
       toast.error("An error occurred. Reverting changes.");
       onOptimisticAdd({ ...newEmployee, id: tempId }); // Rollback
     } finally {
