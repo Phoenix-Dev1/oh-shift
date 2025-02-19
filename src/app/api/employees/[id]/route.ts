@@ -2,10 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "../../../libs/prismadb";
 import getCurrentUser from "../../../actions/getCurrentUser";
 
-export async function PATCH(
-  req: Request,
-  context: { params: { id: string } } // Corrected structure
-) {
+export async function PATCH(req: Request, context: { params: { id: string } }) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== "MANAGER") {
@@ -15,7 +12,7 @@ export async function PATCH(
     const { name, position, phone } = await req.json();
 
     const updatedEmployee = await prisma.employee.update({
-      where: { id: context.params.id }, // Use context.params
+      where: { id: context.params.id },
       data: {
         name,
         position,
@@ -35,7 +32,7 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  context: { params: { id: string } } // Fixed here as well
+  context: { params: { id: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -43,11 +40,23 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
+    const { id } = await context.params;
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Employee ID is required" },
+        { status: 400 }
+      );
+    }
+
     await prisma.employee.delete({
-      where: { id: context.params.id }, // Use context.params
+      where: { id },
     });
 
-    return NextResponse.json({ message: "Employee deleted" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Employee deleted successfully" },
+      { status: 200 }
+    );
   } catch (error) {
     console.error("Error deleting employee:", error);
     return NextResponse.json(
