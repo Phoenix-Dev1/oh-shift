@@ -1,5 +1,3 @@
-// src/app/dashboard/employees/page.tsx
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -11,6 +9,7 @@ import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
 import DeleteModal from "../../../shifts/components/ShiftBoardManager/DeleteModal";
+import useIsMobile from "../../../hooks/useIsMobile";
 
 type Employee = {
   id: string;
@@ -21,6 +20,7 @@ type Employee = {
 };
 
 export default function EmployeesPage() {
+  const isMobile = useIsMobile();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [name, setName] = useState("");
@@ -30,7 +30,6 @@ export default function EmployeesPage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
 
-  // Fetch employees on load
   useEffect(() => {
     fetchEmployees();
   }, []);
@@ -67,17 +66,14 @@ export default function EmployeesPage() {
     }
   };
 
-  // Open Delete Modal
   const openDeleteModal = (id: string) => {
     setEmployeeToDelete(id);
     setIsDeleteModalOpen(true);
   };
 
-  // Handle Employee Deletion (Optimistic)
   const handleDelete = async () => {
     if (!employeeToDelete) return;
 
-    // Optimistically remove the employee from the state
     handleOptimisticRemove(employeeToDelete);
 
     const success = await deleteEmployee(employeeToDelete);
@@ -85,7 +81,7 @@ export default function EmployeesPage() {
       toast.success("Employee deleted.");
     } else {
       toast.error("Failed to delete employee. Reverting changes.");
-      fetchEmployees(); // Rollback to actual state from the server
+      fetchEmployees();
     }
 
     setIsDeleteModalOpen(false);
@@ -101,47 +97,66 @@ export default function EmployeesPage() {
 
   return (
     <div className="flex h-screen bg-bg-full">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 bg-bg-900 text-text-primary">
-        <h1 className="text-3xl font-bold mb-6 text-center">
+      <main className="flex-1 overflow-y-auto p-4 md:p-6 bg-bg-900 text-text-primary">
+        <h1 className="text-2xl md:text-3xl font-bold mb-4 md:mb-6 text-center">
           Manage Employees
         </h1>
 
-        {/* Centered Add Employee Button */}
-        {!showCreateForm && (
-          <div className="flex justify-center mb-8">
-            <button
-              onClick={() => setShowCreateForm(true)}
-              className="px-6 py-3 text-lg font-semibold bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition"
-            >
-              Add Employee
-            </button>
-          </div>
-        )}
+        {/* Add Employee Button (Always Visible on Mobile) */}
+        <div className="flex justify-center mb-4">
+          <button
+            onClick={() => setShowCreateForm(!showCreateForm)}
+            className="px-5 py-2 text-base md:text-lg font-semibold bg-green-500 text-white rounded-lg shadow-lg hover:bg-green-600 transition"
+          >
+            {showCreateForm ? "Close Form" : "Add Employee"}
+          </button>
+        </div>
 
-        {/* Create Employee Form (Shown Only After Button Click) */}
+        {/* Create Employee Form */}
         {showCreateForm && (
           <div className="mb-6">
             <CreateEmployeeForm onOptimisticAdd={handleOptimisticAdd} />
-
-            {/* Centered Cancel Button */}
-            <div className="flex justify-center mt-4">
-              <button
-                onClick={() => setShowCreateForm(false)}
-                className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition"
-              >
-                Cancel
-              </button>
-            </div>
           </div>
         )}
 
-        {/* Employee List */}
+        {/* Employee List (Table for Desktop, Cards for Mobile) */}
         {employees.length === 0 ? (
           <p className="text-center">No employees found.</p>
+        ) : isMobile ? (
+          <div className="grid grid-cols-1 gap-4">
+            {employees.map((employee) => (
+              <div
+                key={employee.id}
+                className="p-4 bg-bg-800 rounded-lg shadow-md border border-bg-700"
+              >
+                <h2 className="text-lg font-semibold">{employee.name}</h2>
+                <p className="text-sm text-text-secondary">
+                  Position: {employee.position || "N/A"}
+                </p>
+                <p className="text-sm text-text-secondary">
+                  Phone: {employee.phone || "N/A"}
+                </p>
+
+                {/* Centering the buttons */}
+                <div className="mt-3 flex gap-2 justify-center">
+                  <button
+                    onClick={() => openEditModal(employee)}
+                    className="px-4 py-2 text-sm font-medium bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => openDeleteModal(employee.id)}
+                    className="px-4 py-2 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         ) : (
           <table className="min-w-full border-collapse border border-gray-300">
             <thead className="bg-bg-700">
@@ -154,12 +169,7 @@ export default function EmployeesPage() {
             </thead>
             <tbody>
               {employees.map((employee) => (
-                <tr
-                  key={employee.id}
-                  className={`hover:bg-bg-800 ${
-                    employee.id.startsWith("temp-") ? "opacity-60" : ""
-                  }`}
-                >
+                <tr key={employee.id} className="hover:bg-bg-800">
                   <td className="border border-gray-300 px-4 py-2">
                     {employee.name}
                   </td>
@@ -169,7 +179,7 @@ export default function EmployeesPage() {
                   <td className="border border-gray-300 px-4 py-2">
                     {employee.phone || "N/A"}
                   </td>
-                  <td className="border border-gray-300 px-4 py-2 space-x-2">
+                  <td className="border text-center border-gray-300 px-4 py-2 space-x-2">
                     <button
                       onClick={() => openEditModal(employee)}
                       className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -189,7 +199,7 @@ export default function EmployeesPage() {
           </table>
         )}
 
-        {/* Edit Employee Modal */}
+        {/* Modals */}
         <EditEmployeeModal
           employee={editingEmployee}
           name={name}
@@ -202,7 +212,6 @@ export default function EmployeesPage() {
           onSave={handleEdit}
         />
 
-        {/* Delete Employee Modal */}
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}

@@ -32,11 +32,14 @@ const MobileNavbar = () => {
             <div className="flex items-center gap-4">
               <button
                 onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 rounded-md focus:outline-none"
+                className="p-2 rounded-md focus:outline-none "
               >
                 {menuOpen ? <X size={24} /> : <Menu size={24} />}
               </button>
-              <Link href="/">
+              <Link
+                href="/"
+                className="flex bg-bg-600 h-[37px] justify-center items-center text-center dark:bg-slate-400 rounded-full"
+              >
                 <Image src="/bk-logo.png" alt="Logo" width={40} height={40} />
               </Link>
             </div>
