@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import prisma from "../../../libs/prismadb";
 import getCurrentUser from "../../../actions/getCurrentUser";
 
 export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: { id: string } } // Corrected structure
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -15,8 +15,12 @@ export async function PATCH(
     const { name, position, phone } = await req.json();
 
     const updatedEmployee = await prisma.employee.update({
-      where: { id: params.id },
-      data: { name, position, phone },
+      where: { id: context.params.id }, // Use context.params
+      data: {
+        name,
+        position,
+        phone,
+      },
     });
 
     return NextResponse.json(updatedEmployee, { status: 200 });
@@ -30,8 +34,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
+  req: Request,
+  context: { params: { id: string } } // Fixed here as well
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -40,7 +44,7 @@ export async function DELETE(
     }
 
     await prisma.employee.delete({
-      where: { id: params.id },
+      where: { id: context.params.id }, // Use context.params
     });
 
     return NextResponse.json({ message: "Employee deleted" }, { status: 200 });
