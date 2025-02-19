@@ -17,6 +17,26 @@ import {
   saveShiftToDB,
 } from "../../handlers/useDatabaseHandlers";
 
+// Define types to avoid explicit any
+interface ShiftDataInput {
+  title?: string;
+  employees?: Employee[];
+  startTime?: string | Date;
+  endTime?: string | Date;
+}
+
+interface AssignmentResponse {
+  employee?: Employee | null;
+}
+
+interface ShiftResponse {
+  id: string;
+  startTime: string | Date;
+  endTime: string | Date;
+  assignments?: AssignmentResponse[];
+  title?: string;
+}
+
 const ShiftBoardManager: React.FC = () => {
   const [shifts, setShifts] = useState<Shift[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
@@ -58,12 +78,7 @@ const ShiftBoardManager: React.FC = () => {
     }
   };
 
-  const handleSaveShift = async (shiftData: {
-    title?: string;
-    employees?: Employee[];
-    startTime?: any;
-    endTime?: any;
-  }) => {
+  const handleSaveShift = async (shiftData: ShiftDataInput) => {
     if (selectedShift) {
       let updatedShift: Shift;
       if (selectedShift.allDay) {
@@ -79,7 +94,7 @@ const ShiftBoardManager: React.FC = () => {
           shift.id === updatedShift.id ? updatedShift : shift
         )
       );
-      let result: any;
+      let result: ShiftResponse;
       try {
         if (selectedShift.isNew) {
           result = await saveShiftToDB(updatedShift);
@@ -89,13 +104,16 @@ const ShiftBoardManager: React.FC = () => {
         if (result) {
           const formattedShift: Shift = {
             id: result.id,
-            startTime: result.startTime,
-            endTime: result.endTime,
+            // Convert to ISO string to satisfy the expected type
+            startTime: new Date(result.startTime).toISOString(),
+            endTime: new Date(result.endTime).toISOString(),
             employees:
-              result.assignments?.map((assignment: any) => ({
+              result.assignments?.map((assignment: AssignmentResponse) => ({
                 id: assignment.employee?.id || "unknown",
                 name: assignment.employee?.name || "Unnamed",
                 position: assignment.employee?.position || "Unknown",
+                // Provide a fallback for employeeManagerId as required by the Employee type
+                employeeManagerId: assignment.employee?.employeeManagerId || "",
               })) || updatedShift.employees,
             allDay: updatedShift.allDay,
             title: result.title || updatedShift.title,

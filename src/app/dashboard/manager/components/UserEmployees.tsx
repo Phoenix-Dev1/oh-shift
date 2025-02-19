@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import useIsMobile from "../../../hooks/useIsMobile";
 
@@ -80,7 +80,14 @@ export default function EmployeeAggregatesPage() {
     Record<number, string>
   >({});
 
-  const fetchAggregates = async () => {
+  // Define the period types with an explicit type.
+  const periodTypes: Array<"month" | "specificWeek" | "currentWeek"> = [
+    "month",
+    "specificWeek",
+    "currentWeek",
+  ];
+
+  const fetchAggregates = useCallback(async () => {
     setLoading(true);
     try {
       let url = `/api/employees/dashboard`;
@@ -95,12 +102,14 @@ export default function EmployeeAggregatesPage() {
       if (!res.ok) throw new Error("Failed to fetch employee data");
       const data: EmployeeAggregate[] = await res.json();
       setEmployeeData(data);
-    } catch (error: any) {
-      toast.error(error.message || "Error fetching employee data");
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : "Error fetching employee data";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [periodType, selectedMonth, selectedWeek]);
 
   // Update week annotations based on the selected month and today’s date.
   useEffect(() => {
@@ -142,10 +151,10 @@ export default function EmployeeAggregatesPage() {
     setWeekAnnotations(annotations);
   }, [selectedMonth]);
 
-  // Fetch data on component mount.
+  // Fetch data on component mount and whenever fetchAggregates changes.
   useEffect(() => {
     fetchAggregates();
-  }, []);
+  }, [fetchAggregates]);
 
   return (
     <div className="min-h-screen bg-background text-text-primary p-4 md:p-6">
@@ -157,10 +166,10 @@ export default function EmployeeAggregatesPage() {
 
         {/* Period Type Buttons */}
         <div className="grid grid-cols-2 md:flex md:justify-between gap-2">
-          {["month", "specificWeek", "currentWeek"].map((type) => (
+          {periodTypes.map((type) => (
             <button
               key={type}
-              onClick={() => setPeriodType(type as any)}
+              onClick={() => setPeriodType(type)}
               className={`py-2 px-3 text-sm md:text-base rounded-lg transition ${
                 periodType === type
                   ? "bg-highlight text-white"

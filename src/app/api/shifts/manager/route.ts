@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../libs/prismadb";
 import getCurrentUser from "../../../actions/getCurrentUser";
+import { Prisma } from "@prisma/client";
 
 // Get All Shifts (Manager Only)
 export async function GET() {
@@ -103,7 +104,8 @@ export async function PUT(req: NextRequest) {
       adjustedEnd.setHours(23, 59, 59, 999);
     }
 
-    const updateData: Record<string, any> = {
+    // Use Prisma.ShiftUpdateInput to avoid explicit 'any'
+    const updateData: Prisma.ShiftUpdateInput = {
       startTime: adjustedStart,
       endTime: adjustedEnd,
       allDay: allDay ?? false,

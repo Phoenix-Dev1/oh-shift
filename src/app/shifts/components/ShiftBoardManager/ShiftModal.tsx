@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion"; // 🎉 Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 import { Phone, Info } from "lucide-react";
 import { Shift, Employee } from "../../../types";
 import useIsMobile from "../../../hooks/useIsMobile";
@@ -9,12 +9,7 @@ import useIsMobile from "../../../hooks/useIsMobile";
 interface ShiftModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: {
-    title?: string;
-    employees?: Employee[];
-    startTime?: any;
-    endTime?: any;
-  }) => void;
+  onSave: (data: { title?: string; employees?: Employee[] }) => void;
   onDelete?: () => void;
   shift?: Shift | null;
   employees: Employee[];
@@ -35,10 +30,6 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
     shift && !shift.allDay ? shift.employees?.map((emp) => emp.id) || [] : []
   );
-  const [visiblePhones, setVisiblePhones] = useState<{ [id: string]: boolean }>(
-    {}
-  );
-  const [tooltipVisible, setTooltipVisible] = useState<string | null>(null);
 
   useEffect(() => {
     if (shift) {
@@ -66,7 +57,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
       {isOpen && (
         <motion.div
           className="fixed inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-50"
-          initial={{ opacity: 0 }} // 🏆 Fade in background
+          initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
@@ -74,10 +65,10 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
             className={`bg-white dark:bg-bg-800 p-6 rounded-lg shadow-lg w-full ${
               isMobile ? "max-w-md" : "max-w-4xl"
             }`}
-            initial={{ opacity: 0, scale: 0.9 }} // 🚀 Scale-in effect
+            initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }} // 🎯 Scale-out effect when closing
-            transition={{ duration: 0.2, ease: "easeOut" }} // 🎬 Smooth animation
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
           >
             {shift?.allDay ? (
               <>
