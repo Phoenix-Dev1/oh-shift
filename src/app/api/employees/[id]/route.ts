@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "../../../libs/prismadb";
 import getCurrentUser from "../../../actions/getCurrentUser";
 
 export async function PATCH(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
@@ -16,11 +16,7 @@ export async function PATCH(
 
     const updatedEmployee = await prisma.employee.update({
       where: { id: params.id },
-      data: {
-        name,
-        position,
-        phone,
-      },
+      data: { name, position, phone },
     });
 
     return NextResponse.json(updatedEmployee, { status: 200 });
@@ -34,7 +30,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  req: Request,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
