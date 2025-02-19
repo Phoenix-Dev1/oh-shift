@@ -7,10 +7,10 @@ export const editEmployee = async (
   phone: string
 ) => {
   try {
-    const response = await fetch(`/api/employees/${id}`, {
+    const response = await fetch(`/api/employees/editEmployee`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, position, phone }),
+      body: JSON.stringify({ id, name, position, phone }),
     });
     return response.ok ? response.json() : null;
   } catch (error) {
