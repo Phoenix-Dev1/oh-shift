@@ -1,9 +1,16 @@
 // src/handlers/useDeleteHandlers.ts
 import { toast } from "react-toastify";
+import { Shift } from "../../types/index";
+
+// Define an interface for the event object passed to handleEventDidMount
+interface EventDidMountArg {
+  event: { id: string };
+  el: HTMLElement;
+}
 
 // Show Delete Modal on Right-Click
 export const handleEventDidMount = (
-  info: any,
+  info: EventDidMountArg,
   setShiftToDelete: React.Dispatch<React.SetStateAction<string | null>>,
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
@@ -21,7 +28,7 @@ export const handleEventDidMount = (
 // Delete Shift from Database
 export const deleteShift = async (
   shiftId: string,
-  setShifts: React.Dispatch<React.SetStateAction<any[]>>,
+  setShifts: React.Dispatch<React.SetStateAction<Shift[]>>,
   setIsDeleteModalOpen: React.Dispatch<React.SetStateAction<boolean>>
 ) => {
   try {
@@ -32,7 +39,7 @@ export const deleteShift = async (
       },
     });
 
-    // ✅ Gracefully handle non-JSON responses
+    // Gracefully handle non-JSON responses
     let result;
     try {
       result = await response.json();
@@ -44,13 +51,18 @@ export const deleteShift = async (
       throw new Error(result.error || "Failed to delete shift");
     }
 
-    // ✅ Update State: Remove Shift from State
+    // Update State: Remove Shift from State
     setShifts((prev) => prev.filter((shift) => shift.id !== shiftId));
 
     toast.success(result.message || "Shift deleted successfully.");
-  } catch (error: any) {
-    console.error("Error deleting shift:", error);
-    toast.error(error.message || "Error deleting shift.");
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error deleting shift:", error.message);
+      toast.error(error.message || "Error deleting shift.");
+    } else {
+      console.error("Error deleting shift:", error);
+      toast.error("Error deleting shift.");
+    }
   } finally {
     setIsDeleteModalOpen(false);
   }

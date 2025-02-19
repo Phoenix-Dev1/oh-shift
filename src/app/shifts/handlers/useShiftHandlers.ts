@@ -3,8 +3,42 @@ import { Shift } from "../../types";
 import { updateShiftInDB, saveShiftToDB } from "./useDatabaseHandlers";
 import { toast } from "react-toastify";
 
+interface DateSelectInfo {
+  startStr: string;
+  endStr: string;
+  allDay: boolean;
+}
+
+interface EventClickInfo {
+  event: { id: string };
+}
+
+interface EventDropInfo {
+  event: {
+    id: string;
+    start?: Date;
+    end?: Date;
+  };
+}
+
+interface EventResizeInfo {
+  event: {
+    id: string;
+    end?: Date;
+  };
+}
+
+interface AssignmentResponse {
+  employee?: {
+    id: string;
+    name: string;
+    position: string;
+    employeeManagerId: string;
+  } | null;
+}
+
 export const handleDateSelect = async (
-  selectInfo: any,
+  selectInfo: DateSelectInfo,
   shifts: Shift[],
   setShifts: React.Dispatch<React.SetStateAction<Shift[]>>
 ) => {
@@ -38,10 +72,11 @@ export const handleDateSelect = async (
         startTime: persistedShift.startTime,
         endTime: persistedShift.endTime,
         employees:
-          persistedShift.assignments?.map((assignment: any) => ({
+          persistedShift.assignments?.map((assignment: AssignmentResponse) => ({
             id: assignment.employee?.id || "unknown",
             name: assignment.employee?.name || "Unnamed",
             position: assignment.employee?.position || "Unknown",
+            employeeManagerId: assignment.employee?.employeeManagerId || "",
           })) || [],
         isNew: false,
         allDay: isAllDay,
@@ -55,14 +90,14 @@ export const handleDateSelect = async (
       );
       toast.success("Shift created successfully.");
     }
-  } catch (error) {
+  } catch {
     toast.error("Failed to create shift.");
     setShifts((prevShifts) => prevShifts.filter((s) => s.id !== tempShift.id));
   }
 };
 
 export const handleEventClick = (
-  clickInfo: any,
+  clickInfo: EventClickInfo,
   shifts: Shift[],
   setSelectedShift: React.Dispatch<React.SetStateAction<Shift | null>>,
   setIsShiftModalOpen: React.Dispatch<React.SetStateAction<boolean>>
@@ -75,7 +110,7 @@ export const handleEventClick = (
 };
 
 export const handleEventDrop = async (
-  dropInfo: any,
+  dropInfo: EventDropInfo,
   shifts: Shift[],
   setShifts: React.Dispatch<React.SetStateAction<Shift[]>>
 ) => {
@@ -95,7 +130,6 @@ export const handleEventDrop = async (
     ...shift,
     startTime: event.start?.toISOString() || shift.startTime,
     endTime: event.end?.toISOString() || shift.endTime,
-    // Preserve employees from local state
     employees: shift.employees || [],
   };
 
@@ -109,22 +143,22 @@ export const handleEventDrop = async (
     // Call updateShiftInDB with timeOnly = true so no employees payload is sent.
     const result = await updateShiftInDB(updatedShift, true);
     if (result) {
-      // Check if the API result returned assignment data.
-      // If not, merge the existing employees from local state.
       let employees = shift.employees;
       if (
         result.assignments &&
         Array.isArray(result.assignments) &&
         result.assignments.length > 0
       ) {
-        employees = result.assignments.map((assignment: any) => ({
-          id: assignment.employee?.id || "unknown",
-          name: assignment.employee?.name || "Unnamed",
-          position: assignment.employee?.position || "Unknown",
-        }));
+        employees = result.assignments.map(
+          (assignment: AssignmentResponse) => ({
+            id: assignment.employee?.id || "unknown",
+            name: assignment.employee?.name || "Unnamed",
+            position: assignment.employee?.position || "Unknown",
+            employeeManagerId: assignment.employee?.employeeManagerId || "",
+          })
+        );
       }
 
-      // Build a formatted shift preserving the employees.
       const formattedShift: Shift = {
         id: result.id,
         startTime: result.startTime,
@@ -137,14 +171,14 @@ export const handleEventDrop = async (
         prevShifts.map((s) => (s.id === shiftId ? formattedShift : s))
       );
     }
-  } catch (error) {
+  } catch {
     toast.error("Failed to update shift in database.");
     // Optionally, revert the optimistic update by re-fetching shifts.
   }
 };
 
 export const handleEventResize = (
-  resizeInfo: any,
+  resizeInfo: EventResizeInfo,
   shifts: Shift[],
   setShifts: React.Dispatch<React.SetStateAction<Shift[]>>
 ) => {

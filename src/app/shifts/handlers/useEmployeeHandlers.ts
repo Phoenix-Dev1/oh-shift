@@ -14,7 +14,7 @@ export const fetchEmployees = async (
     } else {
       toast.error(data.error || "Failed to load employees.");
     }
-  } catch (error) {
+  } catch {
     toast.error("Error fetching employees.");
   } finally {
     setLoadingEmployees(false);
