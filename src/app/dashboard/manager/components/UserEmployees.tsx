@@ -11,6 +11,59 @@ interface EmployeeAggregate {
   totalHours: number;
 }
 
+/**
+ * Helper: replicate the API’s getWeekPeriod logic on the client.
+ * Given a year, month, and weekIndex (1-indexed), returns the start and end dates of that week.
+ */
+function getWeekPeriodClient(
+  year: number,
+  month: number,
+  weekIndex: number
+): { start: Date; end: Date } {
+  const firstDayOfMonth = new Date(year, month - 1, 1);
+  const lastDayOfMonth = new Date(year, month, 0);
+  let start: Date, end: Date;
+
+  if (firstDayOfMonth.getDay() === 0) {
+    // Month starts on Sunday: week1 starts on the 1st.
+    start = new Date(firstDayOfMonth);
+    start.setHours(0, 0, 0, 0);
+    end = new Date(start);
+    end.setDate(end.getDate() + 6);
+  } else {
+    if (weekIndex === 1) {
+      // Week 1: from the 1st to the first Saturday.
+      start = new Date(firstDayOfMonth);
+      start.setHours(0, 0, 0, 0);
+      end = new Date(firstDayOfMonth);
+      const daysToSaturday = 6 - firstDayOfMonth.getDay();
+      end.setDate(end.getDate() + daysToSaturday);
+    } else {
+      // For week 2 and beyond, determine the first Sunday in the month.
+      const firstSunday = new Date(firstDayOfMonth);
+      if (firstSunday.getDay() !== 0) {
+        firstSunday.setDate(firstSunday.getDate() + (7 - firstSunday.getDay()));
+      }
+      start = new Date(firstSunday);
+      start.setDate(start.getDate() + (weekIndex - 2) * 7);
+      end = new Date(start);
+      end.setDate(end.getDate() + 6);
+    }
+  }
+
+  // Clamp the end to the last day of the month.
+  if (end > lastDayOfMonth) {
+    end = new Date(lastDayOfMonth);
+    // Set to the end of that day.
+    end.setHours(23, 59, 59, 999);
+  } else {
+    // Otherwise, set end to Saturday's end.
+    end.setHours(23, 59, 59, 999);
+  }
+
+  return { start, end };
+}
+
 export default function EmployeeAggregatesPage() {
   const isMobile = useIsMobile();
   const [periodType, setPeriodType] = useState<
@@ -21,6 +74,11 @@ export default function EmployeeAggregatesPage() {
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
   const [employeeData, setEmployeeData] = useState<EmployeeAggregate[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // Week annotations: mapping week number to annotation string (e.g., " (Current)" or " (Previous)")
+  const [weekAnnotations, setWeekAnnotations] = useState<
+    Record<number, string>
+  >({});
 
   const fetchAggregates = async () => {
     setLoading(true);
@@ -44,6 +102,47 @@ export default function EmployeeAggregatesPage() {
     }
   };
 
+  // Update week annotations based on the selected month and today’s date.
+  useEffect(() => {
+    const selectedYear = Number(selectedMonth.split("-")[0]);
+    const selectedMonthNumber = Number(selectedMonth.split("-")[1]);
+    const today = new Date();
+    const annotations: Record<number, string> = {};
+    let currentWeekIndex: number | null = null;
+
+    // Check week 1 to week 5.
+    for (let week = 1; week <= 5; week++) {
+      const { start, end } = getWeekPeriodClient(
+        selectedYear,
+        selectedMonthNumber,
+        week
+      );
+      // Skip weeks that don't fall in the selected month.
+      if (start.getMonth() + 1 !== selectedMonthNumber) continue;
+      if (today >= start && today <= end) {
+        currentWeekIndex = week;
+      }
+    }
+
+    if (currentWeekIndex !== null) {
+      // Annotate current week if the next week still belongs to the same month.
+      const { start: nextWeekStart } = getWeekPeriodClient(
+        selectedYear,
+        selectedMonthNumber,
+        currentWeekIndex + 1
+      );
+      if (nextWeekStart.getMonth() + 1 === selectedMonthNumber) {
+        annotations[currentWeekIndex] = " (Current)";
+        if (currentWeekIndex - 1 >= 1) {
+          annotations[currentWeekIndex - 1] = " (Previous)";
+        }
+      }
+    }
+
+    setWeekAnnotations(annotations);
+  }, [selectedMonth]);
+
+  // Fetch data on component mount.
   useEffect(() => {
     fetchAggregates();
   }, []);
@@ -56,7 +155,7 @@ export default function EmployeeAggregatesPage() {
           Select Period
         </label>
 
-        {/* Period Type Buttons (Mobile Optimized) */}
+        {/* Period Type Buttons */}
         <div className="grid grid-cols-2 md:flex md:justify-between gap-2">
           {["month", "specificWeek", "currentWeek"].map((type) => (
             <button
@@ -105,7 +204,7 @@ export default function EmployeeAggregatesPage() {
             >
               {[1, 2, 3, 4, 5].map((num) => (
                 <option key={num} value={num}>
-                  Week {num}
+                  {`Week ${num}${weekAnnotations[num] || ""}`}
                 </option>
               ))}
             </select>
@@ -124,7 +223,7 @@ export default function EmployeeAggregatesPage() {
       {/* Aggregates Table / Cards */}
       <div className="max-w-4xl mx-auto">
         {isMobile ? (
-          // 📌 Mobile View: Display as Cards
+          // Mobile View: Display as Cards
           <div className="space-y-4">
             {employeeData.map((emp) => (
               <div
@@ -142,7 +241,7 @@ export default function EmployeeAggregatesPage() {
             ))}
           </div>
         ) : (
-          // 📌 Desktop View: Display as Table
+          // Desktop View: Display as Table
           <div className="overflow-x-auto">
             <table className="min-w-full border-collapse">
               <thead>
