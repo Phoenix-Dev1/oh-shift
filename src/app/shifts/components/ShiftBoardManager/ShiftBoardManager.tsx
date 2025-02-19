@@ -94,13 +94,13 @@ const ShiftBoardManager: React.FC = () => {
           shift.id === updatedShift.id ? updatedShift : shift
         )
       );
-      let result: ShiftResponse;
+
       try {
-        if (selectedShift.isNew) {
-          result = await saveShiftToDB(updatedShift);
-        } else {
-          result = await updateShiftInDB(updatedShift);
-        }
+        // Remove the explicit type annotation so the inferred type is ShiftAPIResponse | void.
+        const result = selectedShift.isNew
+          ? await saveShiftToDB(updatedShift)
+          : await updateShiftInDB(updatedShift);
+
         if (result) {
           const formattedShift: Shift = {
             id: result.id,

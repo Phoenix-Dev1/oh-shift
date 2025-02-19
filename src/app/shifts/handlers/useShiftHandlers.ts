@@ -16,15 +16,15 @@ interface EventClickInfo {
 interface EventDropInfo {
   event: {
     id: string;
-    start?: Date;
-    end?: Date;
+    start: Date | null;
+    end: Date | null;
   };
 }
 
 interface EventResizeInfo {
   event: {
     id: string;
-    end?: Date;
+    end: Date | null;
   };
 }
 
@@ -95,7 +95,6 @@ export const handleDateSelect = async (
     setShifts((prevShifts) => prevShifts.filter((s) => s.id !== tempShift.id));
   }
 };
-
 export const handleEventClick = (
   clickInfo: EventClickInfo,
   shifts: Shift[],
@@ -128,8 +127,8 @@ export const handleEventDrop = async (
   // keep the existing employees from local state.
   const updatedShift: Shift = {
     ...shift,
-    startTime: event.start?.toISOString() || shift.startTime,
-    endTime: event.end?.toISOString() || shift.endTime,
+    startTime: event.start ? event.start.toISOString() : shift.startTime,
+    endTime: event.end ? event.end.toISOString() : shift.endTime,
     employees: shift.employees || [],
   };
 
@@ -186,7 +185,10 @@ export const handleEventResize = (
   setShifts(
     shifts.map((shift) =>
       shift.id === event.id
-        ? { ...shift, endTime: event.end?.toISOString() || shift.endTime }
+        ? {
+            ...shift,
+            endTime: event.end ? event.end.toISOString() : shift.endTime,
+          }
         : shift
     )
   );
