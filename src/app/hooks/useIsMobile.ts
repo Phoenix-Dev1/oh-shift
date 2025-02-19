@@ -1,4 +1,6 @@
 // src\app\shifts\hooks\useIsMobile.ts
+"use client";
+
 import { useState, useEffect } from "react";
 
 export default function useIsMobile(breakpoint = 768) {

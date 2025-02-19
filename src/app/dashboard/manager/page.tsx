@@ -5,7 +5,6 @@ import getCurrentUser from "../../actions/getCurrentUser";
 export default async function DashboardPage() {
   const user = await getCurrentUser();
 
-  console.log(user);
   return (
     <div className="flex h-screen bg-bg-full">
       {/* Sidebar */}

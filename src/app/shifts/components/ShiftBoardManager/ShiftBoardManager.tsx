@@ -6,7 +6,7 @@ import DeleteModal from "./DeleteModal";
 import HoverModal from "./HoverModal";
 import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";
-import useIsMobile from "../../hooks/useIsMobile";
+import useIsMobile from "../../../hooks/useIsMobile";
 import { toast } from "react-toastify";
 import { Employee, Shift } from "../../../types/index";
 import { deleteShift } from "../../handlers/useDeleteHandlers";

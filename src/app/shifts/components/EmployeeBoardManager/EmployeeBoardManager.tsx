@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import HoverModal from "../ShiftBoardManager/HoverModal";
 import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";
-import useIsMobile from "../../hooks/useIsMobile";
+import useIsMobile from "../../../hooks/useIsMobile";
 import { Shift } from "../../../types/index";
 import { fetchEmployeeShifts } from "../../handlers/useEmployeeShiftHandlers";
 

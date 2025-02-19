@@ -1,7 +1,7 @@
 // app/layout.tsx
 import type { Metadata } from "next";
 import ThemeProvider from "./components/ThemeProvider";
-import Navbar from "./components/Navbar/Navbar";
+import NavSwitcher from "./components/Navbar/NavSwitcher";
 import "./globals.css";
 import ScrollToTop from "./components/ScrollToTop";
 import Footer from "./components/Footer";
@@ -23,7 +23,7 @@ export default function RootLayout({
       <body className="h-screen bg-bg-900 dark:bg-bg-800 flex flex-col min-h-screen">
         <ThemeProvider>
           <AuthContext>
-            <Navbar />
+            <NavSwitcher />
             <ToastProvider />
             <main className="flex-1">{children}</main>
             <ScrollToTop />

@@ -92,6 +92,8 @@ html.dark {
 }
 
 .all-day-event {
+  display: flex;
   background-color: #a294f9 !important;
   border-color: #a294f9 !important;
+  justify-content: center;
 }
