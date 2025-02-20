@@ -107,15 +107,18 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   {employees.map((emp) => (
                     <motion.div
                       key={emp.id}
-                      className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition"
-                      onClick={() => {
-                        if (emp.phone) {
-                          setVisiblePhones((prev) => ({
-                            ...prev,
-                            [emp.id]: !prev[emp.id],
-                          }));
-                        }
-                      }}
+                      className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition ${
+                        selectedEmployeeIds.includes(emp.id)
+                          ? "bg-blue-500 text-white"
+                          : "bg-white dark:bg-bg-800 hover:bg-gray-200 dark:hover:bg-blue-400 dark:hover:text-white"
+                      }`}
+                      onClick={() =>
+                        setSelectedEmployeeIds((prev) =>
+                          prev.includes(emp.id)
+                            ? prev.filter((e) => e !== emp.id)
+                            : [...prev, emp.id]
+                        )
+                      }
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
@@ -125,11 +128,30 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                         <p className="font-semibold">{emp.name}</p>
                         {emp.phone ? (
                           visiblePhones[emp.id] ? (
-                            <span className="text-gray-400 text-sm">
+                            <span
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setVisiblePhones((prev) => ({
+                                  ...prev,
+                                  [emp.id]: false,
+                                }));
+                              }}
+                              className="text-gray-600 text-sm cursor-pointer"
+                            >
                               {emp.phone}
                             </span>
                           ) : (
-                            <Phone size={16} className="text-gray-600" />
+                            <Phone
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setVisiblePhones((prev) => ({
+                                  ...prev,
+                                  [emp.id]: true,
+                                }));
+                              }}
+                              size={16}
+                              className="text-gray-600 cursor-pointer"
+                            />
                           )
                         ) : (
                           <Info size={16} className="text-gray-400" />
