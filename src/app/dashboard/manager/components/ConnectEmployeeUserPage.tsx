@@ -8,7 +8,6 @@ import {
   getEmployeeAssignments,
   EmployeeAssignment,
 } from "../../../actions/getEmployeeAssignments";
-import useIsMobile from "../../../hooks/useIsMobile";
 
 type Employee = {
   id: string;
@@ -23,7 +22,6 @@ type ManagerUser = {
 };
 
 const ConnectEmployeeUserPage: React.FC = () => {
-  const isMobile = useIsMobile();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [managerUsers, setManagerUsers] = useState<ManagerUser[]>([]);
   const [assignments, setAssignments] = useState<EmployeeAssignment[]>([]);

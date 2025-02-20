@@ -37,10 +37,14 @@ export async function DELETE(request: NextRequest) {
       { message: "Employee unassigned successfully." },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error unassigning employee:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
     console.error("Error unassigning employee:", error);
     return NextResponse.json(
-      { error: error.message || "Internal Server Error" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
