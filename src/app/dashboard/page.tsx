@@ -1,3 +1,5 @@
+// src\app\dashboard\page.tsx
+
 import { redirect } from "next/navigation";
 import getCurrentUser from "../actions/getCurrentUser";
 

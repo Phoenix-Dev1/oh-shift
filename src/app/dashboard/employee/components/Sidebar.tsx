@@ -4,19 +4,20 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar } from "lucide-react";
+import { Home, Calendar, Settings } from "lucide-react";
 import useIsMobile from "../../../hooks/useIsMobile";
 
 const sidebarLinks = [
-  { name: "Dashboard", href: "/dashboard", icon: Home },
+  { name: "Dashboard", href: "/dashboard/employee", icon: Home },
   { name: "Calendar", href: "/shifts", icon: Calendar },
+  { name: "Settings", href: "/shifts", icon: Settings },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const isMobile = useIsMobile(); // returns true if mobile
 
-  const asideWidth = isMobile ? "w-24" : "w-64";
+  const asideWidth = isMobile ? "w-20" : "w-64";
 
   return (
     <aside
@@ -24,7 +25,7 @@ export default function Sidebar() {
     >
       {" "}
       {/* Sidebar Header */}
-      <div className="p-5 text-2xl font-bold text-highlight border-b border-bg-700">
+      <div className="p-5 text-2xl w- font-bold text-highlight border-b border-bg-700">
         Oh-Shift
       </div>
       {/* Navigation Links */}
@@ -32,7 +33,7 @@ export default function Sidebar() {
         {sidebarLinks.map(({ name, href, icon: Icon }) => (
           <Link key={name} href={href}>
             <div
-              className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition font-medium ${
+              className={`flex items-center gap-3 px-4 py-4 rounded-lg cursor-pointer transition font-medium ${
                 pathname === href
                   ? "bg-highlight text-background"
                   : "hover:bg-bg-700 text-text-secondary"
