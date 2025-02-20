@@ -2,7 +2,7 @@ import UserEmployees from "./components/UserEmployees";
 import Sidebar from "./components/Sidebar";
 import getCurrentUser from "../../actions/getCurrentUser";
 
-export default async function DashboardPage() {
+export default async function ManagerDashboardPage() {
   const user = await getCurrentUser();
 
   return (
