@@ -1,4 +1,4 @@
-// src\app\shifts\hooks\useIsMobile.ts
+//src\app\hooks\useIsMobile.ts
 "use client";
 
 import { useState, useEffect } from "react";

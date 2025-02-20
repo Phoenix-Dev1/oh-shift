@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, Calendar, Settings, Share2 } from "lucide-react";
+import { Users, Home, Calendar, Workflow, Share2 } from "lucide-react";
 import useIsMobile from "../../../hooks/useIsMobile";
 
 const sidebarLinks = [
@@ -18,7 +18,11 @@ const sidebarLinks = [
     icon: Users,
   },
   { name: "Calendar", href: "/shifts", icon: Calendar },
-  { name: "Settings", href: "/dashboard/settings", icon: Settings },
+  {
+    name: "Assign Users",
+    href: "/dashboard/manager/employees/assign",
+    icon: Workflow,
+  },
 ];
 
 export default function Sidebar() {

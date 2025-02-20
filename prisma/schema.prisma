@@ -18,12 +18,14 @@ model User {
   updatedAt          DateTime   @updatedAt
   role               Role       @default(EMPLOYEE)
   accounts           Account[]
-
-  employeeManagerId  String?    @db.ObjectId  // Store only manager ID as string
   
+  employeeManagerId  String?    @db.ObjectId
   managedSchedules   Schedule[] @relation("ManagedSchedules")
   employees          Employee[] @relation("ManagerEmployees")
   Shift              Shift[]
+  
+  // Optional back-relation for the one-to-one assignment
+  employeeAssignment EmployeeUserAssignment?
 }
 
 model Account {
@@ -46,13 +48,16 @@ model Account {
 model Employee {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   name       String
-  phone      String?  
+  phone      String?
   position   String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   managerId  String   @db.ObjectId
   manager    User     @relation(fields: [managerId], references: [id], name: "ManagerEmployees")
   shifts     ShiftAssignment[]
+
+  // Back-relation for the one-to-one connection via EmployeeUserAssignment
+  assignment EmployeeUserAssignment? @relation("EmployeeUser")
 }
 
 model Shift {
@@ -84,6 +89,17 @@ model Schedule {
   isPublic    Boolean   @default(false)
   managerId   String    @unique @db.ObjectId
   manager     User      @relation(fields: [managerId], references: [id], name: "ManagedSchedules")
+}
+
+model EmployeeUserAssignment {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  employee   Employee @relation("EmployeeUser", fields: [employeeId], references: [id], onDelete: Cascade)
+  employeeId String   @db.ObjectId
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String   @db.ObjectId
+
+  @@unique([employeeId])
+  @@unique([userId])
 }
 
 enum Role {
