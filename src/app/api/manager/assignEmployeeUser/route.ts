@@ -3,7 +3,7 @@ import { NextResponse, NextRequest } from "next/server";
 import prisma from "@/src/app/libs/prismadb";
 import getCurrentUser from "@/src/app/actions/getCurrentUser";
 
-export async function POST(request: NextRequest) {
+export async function POST(request: NextRequest): Promise<Response> {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== "MANAGER") {
@@ -59,9 +59,11 @@ export async function POST(request: NextRequest) {
     if (error instanceof Error) {
       console.error("Error assigning employee user:", error.message);
       return NextResponse.json({ error: error.message }, { status: 500 });
-    } else {
-      console.error("An unknown error occurred in assigning employee user.");
     }
-    return null;
+    console.error("An unknown error occurred in assigning employee user.");
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }
