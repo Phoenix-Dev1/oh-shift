@@ -1,3 +1,5 @@
+// \src\app\shifts\components\ShiftBoardManager\ShiftModal.tsx
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -29,6 +31,9 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   );
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(
     shift && !shift.allDay ? shift.employees?.map((emp) => emp.id) || [] : []
+  );
+  const [visiblePhones, setVisiblePhones] = useState<Record<string, boolean>>(
+    {}
   );
 
   useEffect(() => {
@@ -102,18 +107,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   {employees.map((emp) => (
                     <motion.div
                       key={emp.id}
-                      className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition ${
-                        selectedEmployeeIds.includes(emp.id)
-                          ? "bg-blue-500 text-white"
-                          : "bg-white dark:bg-bg-800 hover:bg-gray-200 dark:hover:bg-gray-400 dark:hover:text-white"
-                      }`}
-                      onClick={() =>
-                        setSelectedEmployeeIds((prev) =>
-                          prev.includes(emp.id)
-                            ? prev.filter((e) => e !== emp.id)
-                            : [...prev, emp.id]
-                        )
-                      }
+                      className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition"
+                      onClick={() => {
+                        if (emp.phone) {
+                          setVisiblePhones((prev) => ({
+                            ...prev,
+                            [emp.id]: !prev[emp.id],
+                          }));
+                        }
+                      }}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
@@ -122,9 +124,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                       <div className="flex items-center space-x-2">
                         <p className="font-semibold">{emp.name}</p>
                         {emp.phone ? (
-                          <Phone size={16} className="text-gray-800" />
+                          visiblePhones[emp.id] ? (
+                            <span className="text-gray-400 text-sm">
+                              {emp.phone}
+                            </span>
+                          ) : (
+                            <Phone size={16} className="text-gray-600" />
+                          )
                         ) : (
-                          <Info size={16} className="text-gray-700" />
+                          <Info size={16} className="text-gray-400" />
                         )}
                       </div>
                     </motion.div>

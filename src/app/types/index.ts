@@ -5,7 +5,6 @@ export interface Employee {
   email?: string | null;
   position?: string;
   employeeManagerId: string | null;
-  shiftCount?: number;
 }
 
 export interface Shift {
