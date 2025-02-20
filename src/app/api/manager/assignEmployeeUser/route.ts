@@ -55,8 +55,13 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json(assignment, { status: 200 });
-  } catch (error: any) {
-    console.error("Error assigning employee user:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Error assigning employee user:", error.message);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    } else {
+      console.error("An unknown error occurred in assigning employee user.");
+    }
+    return null;
   }
 }

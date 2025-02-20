@@ -4,6 +4,7 @@ import prisma from "@/src/app/libs/prismadb";
 import getCurrentUser from "@/src/app/actions/getCurrentUser";
 
 export async function GET(_request: NextRequest) {
+  void _request; // Mark as used to prevent unused variable error.
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== "MANAGER") {
