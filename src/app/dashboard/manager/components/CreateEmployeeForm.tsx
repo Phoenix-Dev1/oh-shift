@@ -1,21 +1,31 @@
-// src/components/CreateEmployeeForm.tsx
+// \src\app\dashboard\manager\components\CreateEmployeeForm.tsx
 
 "use client";
 
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-interface CreateEmployeeFormProps {
+export interface CreateEmployeeFormProps {
   onOptimisticAdd: (newEmployee: {
     id: string;
     name: string;
     position?: string;
     phone?: string;
   }) => void;
+  onEmployeeCreated: (
+    tempId: string,
+    realEmployee: {
+      id: string;
+      name: string;
+      position?: string;
+      phone?: string;
+    }
+  ) => void;
 }
 
 export default function CreateEmployeeForm({
   onOptimisticAdd,
+  onEmployeeCreated,
 }: CreateEmployeeFormProps) {
   const [name, setName] = useState("");
   const [position, setPosition] = useState("");
@@ -51,12 +61,15 @@ export default function CreateEmployeeForm({
 
       if (response.ok) {
         toast.success("Employee created successfully!");
+        // Call onEmployeeCreated with the tempId and the real employee returned from the API.
+        onEmployeeCreated(tempId, data);
       } else {
         throw new Error(data.error || "Failed to create employee.");
       }
     } catch {
       toast.error("An error occurred. Reverting changes.");
-      onOptimisticAdd({ ...newEmployee, id: tempId }); // Rollback
+      // Optionally, you might want to remove the optimistic employee here
+      // (depending on how your parent component handles rollback).
     } finally {
       setLoading(false);
       setName("");

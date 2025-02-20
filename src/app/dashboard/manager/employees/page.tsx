@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getEmployees } from "../../../actions/getEmployees";
 import { editEmployee } from "../../../actions/editEmployee";
 import { deleteEmployee } from "../../../actions/deleteEmployee";
+import { deleteAssignedShifts } from "../../../actions/deleteAssignedShifts";
 import { toast } from "react-toastify";
 import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
@@ -11,12 +12,14 @@ import EditEmployeeModal from "../components/EditEmployeeModal";
 import DeleteModal from "../../../shifts/components/ShiftBoardManager/DeleteModal";
 import useIsMobile from "../../../hooks/useIsMobile";
 
+// Extended type with shiftCount (provided by your API)
 type Employee = {
   id: string;
   name: string;
   position?: string;
   phone?: string;
   createdAt?: string;
+  shiftCount?: number; // number of shifts currently assigned
 };
 
 export default function EmployeesPage() {
@@ -27,8 +30,17 @@ export default function EmployeesPage() {
   const [position, setPosition] = useState("");
   const [phone, setPhone] = useState("");
   const [showCreateForm, setShowCreateForm] = useState(false);
+
+  // Modal state for employee deletion
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [employeeToDelete, setEmployeeToDelete] = useState<string | null>(null);
+
+  // Modal state for assigned shifts deletion confirmation
+  const [isAssignedDeleteModalOpen, setIsAssignedDeleteModalOpen] =
+    useState(false);
+  const [employeeToDeleteShifts, setEmployeeToDeleteShifts] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     fetchEmployees();
@@ -39,8 +51,19 @@ export default function EmployeesPage() {
     setEmployees(data);
   };
 
+  // Optimistically add the employee with a temporary id.
   const handleOptimisticAdd = (newEmployee: Employee) => {
     setEmployees((prev) => [newEmployee, ...prev]);
+  };
+
+  // New callback to update the optimistic employee with the real DB employee.
+  const handleEmployeeCreated = (tempId: string, realEmployee: Employee) => {
+    setEmployees((prevEmployees) =>
+      prevEmployees.map((emp) => (emp.id === tempId ? realEmployee : emp))
+    );
+    if (editingEmployee?.id === tempId) {
+      setEditingEmployee(realEmployee);
+    }
   };
 
   const handleOptimisticRemove = (id: string) => {
@@ -88,6 +111,25 @@ export default function EmployeesPage() {
     setEmployeeToDelete(null);
   };
 
+  // Open confirmation modal for deleting assigned shifts.
+  const openDeleteAssignedShiftsModal = (employeeId: string) => {
+    setEmployeeToDeleteShifts(employeeId);
+    setIsAssignedDeleteModalOpen(true);
+  };
+
+  const handleConfirmDeleteAssignedShifts = async () => {
+    if (!employeeToDeleteShifts) return;
+    const success = await deleteAssignedShifts(employeeToDeleteShifts);
+    if (success) {
+      toast.success("All assigned shifts deleted successfully.");
+      fetchEmployees(); // Refresh to update shiftCount, etc.
+    } else {
+      toast.error("Failed to delete assigned shifts.");
+    }
+    setIsAssignedDeleteModalOpen(false);
+    setEmployeeToDeleteShifts(null);
+  };
+
   const openEditModal = (employee: Employee) => {
     setEditingEmployee(employee);
     setName(employee.name);
@@ -104,7 +146,7 @@ export default function EmployeesPage() {
           Manage Employees
         </h1>
 
-        {/* Add Employee Button (Always Visible on Mobile) */}
+        {/* Add Employee Button */}
         <div className="flex justify-center mb-4">
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
@@ -117,11 +159,14 @@ export default function EmployeesPage() {
         {/* Create Employee Form */}
         {showCreateForm && (
           <div className="mb-6">
-            <CreateEmployeeForm onOptimisticAdd={handleOptimisticAdd} />
+            <CreateEmployeeForm
+              onOptimisticAdd={handleOptimisticAdd}
+              onEmployeeCreated={handleEmployeeCreated}
+            />
           </div>
         )}
 
-        {/* Employee List (Table for Desktop, Cards for Mobile) */}
+        {/* Employee List */}
         {employees.length === 0 ? (
           <p className="text-center">No employees found.</p>
         ) : isMobile ? (
@@ -139,7 +184,6 @@ export default function EmployeesPage() {
                   Phone: {employee.phone || "N/A"}
                 </p>
 
-                {/* Centering the buttons */}
                 <div className="mt-3 flex gap-2 justify-center">
                   <button
                     onClick={() => openEditModal(employee)}
@@ -147,12 +191,21 @@ export default function EmployeesPage() {
                   >
                     Edit
                   </button>
-                  <button
-                    onClick={() => openDeleteModal(employee.id)}
-                    className="px-4 py-2 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
+                  {employee.shiftCount && employee.shiftCount > 0 ? (
+                    <button
+                      onClick={() => openDeleteAssignedShiftsModal(employee.id)}
+                      className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded hover:bg-orange-600"
+                    >
+                      Delete All Assigned Shifts
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => openDeleteModal(employee.id)}
+                      className="px-4 py-2 text-sm font-medium bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      Delete
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -186,12 +239,23 @@ export default function EmployeesPage() {
                     >
                       Edit
                     </button>
-                    <button
-                      onClick={() => openDeleteModal(employee.id)}
-                      className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-                    >
-                      Delete
-                    </button>
+                    {employee.shiftCount && employee.shiftCount > 0 ? (
+                      <button
+                        onClick={() =>
+                          openDeleteAssignedShiftsModal(employee.id)
+                        }
+                        className="px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
+                      >
+                        Delete All Assigned Shifts
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => openDeleteModal(employee.id)}
+                        className="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -214,10 +278,24 @@ export default function EmployeesPage() {
 
         <DeleteModal
           isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
+          onClose={() => {
+            setIsDeleteModalOpen(false);
+            setEmployeeToDelete(null);
+          }}
           onConfirm={handleDelete}
           title="Delete Employee"
           message="Are you sure you want to delete this employee?"
+        />
+
+        <DeleteModal
+          isOpen={isAssignedDeleteModalOpen}
+          onClose={() => {
+            setIsAssignedDeleteModalOpen(false);
+            setEmployeeToDeleteShifts(null);
+          }}
+          onConfirm={handleConfirmDeleteAssignedShifts}
+          title="Delete All Assigned Shifts"
+          message="Are you sure you want to delete all shift assignments for this employee? If they are the only one assigned to a shift, that shift will also be deleted."
         />
       </main>
     </div>

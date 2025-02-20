@@ -15,7 +15,12 @@ export const getEmployees = async () => {
     }
 
     const employees = await response.json();
-    return employees;
+
+    // Ensure each employee has a shiftCount property (default to 0 if not provided)
+    return employees.map((employee: any) => ({
+      ...employee,
+      shiftCount: employee.shiftCount ?? 0,
+    }));
   } catch (error) {
     console.error("Failed to fetch employees:", error);
     return [];

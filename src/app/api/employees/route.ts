@@ -51,9 +51,20 @@ export async function GET() {
       orderBy: {
         createdAt: "desc",
       },
+      include: {
+        _count: {
+          select: { shifts: true },
+        },
+      },
     });
 
-    return NextResponse.json(employees, { status: 200 });
+    // Map each employee to include a shiftCount property
+    const employeesWithShiftCount = employees.map((employee) => ({
+      ...employee,
+      shiftCount: employee._count.shifts,
+    }));
+
+    return NextResponse.json(employeesWithShiftCount, { status: 200 });
   } catch (error) {
     console.error("Error fetching employees:", error);
     return NextResponse.json(
