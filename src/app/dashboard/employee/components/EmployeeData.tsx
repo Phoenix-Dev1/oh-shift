@@ -1,5 +1,3 @@
-// src\app\dashboard\employee\components\EmployeeData
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -40,11 +38,16 @@ export default function EmployeeData() {
         const res = await fetch("/api/employees/shifts"); // Calls the API action
         if (!res.ok) throw new Error("Failed to load employee details");
 
-        const data = await res.json();
+        const data: { employee: Employee; upcomingShifts: Shift[] } =
+          await res.json();
         setEmployee(data.employee);
         setUpcomingShifts(data.upcomingShifts);
-      } catch (error: any) {
-        toast.error(error.message || "Error fetching employee data");
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message || "Error fetching employee data");
+        } else {
+          toast.error("An unknown error occurred");
+        }
       } finally {
         setLoading(false);
       }
@@ -63,10 +66,14 @@ export default function EmployeeData() {
         );
         if (!res.ok) throw new Error("Failed to fetch shift summary");
 
-        const data = await res.json();
-        setShiftSummary(data.shiftSummary);
-      } catch (error: any) {
-        toast.error(error.message || "Error fetching shift summary");
+        const data: { shiftSummary: ShiftSummary } = await res.json();
+        setShiftSummary(data.shiftSummary || { totalShifts: 0, totalHours: 0 });
+      } catch (error) {
+        if (error instanceof Error) {
+          toast.error(error.message || "Error fetching shift summary");
+        } else {
+          toast.error("An unknown error occurred");
+        }
       }
     }
     fetchShiftSummary();
