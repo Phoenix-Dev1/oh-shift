@@ -44,7 +44,7 @@ const ConnectEmployeeUserPage: React.FC = () => {
         setManagerUsers(users);
         setAssignments(assigns);
       } catch (error) {
-        toast.error("Error fetching data.");
+        toast.error("Error fetching data:" + error);
       } finally {
         setLoading(false); // Set loading to false when data is fetched
       }
