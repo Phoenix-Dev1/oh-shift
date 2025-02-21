@@ -1,0 +1,44 @@
+/* Fullscreen Loader Container */
+.loaderContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  background: transparent;
+  color: blue;
+  overflow-x: hidden;
+}
+
+/* SVG Styling */
+.svg {
+  position: absolute;
+  left: 58%;
+  top: 58%;
+  transform: translate(-50%, -50%);
+}
+
+/* Infinity Outline Animation */
+@keyframes anim {
+  12.5% {
+    stroke-dasharray: 34px, 242.776657104492px;
+    stroke-dashoffset: -26.5px;
+  }
+  43.75% {
+    stroke-dasharray: 85px, 242.776657104492px;
+    stroke-dashoffset: -85px;
+  }
+  100% {
+    stroke-dasharray: 2.4px, 242.776657104492px;
+    stroke-dashoffset: -240px;
+  }
+}
+
+/* Path Animation */
+/* Path Animation */
+#outline {
+  stroke: #4169e1; /* Change this to any color (e.g., red, orange, blue, etc.) */
+  stroke-dasharray: 2.4px, 242.776657104492px;
+  stroke-dashoffset: 0;
+  animation: anim 1.6s linear infinite;
+}

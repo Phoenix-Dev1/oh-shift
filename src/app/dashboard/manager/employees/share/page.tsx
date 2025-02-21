@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { Employee } from "../../../../types/index";
 import Sidebar from "../../../manager/components/Sidebar";
-import ManagerInfo from "../../components/ManagerInfo"; // adjust path as needed
+import ManagerInfo from "../../components/ManagerInfo";
+import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
 
 export default function CalendarSharePage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ Default to true
   const [managerId] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -98,9 +99,11 @@ export default function CalendarSharePage() {
           />
         </div>
 
-        {/* Employee List */}
+        {/* Show Loading Spinner */}
         {loading ? (
-          <p className="text-center text-lg">Loading employees...</p>
+          <div className="flex justify-center items-center h-32">
+            <InfinityLoader />
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredEmployees.map((employee) => (

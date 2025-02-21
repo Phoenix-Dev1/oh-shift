@@ -8,6 +8,7 @@ import {
   getEmployeeAssignments,
   EmployeeAssignment,
 } from "../../../actions/getEmployeeAssignments";
+import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
 
 type Employee = {
   id: string;
@@ -31,15 +32,22 @@ const ConnectEmployeeUserPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<ManagerUser | null>(null);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [userSearch, setUserSearch] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const emps = await getEmployees();
-      const users = await getManagerUsers();
-      const assigns = await getEmployeeAssignments();
-      setEmployees(emps);
-      setManagerUsers(users);
-      setAssignments(assigns);
+      try {
+        const emps = await getEmployees();
+        const users = await getManagerUsers();
+        const assigns = await getEmployeeAssignments();
+        setEmployees(emps);
+        setManagerUsers(users);
+        setAssignments(assigns);
+      } catch (error) {
+        toast.error("Error fetching data.");
+      } finally {
+        setLoading(false); // Set loading to false when data is fetched
+      }
     };
     fetchData();
   }, []);
@@ -130,6 +138,10 @@ const ConnectEmployeeUserPage: React.FC = () => {
     }
     setSelectedUser(user);
   };
+
+  if (loading) {
+    return <InfinityLoader />;
+  }
 
   return (
     <div className="p-4">

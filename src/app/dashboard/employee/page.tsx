@@ -12,7 +12,7 @@ export default async function ManagerDashboardPage() {
       {/* Sidebar */}
       <Sidebar />
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 bg-bg-900 text-text-primary">
+      <main className="flex-1 overflow-y-auto p-6 bg-bg-800 text-text-primary">
         <h1 className="text-3xl font-bold mb-6 text-center">
           {user?.name} Shifts
         </h1>

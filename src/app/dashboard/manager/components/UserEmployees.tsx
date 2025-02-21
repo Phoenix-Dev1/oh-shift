@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "react-toastify";
 import useIsMobile from "../../../hooks/useIsMobile";
+import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
 
 interface EmployeeAggregate {
   id: string;
@@ -155,6 +156,14 @@ export default function EmployeeAggregatesPage() {
   useEffect(() => {
     fetchAggregates();
   }, [fetchAggregates]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <InfinityLoader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-text-primary p-4 md:p-6">

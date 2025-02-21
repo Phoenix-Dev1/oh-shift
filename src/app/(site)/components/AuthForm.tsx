@@ -87,7 +87,7 @@ const AuthForm = () => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-bg-900 dark:bg-bg-800 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="flex items-center justify-center bg-transparent dark:bg-transparent py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div className="bg-white dark:bg-bg-700 py-12 px-6 shadow-lg rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
@@ -128,7 +128,7 @@ const AuthForm = () => {
                 <div className="w-full border-t border-gray-300 dark:border-gray-700" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-bg-800 text-gray-500">
+                <span className="px-2 bg-white dark:bg-bg-700 text-gray-500">
                   Or continue with
                 </span>
               </div>

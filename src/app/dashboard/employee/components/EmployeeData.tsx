@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
 
 interface Employee {
   id: string;
@@ -79,13 +80,13 @@ export default function EmployeeData() {
     fetchShiftSummary();
   }, [selectedMonth]);
 
-  if (loading) return <p className="text-center">Loading...</p>;
+  if (loading) return <InfinityLoader />;
   if (!employee) return <p className="text-center">Employee not found.</p>;
 
   return (
-    <div className="min-h-screen bg-background text-text-primary p-6">
+    <div className="min-h-screen bg-bg-800 text-text-primary p-6">
       {/* Employee Details */}
-      <div className="max-w-xl mx-auto bg-white dark:bg-bg-800 p-6 shadow-lg rounded-lg">
+      <div className="max-w-xl mx-auto bg-white dark:bg-bg-700 p-6 shadow-lg rounded-lg">
         <h1 className="text-2xl font-bold mb-4">{employee.name}</h1>
         <p className="text-lg text-text-secondary">
           📌 Position: {employee.position || "N/A"}
@@ -96,7 +97,7 @@ export default function EmployeeData() {
       </div>
 
       {/* Upcoming Shifts */}
-      <div className="max-w-xl mx-auto mt-6 p-6 bg-white dark:bg-bg-800 shadow-lg rounded-lg">
+      <div className="max-w-xl mx-auto mt-6 p-6 bg-white dark:bg-bg-700 shadow-lg rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Upcoming Shifts</h2>
         {upcomingShifts.length > 0 ? (
           <ul className="space-y-3">
@@ -143,7 +144,7 @@ export default function EmployeeData() {
       </div>
 
       {/* Shift Summary */}
-      <div className="max-w-xl mx-auto mt-6 p-6 bg-white dark:bg-bg-800 shadow-lg rounded-lg">
+      <div className="max-w-xl mx-auto mt-6 p-6 bg-white dark:bg-bg-700 shadow-lg rounded-lg">
         <h2 className="text-xl font-semibold mb-4">Shift Summary</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium">Select Month</label>
