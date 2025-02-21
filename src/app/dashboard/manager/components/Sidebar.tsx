@@ -17,7 +17,7 @@ const sidebarLinks = [
     href: "/dashboard/manager/employees",
     icon: Users,
   },
-  { name: "Calendar", href: "/shifts", icon: Calendar },
+  { name: "Calendar", href: "/calendar", icon: Calendar },
   {
     name: "Assign Users",
     href: "/dashboard/manager/employees/assign",

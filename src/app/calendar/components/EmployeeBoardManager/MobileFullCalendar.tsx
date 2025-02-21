@@ -22,6 +22,7 @@ const MobileFullCalendar: React.FC<MobileFullCalendarProps> = ({
 }) => {
   return (
     <FullCalendar
+      direction="rtl"
       headerToolbar={{
         left: "title", // Buttons on the left side
         center: "prev,next", // Title in the center

@@ -10,7 +10,7 @@ export default function NavbarLinks() {
   return (
     <ul className="hidden gap-6 text-sm sm:flex">
       {links.map((label, index) => {
-        const href = index === 0 ? "/" : `/${label.toLowerCase()}`;
+        const href = index === 0 ? "/calendar" : `/${label.toLowerCase()}`;
         return (
           <li key={href} className="relative group">
             <Link

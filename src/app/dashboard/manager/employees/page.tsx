@@ -9,7 +9,7 @@ import { toast } from "react-toastify";
 import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
-import DeleteModal from "../../../shifts/components/ShiftBoardManager/DeleteModal";
+import DeleteModal from "../../../calendar/components/ShiftBoardManager/DeleteModal";
 import useIsMobile from "../../../hooks/useIsMobile";
 
 // Extended type with shiftCount (provided by your API)

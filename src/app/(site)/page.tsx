@@ -6,7 +6,7 @@ export default function Home() {
       className="
     h-screen 
     bg-bg-900 
-    dark:bg-bg-900 
+    dark:bg-bg-800 
     flex 
     min-h-full 
     flex-col 
