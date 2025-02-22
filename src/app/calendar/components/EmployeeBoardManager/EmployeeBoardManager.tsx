@@ -64,7 +64,12 @@ const EmployeeBoardManager: React.FC = () => {
               : ""
           }
           employees={
-            hoverModalData?.shift?.employees?.map((emp) => emp.name) ?? []
+            hoverModalData && !hoverModalData.shift.allDay
+              ? hoverModalData.shift.employees.map((emp) => ({
+                  name: emp.name,
+                  position: emp.position ?? "N/A",
+                }))
+              : []
           }
           isVisible={!!hoverModalData}
         />
