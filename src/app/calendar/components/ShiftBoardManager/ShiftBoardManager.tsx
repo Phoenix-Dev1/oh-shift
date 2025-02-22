@@ -206,7 +206,10 @@ const ShiftBoardManager: React.FC = () => {
           }
           employees={
             hoverModalData && !hoverModalData.shift.allDay
-              ? hoverModalData.shift.employees.map((emp) => emp.name)
+              ? hoverModalData.shift.employees.map((emp) => ({
+                  name: emp.name,
+                  position: emp.position ?? "N/A",
+                }))
               : []
           }
           isVisible={!!hoverModalData}

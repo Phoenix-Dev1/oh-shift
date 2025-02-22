@@ -38,7 +38,7 @@ const AuthForm = () => {
   } = useForm<FieldValues>({
     defaultValues: {
       name: "",
-      email: "barkaziro@gmail.com",
+      email: "demo@gmail.com",
       password: "1q2w3e4r",
     },
   });

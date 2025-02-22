@@ -11,7 +11,6 @@ export const fetchEmployees = async (
     const data = await response.json();
     if (response.ok) {
       setEmployees(data);
-      console.log(data);
     } else {
       toast.error(data.error || "Failed to load employees.");
     }

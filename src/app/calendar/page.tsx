@@ -12,7 +12,7 @@ export default async function ShiftsPage() {
 
   return (
     <div className="flex h-screen dark:bg-bg-800 mb-6 dark:text-text-primary">
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-2">
         {role === "MANAGER" ? (
           <ShiftBoardManager />
         ) : role === "EMPLOYEE" ? (

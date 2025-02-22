@@ -2,7 +2,7 @@ import AuthForm from "./components/AuthForm";
 
 export default function Home() {
   return (
-    <div className="relative h-full flex flex-col items-center justify-center bg-bg-800 text-text-primary">
+    <div className="relative h-screen flex flex-col items-center justify-center bg-bg-800 text-text-primary">
       {/* Background SVG Overlay */}
       <svg
         className="absolute inset-0 w-full h-full pointer-events-none"

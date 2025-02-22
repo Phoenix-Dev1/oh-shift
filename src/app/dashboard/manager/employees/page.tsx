@@ -196,7 +196,7 @@ export default function EmployeesPage() {
                       onClick={() => openDeleteAssignedShiftsModal(employee.id)}
                       className="px-4 py-2 text-sm font-medium bg-orange-500 text-white rounded hover:bg-orange-600"
                     >
-                      Delete All Assigned Shifts
+                      Remove From All Assigned Shifts
                     </button>
                   ) : (
                     <button
@@ -246,7 +246,7 @@ export default function EmployeesPage() {
                         }
                         className="px-2 py-1 bg-orange-500 text-white rounded hover:bg-orange-600"
                       >
-                        Delete All Assigned Shifts
+                        Remove From All Assigned Shifts
                       </button>
                     ) : (
                       <button
@@ -294,7 +294,7 @@ export default function EmployeesPage() {
             setEmployeeToDeleteShifts(null);
           }}
           onConfirm={handleConfirmDeleteAssignedShifts}
-          title="Delete All Assigned Shifts"
+          title="Remove From All Assigned Shifts"
           message="Are you sure you want to delete all shift assignments for this employee? If they are the only one assigned to a shift, that shift will also be deleted."
         />
       </main>

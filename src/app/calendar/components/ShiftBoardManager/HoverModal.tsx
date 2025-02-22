@@ -1,4 +1,4 @@
-// src\app\shifts\components\ShiftBoardManager\HoverModal.tsx
+// src\app\calendar\components\ShiftBoardManager\HoverModal.tsx
 
 "use client";
 
@@ -9,7 +9,7 @@ interface HoverModalProps {
   y: number;
   startTime: string;
   endTime: string;
-  employees: string[];
+  employees: { name: string; position: string }[];
   isVisible: boolean;
 }
 
@@ -42,7 +42,9 @@ const HoverModal: React.FC<HoverModalProps> = ({
       {employees.length > 0 ? (
         <ul className="list-disc pl-4 text-sm text-text-primary">
           {employees.slice(0, 5).map((emp, index) => (
-            <li key={index}>{emp}</li>
+            <li key={index}>
+              <span className="font-semibold">{emp.name}</span> - {emp.position}
+            </li>
           ))}
           {employees.length > 5 && (
             <li className="text-xs text-text-secondary">
