@@ -19,7 +19,7 @@ export default async function ShiftsPage() {
           </p>
           <p className="mt-2 text-text-secondary">
             Oh-Shift helps streamline scheduling, allowing managers to create
-            and assign shifts efficiently. Once added, you'll be able to view
+            and assign shifts efficiently. Once added, you will be able to view
             your upcoming shifts, check your work schedule, and stay up-to-date!
           </p>
           <div className="mt-6">
