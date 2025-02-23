@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Intro
 
-## Getting Started
+Oh-Shift is a modern shift scheduling and management web application designed for managers and employees to streamline work schedules efficiently. Built with Next.js, Prisma, MongoDB, and FullCalendar, it offers an intuitive drag-and-drop interface, real-time updates, and a responsive UI, ensuring seamless shift planning across all devices.
 
-First, run the development server:
+Project Live at: [https://oh-shift.vercel.app/](https://oh-shift.vercel.app/)
+
+![Oh-Shift](https://github.com/Phoenix-Dev1/oh-shift/blob/main/public/banner-oh-shift.png)
+
+---
+
+## Features
+
+- **Dynamic Shift Scheduling**: Easily create, update, and manage employee shifts using a seamless drag-and-drop interface with real-time feedback.
+- **Role-Based Access Control**: Managers can create and assign shifts, while employees have read-only access to their schedules for a secure and streamlined experience.
+- **Google and GitHub Authentication**: Secure login for managers using NextAuth.js with support for Google and GitHub authentication providers.
+- **Interactive FullCalendar Integration**: Integrated with FullCalendar to display shifts in a professional weekly time-grid format, with detailed event popups on hover.
+- **Mobile-Friendly Design**: Fully responsive and optimized for mobile devices, allowing users to manage and view schedules effortlessly on any screen size.
+- **Optimistic UI and Real-Time Updates**: Instant UI feedback when adding, updating, or deleting employees and shifts, ensuring a smooth and efficient workflow.
+---
+
+## Technologies used
+
+- [React](https://react.dev/) - Front-End JavaScript library.
+- [Next.js](https://nextjs.org/) - Full-stack React framework with built-in routing, server-side rendering (SSR), static site generation (SSG), and API routes for optimized web applications.
+- [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework for responsive and modern UI design.
+- [MongoDB](https://www.mongodb.com/) - NoSQL database for scalable and flexible data storage.
+- [TypeScript](https://www.typescriptlang.org/) - Superset of JavaScript that adds static typing, improving code quality, maintainability, and developer productivity.
+- [FullCalendar](https://fullcalendar.io/) - Feature-rich JavaScript calendar library for scheduling, event management, and timeline visualization in web applications.
+- [Prisma](https://www.prisma.io/) - Modern database toolkit and ORM (Object-Relational Mapping) for TypeScript and Node.js, simplifying database access with a type-safe query API.
+- [NextAuth.js](https://next-auth.js.org/) - Authentication library for Next.js with built-in support for OAuth providers (Google, GitHub, etc.), credentials, and JWT-based authentication.
+- [DnD-Kit](https://dndkit.com/) - Lightweight and customizable drag-and-drop library for React, offering accessible and performant drag-and-drop interactions.
+- [Framer Motion](https://motion.dev/) - Advanced animation library for React, providing declarative and physics-based animations for creating fluid UI transitions and effects.
+- ***
+
+## Build
+
+1. Clone this repository
+
+```bash
+git clone https://github.com/Phoenix-Dev1/oh-shift.git && cd oh-shift
+```
+
+2. Install project dependencies
+
+```bash
+npm install
+```
+
+## Setup
+
+3. Set up environment variables (Required)
+   -- Create a .env file in the root directory.
+   -- Add the necessary API keys and configuration.
+
+- DATABASE_URL = 
+- NEXTAUTH_SECRET = 
+
+- GITHUB_ID =
+- GITHUB_CLIENT_SECRET =
+- GOOGLE_CLIENT_ID =
+- GOOGLE_CLIENT_SECRET =
+
+## Start the project
+4. Run the project - **Keys Needed**
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
