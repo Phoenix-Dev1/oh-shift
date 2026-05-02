@@ -4,8 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import useIsMobile from "../../../hooks/useIsMobile";
 import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
-import { Calendar, ChevronRight, ChevronLeft, BarChart3, Clock, Users } from "lucide-react";
-import { motion } from "framer-motion";
+import { Calendar, BarChart3, Clock, Users } from "lucide-react";
 
 interface EmployeeAggregate {
   id: string;
@@ -84,8 +83,8 @@ export default function EmployeeAggregatesPage() {
       if (!res.ok) throw new Error("Failed to fetch data");
       const data: EmployeeAggregate[] = await res.json();
       setEmployeeData(data);
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "An error occurred");
     } finally {
       setLoading(false);
     }

@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { UserPlus, UserCircle, Briefcase, Phone, X } from "lucide-react";
-import { motion } from "framer-motion";
+import { UserPlus, UserCircle, Briefcase, Phone } from "lucide-react";
 
 export interface CreateEmployeeFormProps {
   onOptimisticAdd: (newEmployee: {

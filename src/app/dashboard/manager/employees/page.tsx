@@ -11,7 +11,7 @@ import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
 import DeleteModal from "../../../calendar/components/ShiftBoardManager/DeleteModal";
 import useIsMobile from "../../../hooks/useIsMobile";
-import { Plus, UserPlus, Users, Search, Filter, MoreHorizontal } from "lucide-react";
+import { Plus, UserPlus, Users, Search, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Employee = {

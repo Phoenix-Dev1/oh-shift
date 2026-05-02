@@ -4,9 +4,11 @@ import { useState } from "react";
 import { User, Shield, Bell, Globe, Camera, Save, LogOut } from "lucide-react";
 import { motion } from "framer-motion";
 import { signOut } from "next-auth/react";
+import Image from "next/image";
+import { User as UserType } from "@/src/app/types";
 
 interface SettingsContentProps {
-  user: any;
+  user: UserType;
 }
 
 export default function SettingsContent({ user }: SettingsContentProps) {
@@ -73,7 +75,7 @@ export default function SettingsContent({ user }: SettingsContentProps) {
               <div className="relative group">
                 <div className="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 overflow-hidden border-2 border-dashed border-slate-200 dark:border-slate-700">
                   {user?.image ? (
-                    <img src={user.image} alt="Avatar" className="w-full h-full object-cover" />
+                    <Image src={user.image} alt="Avatar" width={80} height={80} className="w-full h-full object-cover" />
                   ) : (
                     <User className="w-8 h-8" />
                   )}

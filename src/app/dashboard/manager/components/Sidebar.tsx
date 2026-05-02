@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Users, Home, Calendar, Workflow, Share2, Settings } from "lucide-react";
+import { Users, Home, Calendar, Workflow, Share2, Settings, Zap } from "lucide-react";
 import useIsMobile from "../../../hooks/useIsMobile";
 import { clsx } from "clsx";
 
@@ -39,9 +39,9 @@ export default function Sidebar() {
       )}
     >
       <div className="p-6">
-        <div className="flex items-center gap-2 px-2">
-          <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold shrink-0">
-            O
+        <div className="flex items-center gap-2 px-2 group cursor-pointer">
+          <div className="w-8 h-8 bg-indigo-600 dark:bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-500/20 group-hover:scale-110 transition-transform shrink-0">
+            <Zap size={18} fill="currentColor" />
           </div>
           {!isMobile && (
             <span className="font-bold text-slate-900 dark:text-white tracking-tight">

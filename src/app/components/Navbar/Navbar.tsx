@@ -1,12 +1,10 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Sun, Moon, LogOut } from "lucide-react";
+import { Sun, Moon, LogOut, Zap } from "lucide-react";
 import NavbarLinks from "./NavbarLinks";
-import { signOut } from "next-auth/react";
 
 const Navbar = () => {
   const { data: session } = useSession();
@@ -30,9 +28,9 @@ const Navbar = () => {
     <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
       <nav className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
         <div className="flex items-center gap-8">
-          <Link href="/calendar" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold">
-              O
+          <Link href="/calendar" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 bg-indigo-600 dark:bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-500/20 group-hover:scale-110 transition-transform">
+              <Zap size={18} fill="currentColor" />
             </div>
             <span className="font-semibold text-slate-900 dark:text-white hidden sm:block">
               Oh-Shift
