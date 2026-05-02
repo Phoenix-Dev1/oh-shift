@@ -2,14 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Menu, X, Sun, Moon } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { clsx } from "clsx";
 
 const MobileNavbar = () => {
   const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState("light");
+  const pathname = usePathname();
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") || "light";
@@ -23,67 +25,76 @@ const MobileNavbar = () => {
     document.documentElement.classList.toggle("dark", newTheme === "dark");
   };
 
+  if (!session) return null;
+
+  const links = [
+    { label: "Calendar", href: "/calendar" },
+    { label: "Dashboard", href: "/dashboard" },
+  ];
+
   return (
-    <>
-      {session ? (
-        <header className="sticky top-0 z-50 w-full bg-transparent text-text-secondary">
-          <nav className="flex items-center justify-between p-4 bg-bg-800 dark:bg-bg-900 ">
-            <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800">
+      <nav className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-colors"
+          >
+            {menuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white font-bold">
+              O
+            </div>
+          </Link>
+        </div>
+        
+        <button
+          onClick={toggleTheme}
+          className="p-2 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 rounded-lg transition-colors"
+        >
+          {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
+        </button>
+      </nav>
+
+      {menuOpen && (
+        <div className="absolute top-full left-0 w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 p-4 shadow-xl animate-in slide-in-from-top-2 duration-200">
+          <ul className="space-y-2">
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={clsx(
+                      "block px-4 py-3 rounded-xl font-medium transition-colors",
+                      isActive
+                        ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-900"
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
+            <li className="pt-2 border-t border-slate-100 dark:border-slate-900">
               <button
-                onClick={() => setMenuOpen(!menuOpen)}
-                className="p-2 rounded-md focus:outline-none "
+                onClick={() => {
+                  setMenuOpen(false);
+                  signOut();
+                }}
+                className="flex items-center gap-3 w-full px-4 py-3 text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-900/10 rounded-xl transition-colors"
               >
-                {menuOpen ? <X size={24} /> : <Menu size={24} />}
+                <LogOut size={20} />
+                Logout
               </button>
-              <Link
-                href="/"
-                className="flex bg-bg-600 h-[37px] justify-center items-center text-center dark:bg-slate-400 rounded-full"
-              >
-                <Image src="/bk-logo.png" alt="Logo" width={40} height={40} />
-              </Link>
-            </div>
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full border dark:border-gray-700"
-            >
-              {theme === "light" ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-          </nav>
-          {menuOpen && (
-            <div className="bg-bg-600 dark:bg-bg-700 p-4">
-              <ul className="flex flex-col gap-4 text-base">
-                {/*
-              You can either reuse your NavbarLinks component (if it works well in mobile)
-              or write out the links manually.
-            */}
-                <li>
-                  <Link href="/" onClick={() => setMenuOpen(false)}>
-                    Calendar
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/dashboard" onClick={() => setMenuOpen(false)}>
-                    Dashboard
-                  </Link>
-                </li>
-                {session && (
-                  <li className="hover:text-red-400">
-                    <button
-                      onClick={() => {
-                        setMenuOpen(false);
-                        signOut();
-                      }}
-                    >
-                      Logout
-                    </button>
-                  </li>
-                )}
-              </ul>
-            </div>
-          )}
-        </header>
-      ) : null}
-    </>
+            </li>
+          </ul>
+        </div>
+      )}
+    </header>
   );
 };
 

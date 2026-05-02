@@ -25,55 +25,31 @@ const Input: React.FC<InputProps> = ({
   disabled,
 }) => {
   return (
-    <div>
+    <div className="space-y-1.5">
       <label
-        className="
-        block
-        text-sm
-        font-medium
-        leading-6
-        text-black
-        dark:text-white"
+        className="block text-sm font-semibold text-slate-700 dark:text-slate-300"
         htmlFor={id}
       >
         {label}
       </label>
-      <div className="mt-2">
-        <input
-          id={id}
-          type={type}
-          value={value}
-          autoComplete={id}
-          disabled={disabled}
-          {...register(id, { required })}
-          className={clsx(
-            `
-          block
-          bg-white
-          dark:bg-bg-800
-          w-full
-          rounded-md
-          border-0
-          py-1.5
-          px-1.5
-          dark:text-white
-          text-gray-900
-          shasow-sm
-          ring-1
-          ring-inset
-          ring-gray-300
-          placeholder:text-gray-400
-          focus:ring-2
-          focus:ring-inset
-          focus:ring-sky-600
-          sm:text-sm
-          sm:leading-6
-          `,
-            errors[id] && "focus:ring-rose-500",
-            disabled && "opacity-50 cursor-default"
-          )}
-        />
-      </div>
+      <input
+        id={id}
+        type={type}
+        value={value}
+        autoComplete={id}
+        disabled={disabled}
+        {...register(id, { required })}
+        className={clsx(
+          "block w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-2 text-slate-900 dark:text-white text-sm ring-offset-white placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all",
+          errors[id] && "border-red-500 focus:border-red-500 focus:ring-red-500/20",
+          disabled && "opacity-50 cursor-not-allowed bg-slate-50 dark:bg-slate-900"
+        )}
+      />
+      {errors[id] && (
+        <p className="text-xs text-red-500 font-medium">
+          {label} is required
+        </p>
+      )}
     </div>
   );
 };

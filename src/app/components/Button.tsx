@@ -36,23 +36,20 @@ const Button: React.FC<ButtonProps> = ({
       onClick={onClick}
       disabled={disabled || loading}
       className={clsx(
-        "flex items-center justify-center rounded-md font-semibold transition duration-200 focus-visible:outline focus-visible:ring-2 focus-visible:ring-offset-2",
+        "inline-flex items-center justify-center rounded-lg font-semibold transition-all duration-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/50 focus-visible:ring-offset-2",
         fullWidth && "w-full",
         secondary
-          ? "bg-gray-200 text-gray-900 hover:bg-gray-300"
-          : "text-white",
-        danger ? "bg-red-500 hover:bg-red-600 focus-visible:ring-red-600" : "",
-        !secondary && !danger
-          ? "bg-blue-500 hover:bg-blue-600 focus-visible:ring-blue-600"
-          : "",
-        disabled && "opacity-50 cursor-not-allowed",
-        size === "small" && "px-2 py-1 text-sm",
-        size === "medium" && "px-4 py-2 text-base",
-        size === "large" && "px-6 py-3 text-lg"
+          ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-slate-700"
+          : !danger && "bg-indigo-600 text-white hover:bg-indigo-500 shadow-sm shadow-indigo-500/20",
+        danger && "bg-red-600 text-white hover:bg-red-500 shadow-sm shadow-red-500/20",
+        disabled && "opacity-50 cursor-not-allowed grayscale",
+        size === "small" && "px-3 py-1.5 text-xs",
+        size === "medium" && "px-4 py-2 text-sm",
+        size === "large" && "px-6 py-3 text-base"
       )}
     >
       {loading ? (
-        <Loader2 className="animate-spin h-5 w-5" />
+        <Loader2 className="animate-spin h-4 w-4" />
       ) : (
         <>
           {iconLeft && <span className="mr-2">{iconLeft}</span>}

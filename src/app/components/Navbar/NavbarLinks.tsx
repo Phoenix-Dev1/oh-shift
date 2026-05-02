@@ -1,38 +1,37 @@
-// NavbarLinks.tsx
-import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+"use client";
 
-const links = ["Calendar", "Dashboard"];
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { clsx } from "clsx";
+
+const links = [
+  { label: "Calendar", href: "/calendar" },
+  { label: "Dashboard", href: "/dashboard" },
+];
 
 export default function NavbarLinks() {
-  const { data: session } = useSession();
+  const pathname = usePathname();
 
   return (
-    <ul className="hidden gap-6 text-sm sm:flex">
-      {links.map((label, index) => {
-        const href = index === 0 ? "/calendar" : `/${label.toLowerCase()}`;
+    <ul className="flex items-center gap-1">
+      {links.map((link) => {
+        const isActive = pathname.startsWith(link.href);
         return (
-          <li key={href} className="relative group">
+          <li key={link.href}>
             <Link
-              href={href}
-              className="relative text-[var(--text-primary)] font-medium transition-all duration-300 ease-in-out"
+              href={link.href}
+              className={clsx(
+                "px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                isActive
+                  ? "bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400"
+                  : "text-slate-600 hover:text-indigo-600 hover:bg-slate-50 dark:text-slate-400 dark:hover:bg-slate-900 dark:hover:text-indigo-400"
+              )}
             >
-              {label}
-              <span className="absolute left-1/2 bottom-0 h-[1px] w-0 bg-gradient-to-r from-highlight to-indigo-400 transition-all duration-300 ease-in-out group-hover:w-full group-hover:left-0"></span>
+              {link.label}
             </Link>
           </li>
         );
       })}
-      {session && (
-        <li className="relative group">
-          <button
-            onClick={() => signOut()}
-            className="relative text-[var(--text-primary)] font-medium transition-all duration-300 ease-in-out hover:text-red-500"
-          >
-            Logout
-          </button>
-        </li>
-      )}
     </ul>
   );
 }

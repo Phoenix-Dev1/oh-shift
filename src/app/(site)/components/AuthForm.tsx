@@ -10,6 +10,7 @@ import AuthSocialButton from "./AuthSocialButton";
 import { signIn, useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 type Variant = "LOGIN" | "REGISTER";
 
@@ -26,10 +27,8 @@ const AuthForm = () => {
   }, [session?.status, router]);
 
   const toggleVariant = useCallback(() => {
-    if (variant === "LOGIN") {
-      setVariant("REGISTER");
-    } else setVariant("LOGIN");
-  }, [variant]);
+    setVariant((prev) => prev === "LOGIN" ? "REGISTER" : "LOGIN");
+  }, []);
 
   const {
     register,
@@ -49,21 +48,20 @@ const AuthForm = () => {
     if (variant === "REGISTER") {
       axios
         .post("/api/register", data)
-        .then(() => signIn("credentials", data))
-        .catch(() => toast.error("Something Went Wrong"))
+        .then(() => signIn("credentials", { ...data, redirect: false }))
+        .catch(() => toast.error("Registration failed"))
         .finally(() => setIsLoading(false));
-    }
-    if (variant === "LOGIN") {
+    } else {
       signIn("credentials", {
         ...data,
         redirect: false,
       })
         .then((callback) => {
           if (callback?.error) {
-            toast.error("Invalid Credantials");
+            toast.error("Invalid credentials");
           }
           if (callback?.ok && !callback.error) {
-            toast.success("Logged in!");
+            toast.success("Welcome back!");
             router.push("/calendar");
           }
         })
@@ -73,93 +71,108 @@ const AuthForm = () => {
 
   const socialAction = (action: string) => {
     setIsLoading(true);
-
     signIn(action, { redirect: false })
       .then((callback) => {
         if (callback?.error) {
-          toast.error("Invalid Credentials");
-        }
-        if (callback?.ok && !callback?.error) {
-          toast.success("Loggen In!");
+          toast.error("Authentication failed");
         }
       })
       .finally(() => setIsLoading(false));
   };
 
   return (
-    <div className="flex items-center justify-center bg-transparent dark:bg-transparent py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="bg-white dark:bg-bg-700 py-12 px-6 shadow-lg rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-            {variant === "REGISTER" && (
-              <Input
-                id="name"
-                label="Name"
-                register={register}
-                errors={errors}
-                disabled={isLoading}
-              />
-            )}
-            <Input
-              id="email"
-              label="Email Address"
-              type="email"
-              register={register}
-              errors={errors}
-              disabled={isLoading}
-            />
-            <Input
-              id="password"
-              label="Password"
-              type="password"
-              register={register}
-              errors={errors}
-              disabled={isLoading}
-            />
-            <div>
-              <Button disabled={isLoading} fullWidth type="submit">
-                {variant === "LOGIN" ? "Sign in" : "Register"}
-              </Button>
-            </div>
-          </form>
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300 dark:border-gray-700" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-bg-700 text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-            <div className="mt-6 flex gap-2">
-              <AuthSocialButton
-                icon={BsGithub}
-                onClick={() => socialAction("github")}
-              />
-              <AuthSocialButton
-                icon={BsGoogle}
-                onClick={() => socialAction("google")}
-              />
-            </div>
-          </div>
-          <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
-            <div>
-              {variant === "LOGIN"
-                ? "New to Oh-Shift?"
-                : "Already have an account?"}
-            </div>
-            <div
-              onClick={toggleVariant}
-              className="underline cursor-pointer text-primary-600 hover:text-primary-500"
+    <motion.div layout className="space-y-6">
+      <motion.form 
+        layout 
+        className="space-y-4" 
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <AnimatePresence>
+          {variant === "REGISTER" && (
+            <motion.div
+              key="name-field"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             >
-              {variant === "LOGIN" ? "Create an account" : "Login"}
-            </div>
+              <div className="pb-4">
+                <Input
+                  id="name"
+                  label="Full Name"
+                  register={register}
+                  errors={errors}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Input
+          id="email"
+          label="Email Address"
+          type="email"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+        />
+        
+        <Input
+          id="password"
+          label="Password"
+          type="password"
+          register={register}
+          errors={errors}
+          disabled={isLoading}
+          required
+        />
+
+        <motion.div layout className="pt-2">
+          <Button disabled={isLoading} fullWidth type="submit">
+            {variant === "LOGIN" ? "Sign in" : "Create account"}
+          </Button>
+        </motion.div>
+      </motion.form>
+
+      <motion.div layout>
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200 dark:border-slate-800" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase tracking-wider font-semibold">
+            <span className="px-3 bg-white dark:bg-slate-900 text-slate-400">
+              Social Authentication
+            </span>
           </div>
         </div>
-      </div>
-    </div>
+
+        <div className="grid grid-cols-2 gap-3 mt-6">
+          <AuthSocialButton
+            icon={BsGithub}
+            onClick={() => socialAction("github")}
+          />
+          <AuthSocialButton
+            icon={BsGoogle}
+            onClick={() => socialAction("google")}
+          />
+        </div>
+
+        <div className="text-center pt-6 mt-6 border-t border-slate-100 dark:border-slate-800">
+          <p className="text-sm text-slate-500">
+            {variant === "LOGIN" ? "No account yet?" : "Already have an account?"}{" "}
+            <button
+              onClick={toggleVariant}
+              className="text-indigo-600 hover:text-indigo-500 font-semibold transition-colors"
+            >
+              {variant === "LOGIN" ? "Join Oh-Shift" : "Sign in here"}
+            </button>
+          </p>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 };
 

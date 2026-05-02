@@ -1,145 +1,146 @@
-/* globals.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: "Exo 2";
-  src: url("/fonts/Exo2.ttf") format("truetype");
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+  --primary: 221.2 83.2% 53.3%;
+  --primary-foreground: 210 40% 98%;
+  --secondary: 210 40% 96.1%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 215.4 16.3% 46.9%;
+  --accent: 210 40% 96.1%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 214.3 31.8% 91.4%;
+  --input: 214.3 31.8% 91.4%;
+  --ring: 221.2 83.2% 53.3%;
+  --radius: 0.75rem;
+
+  /* Custom Palette for Oh-Shift */
+  --bg-main: #ffffff;
+  --bg-subtle: #f8fafc;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --border-subtle: #e2e8f0;
+  --primary-action: #6366f1; /* Indigo 500 */
+  --primary-hover: #4f46e5; /* Indigo 600 */
+}
+
+.dark {
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  --card: 222.2 84% 4.9%;
+  --card-foreground: 210 40% 98%;
+  --popover: 222.2 84% 4.9%;
+  --popover-foreground: 210 40% 98%;
+  --primary: 217.2 91.2% 59.8%;
+  --primary-foreground: 222.2 47.4% 11.2%;
+  --secondary: 217.2 32.6% 17.5%;
+  --secondary-foreground: 210 40% 98%;
+  --muted: 217.2 32.6% 17.5%;
+  --muted-foreground: 215 20.2% 65.1%;
+  --accent: 217.2 32.6% 17.5%;
+  --accent-foreground: 210 40% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+  --border: 217.2 32.6% 17.5%;
+  --input: 217.2 32.6% 17.5%;
+  --ring: 224.3 76.3% 48%;
+
+  --bg-main: #0f172a;
+  --bg-subtle: #1e293b;
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-subtle: #334155;
 }
 
 body {
-  font-family: "Exo 2", sans-serif, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial;
-}
-/* Default light theme */
-:root {
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier,
-    monospace;
-  --text-primary: #0a0a0a;
-  --text-secondary: #0a0a0a;
-  --text-inverse: #f7f8fa;
-  --highlight: #224ed3;
-  --bg-600: #cbd5e1;
-  --bg-700: #e2e8f0;
-  --bg-800: #fff;
-  --bg-900: #f7f8fa;
-  --backdrop: hsla(0, 0%, 100%, 0.8);
-  --background: 0 0% 100%;
-  --foreground: 240 10% 3.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 240 10% 3.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 240 10% 3.9%;
-  --primary: 240 5.9% 10%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 240 4.8% 95.9%;
-  --secondary-foreground: 240 5.9% 10%;
-  --muted: 240 4.8% 95.9%;
-  --muted-foreground: 240 3.8% 46.1%;
-  --accent: 240 4.8% 95.9%;
-  --accent-foreground: 240 5.9% 10%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5.9% 90%;
-  --input: 240 5.9% 90%;
-  --ring: 240 10% 3.9%;
-  --radius: 0.5rem;
-  /*-------------- FullCalendar Light--------------*/
-  --fc-event-bg-color: #4169e1;
-  --fc-event-text-color: #cdd0d4;
-  --fc-today-bg-color: rgba(40, 151, 255, 0.15);
-  --fc-small-font-size: 1.2em;
-
-  .all-day-event {
-    display: flex;
-    background-color: #09122c !important;
-    border-color: #e0dbdb !important;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
-  }
-
-  .all-day-event:hover {
-    background-color: #222f55 !important; /* Change color on hover */
-    color: #fff !important; /* Change text color on hover */
-    border-color: #111116 !important;
-  }
-
-  /* Regular Shifts (Time Grid Events) */
-  .fc-event {
-    cursor: pointer !important;
-    transition: background-color 0.3s ease-in-out;
-  }
-
-  .fc-event:hover {
-    background-color: #224ed3;
-    color: #fff !important;
-  }
+  font-family: 'Inter', sans-serif;
+  @apply bg-white text-slate-900 antialiased;
 }
 
-/* Dark theme */
-html.dark {
-  --text-primary: #a9a9bd;
-  --text-secondary: #f6f7ff;
-  --text-inverse: #0b0b0d;
-  --highlight: #4169e1;
-  --bg-600: #2c2c35;
-  --bg-700: #191920;
-  --bg-800: #111116;
-  --bg-900: #0b0b0d;
-  --bg-full: #0b0b0d;
-  --backdrop: rgba(11, 11, 13, 0.8);
-  --background: 240 10% 3.9%;
-  --foreground: 0 0% 98%;
-  --card: 240 10% 3.9%;
-  --card-foreground: 0 0% 98%;
-  --popover: 240 10% 3.9%;
-  --popover-foreground: 0 0% 98%;
-  --primary: 0 0% 98%;
-  --primary-foreground: 240 5.9% 10%;
-  --secondary: 240 3.7% 15.9%;
-  --secondary-foreground: 0 0% 98%;
-  --muted: 240 3.7% 15.9%;
-  --muted-foreground: 240 5% 64.9%;
-  --accent: 240 3.7% 15.9%;
-  --accent-foreground: 0 0% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 3.7% 15.9%;
-  --input: 240 3.7% 15.9%;
-  --ring: 240 4.9% 83.9%;
-  /*-------------- FullCalendar Dark --------------*/
-  --fc-event-bg-color: #4169e1;
-  --fc-event-text-color: #fff;
-  --fc-today-bg-color: rgba(40, 151, 255, 0.15);
-  --fc-small-font-size: 1.2em;
+.dark body {
+  @apply bg-slate-950 text-slate-50;
+}
 
-  .all-day-event {
-    display: flex;
-    background-color: #09122c !important;
-    border-color: #e0dbdb !important;
-    justify-content: center;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease-in-out;
+/* Bento Grid Card */
+.bento-card {
+  @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all duration-300;
+}
+
+.bento-card:hover {
+  @apply shadow-md border-slate-300;
+}
+
+.dark .bento-card {
+  @apply bg-slate-900 border-slate-800;
+}
+
+.dark .bento-card:hover {
+  @apply border-slate-700;
+}
+
+/* FullCalendar Customization */
+.fc {
+  @apply border-none font-sans;
+}
+
+.fc-theme-standard td, .fc-theme-standard th {
+  @apply border-slate-100;
+}
+
+.dark .fc-theme-standard td, .dark .fc-theme-standard th {
+  @apply border-slate-800;
+}
+
+.fc-event {
+  @apply rounded-md border-none px-2 py-1 shadow-sm font-medium transition-transform active:scale-95;
+}
+
+.fc-day-today {
+  @apply bg-indigo-50/50 !important;
+}
+
+.dark .fc-day-today {
+  @apply bg-indigo-900/20 !important;
+}
+
+/* Custom Scrollbar */
+@layer base {
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
   }
 
-  .all-day-event:hover {
-    background-color: #222f55 !important; /* Change color on hover */
-    color: #fff !important; /* Change text color on hover */
-    border-color: #111116 !important;
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-50 dark:bg-slate-950;
   }
 
-  /* Regular Shifts (Time Grid Events) */
-  .fc-event {
-    cursor: pointer !important;
-    transition: background-color 0.3s ease-in-out;
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 dark:bg-slate-800 rounded-full border-2 border-slate-50 dark:border-slate-950 transition-colors;
   }
 
-  .fc-event:hover {
-    background-color: #224ed3;
-    color: #fff !important;
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400 dark:bg-slate-700;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.slate.300') theme('colors.slate.50');
+  }
+
+  .dark * {
+    scrollbar-color: theme('colors.slate.800') theme('colors.slate.950');
   }
 }

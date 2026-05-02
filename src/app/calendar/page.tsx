@@ -1,4 +1,4 @@
-import ShiftBoardManager from "./components/ShiftBoardManager/ShiftBoardManager";
+import ShiftBoardManager from "./components/ShiftBoard/ShiftBoardManager";
 import EmployeeBoardManager from "./components/EmployeeBoardManager/EmployeeBoardManager";
 import getCurrentUser from "../actions/getCurrentUser";
 
