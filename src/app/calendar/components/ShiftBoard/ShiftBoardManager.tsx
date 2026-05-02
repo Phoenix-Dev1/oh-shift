@@ -8,7 +8,7 @@ import ShiftBoardSkeleton from "./ShiftBoardSkeleton";
 import ShiftModal from "../ShiftBoardManager/ShiftModal";
 import DeleteModal from "../ShiftBoardManager/DeleteModal";
 import ConfirmationModal from "../ShiftBoardManager/ConfirmationModal";
-import { Shift } from "../../../types";
+import { Shift, Employee } from "../../../types";
 
 const ShiftBoardManager = () => {
   const { 
@@ -49,11 +49,18 @@ const ShiftBoardManager = () => {
       allDay: false,
       title: "",
       managerId: "",
-    } as any);
+      isNew: true,
+    });
     setIsModalOpen(true);
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = (data: { 
+    title?: string; 
+    employees?: Employee[]; 
+    allDay: boolean;
+    startTime?: string;
+    endTime?: string;
+  }) => {
     if (!selectedShift) return;
 
     const finalData = {
@@ -68,7 +75,7 @@ const ShiftBoardManager = () => {
       createShift({
         startTime: finalData.startTime,
         endTime: finalData.endTime,
-        employees: finalData.employees.map((e: any) => e.id),
+        employees: finalData.employees.map((e: Employee) => e.id),
         allDay: finalData.allDay,
         title: finalData.title,
       });
@@ -77,7 +84,7 @@ const ShiftBoardManager = () => {
         id: selectedShift.id,
         startTime: finalData.startTime,
         endTime: finalData.endTime,
-        employees: finalData.employees.map((e: any) => e.id),
+        employees: finalData.employees.map((e: Employee) => e.id),
         allDay: finalData.allDay,
         title: finalData.title,
       });
@@ -97,7 +104,7 @@ const ShiftBoardManager = () => {
     if (pendingShift) {
       updateShift({
         ...pendingShift,
-        employees: pendingShift.employees.map((e: any) => e.id),
+        employees: pendingShift.employees.map((e: Employee) => e.id),
       });
       setPendingShift(null);
     }

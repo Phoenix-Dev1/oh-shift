@@ -9,14 +9,19 @@ import { revalidatePath } from "next/cache";
  */
 export async function getRecentShiftTitles() {
   try {
-    const currentUser = (await getCurrentUser()) as any;
+    const currentUser = await getCurrentUser();
     
     if (!currentUser) {
       return [];
     }
 
-    return (currentUser.recentShiftTitles as string[]) || [];
-  } catch (error) {
+    const user = await prisma.user.findUnique({
+      where: { id: currentUser.id },
+      select: { recentShiftTitles: true }
+    });
+
+    return (user?.recentShiftTitles as string[]) || [];
+  } catch (error: unknown) {
     console.error("Error fetching recent shift titles:", error);
     return [];
   }
@@ -29,26 +34,32 @@ export async function saveRecentShiftTitle(newTitle: string) {
   try {
     if (!newTitle || newTitle.trim() === "") return null;
     
-    const currentUser = (await getCurrentUser()) as any;
+    const currentUser = await getCurrentUser();
     if (!currentUser) return null;
 
+    const user = await prisma.user.findUnique({
+      where: { id: currentUser.id },
+      select: { recentShiftTitles: true }
+    });
+
     const trimmedTitle = newTitle.trim();
+    const currentTitles = (user?.recentShiftTitles as string[]) || [];
     
     const updatedTitles = [
       trimmedTitle,
-      ...(currentUser.recentShiftTitles || []).filter((t: string) => t !== trimmedTitle)
+      ...currentTitles.filter((t: string) => t !== trimmedTitle)
     ].slice(0, 5);
 
     const updatedUser = await prisma.user.update({
       where: { id: currentUser.id },
       data: {
         recentShiftTitles: updatedTitles
-      } as any
+      }
     });
 
     revalidatePath("/calendar");
-    return (updatedUser as any).recentShiftTitles;
-  } catch (error) {
+    return updatedUser.recentShiftTitles;
+  } catch (error: unknown) {
     console.error("Error saving recent shift title:", error);
     return null;
   }
@@ -59,10 +70,16 @@ export async function saveRecentShiftTitle(newTitle: string) {
  */
 export async function removeRecentShiftTitle(titleToRemove: string) {
   try {
-    const currentUser = (await getCurrentUser()) as any;
+    const currentUser = await getCurrentUser();
     if (!currentUser) return null;
 
-    const updatedTitles = (currentUser.recentShiftTitles || []).filter(
+    const user = await prisma.user.findUnique({
+      where: { id: currentUser.id },
+      select: { recentShiftTitles: true }
+    });
+
+    const currentTitles = (user?.recentShiftTitles as string[]) || [];
+    const updatedTitles = currentTitles.filter(
       (t: string) => t !== titleToRemove
     );
 
@@ -70,12 +87,12 @@ export async function removeRecentShiftTitle(titleToRemove: string) {
       where: { id: currentUser.id },
       data: {
         recentShiftTitles: updatedTitles
-      } as any
+      }
     });
 
     revalidatePath("/calendar");
-    return (updatedUser as any).recentShiftTitles;
-  } catch (error) {
+    return updatedUser.recentShiftTitles;
+  } catch (error: unknown) {
     console.error("Error removing recent shift title:", error);
     return null;
   }

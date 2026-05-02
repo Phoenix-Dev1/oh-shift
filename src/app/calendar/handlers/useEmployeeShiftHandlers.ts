@@ -4,8 +4,11 @@ import { Shift } from "../../types/index";
 interface EmployeeFromAssignment {
   id: string;
   name: string;
-  position: string;
-  employeeManagerId: string;
+  email: string | null;
+  phone: string | null;
+  position: string | null;
+  managerId: string;
+  employeeManagerId: string | null;
 }
 
 interface Assignment {
@@ -35,12 +38,16 @@ export const fetchEmployeeShifts = async (
       endTime: shift.endTime,
       allDay: shift.allDay,
       title: shift.title,
+      managerId: "",
       employees:
         shift.assignments?.map((assignment: Assignment) => ({
           id: assignment.employee?.id ?? "unknown",
           name: assignment.employee?.name ?? "Unnamed",
+          email: assignment.employee?.email ?? null,
+          phone: assignment.employee?.phone ?? null,
           position: assignment.employee?.position ?? "Unknown",
-          employeeManagerId: assignment.employee?.employeeManagerId ?? "",
+          managerId: assignment.employee?.managerId ?? "",
+          employeeManagerId: assignment.employee?.employeeManagerId ?? null,
         })) ?? [],
     }));
 

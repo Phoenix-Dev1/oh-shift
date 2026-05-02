@@ -11,6 +11,20 @@ import useIsMobile from "../../hooks/useIsMobile";
 
 export type ViewMode = 'month' | 'week' | 'day';
 
+interface PrismaAssignment {
+  employee: Employee;
+}
+
+interface PrismaShift {
+  id: string;
+  startTime: Date;
+  endTime: Date;
+  allDay: boolean;
+  title: string | null;
+  managerId: string;
+  assignments: PrismaAssignment[];
+}
+
 export const useShiftBoard = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -51,13 +65,13 @@ export const useShiftBoard = () => {
   const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
     queryKey: ["shifts"],
     queryFn: async () => {
-      const data = await getManagerShifts();
+      const data = await getManagerShifts() as unknown as PrismaShift[];
       // Map Prisma response to our Shift type
-      return data.map((s: any) => ({
+      return data.map((s: PrismaShift) => ({
         ...s,
         startTime: s.startTime.toISOString(),
         endTime: s.endTime.toISOString(),
-        employees: s.assignments.map((a: any) => a.employee),
+        employees: s.assignments.map((a: PrismaAssignment) => a.employee),
       })) as Shift[];
     },
   });
@@ -103,10 +117,18 @@ export const useShiftBoard = () => {
             if (s.id === newShift.id) {
               // Fix Optimistic UI: Map string IDs back to full Employee objects
               const updatedEmployees = newShift.employees 
-                ? newShift.employees.map((empIdOrObj: any) => {
+                ? newShift.employees.map((empIdOrObj: string | Employee) => {
                     if (typeof empIdOrObj === 'string') {
                       // Attempt to find the full employee object from our cache
-                      return employees.find(e => e.id === empIdOrObj) || { id: empIdOrObj, name: "Unknown" };
+                      return employees.find(e => e.id === empIdOrObj) || ({ 
+                        id: empIdOrObj, 
+                        name: "Unknown",
+                        email: null,
+                        phone: null,
+                        position: null,
+                        managerId: "",
+                        employeeManagerId: null
+                      } as Employee);
                     }
                     return empIdOrObj;
                   })

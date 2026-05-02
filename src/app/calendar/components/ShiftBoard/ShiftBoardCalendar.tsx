@@ -17,7 +17,6 @@ import {
 import { 
   generateWeekDays, 
   generateMonthDays,
-  generateTimeSlots, 
   calculateShiftPosition 
 } from "../../libs/calendarUtils";
 import { Shift } from "../../../types";

@@ -18,7 +18,7 @@ export async function getUserSettings() {
     });
 
     return { businessDayStartHour: user?.businessDayStartHour ?? 7 };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error fetching user settings", error);
     return { businessDayStartHour: 7 };
   }
@@ -45,7 +45,7 @@ export async function updateBusinessDayStartHour(hour: number) {
     revalidatePath("/calendar");
     
     return { success: true };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error updating businessDayStartHour", error);
     throw new Error("Failed to update businessDayStartHour");
   }

@@ -1,9 +1,14 @@
 import getCurrentUser from "../../actions/getCurrentUser";
-import Sidebar from "../manager/components/Sidebar"; // Reusing manager sidebar for now, ideally would be role-agnostic
+import Sidebar from "../manager/components/Sidebar";
 import SettingsContent from "./SettingsContent";
+import { redirect } from "next/navigation";
 
 export default async function SettingsPage() {
   const user = await getCurrentUser();
+
+  if (!user) {
+    redirect("/");
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden">

@@ -25,8 +25,8 @@ interface ShiftDataInput {
   endTime?: string | Date;
 }
 
-interface AssignmentResponse {
-  employee?: Employee | null;
+interface LocalAssignment {
+  employee?: Partial<Employee> | null;
 }
 
 const ShiftBoardManager: React.FC = () => {
@@ -51,7 +51,6 @@ const ShiftBoardManager: React.FC = () => {
 
   const handleModalDelete = async () => {
     if (selectedShift) {
-      // Call the delete function for the selected shift
       await deleteShift(selectedShift.id, setShifts, setIsDeleteModalOpen);
       setSelectedShift(null);
       setIsShiftModalOpen(false);
@@ -88,7 +87,6 @@ const ShiftBoardManager: React.FC = () => {
       );
 
       try {
-        // Remove the explicit type annotation so the inferred type is ShiftAPIResponse | void.
         const result = selectedShift.isNew
           ? await saveShiftToDB(updatedShift)
           : await updateShiftInDB(updatedShift);
@@ -96,20 +94,22 @@ const ShiftBoardManager: React.FC = () => {
         if (result) {
           const formattedShift: Shift = {
             id: result.id,
-            // Convert to ISO string to satisfy the expected type
             startTime: new Date(result.startTime).toISOString(),
             endTime: new Date(result.endTime).toISOString(),
             employees:
-              result.assignments?.map((assignment: AssignmentResponse) => ({
+              result.assignments?.map((assignment: LocalAssignment) => ({
                 id: assignment.employee?.id || "unknown",
                 name: assignment.employee?.name || "Unnamed",
+                email: assignment.employee?.email || null,
+                phone: assignment.employee?.phone || null,
                 position: assignment.employee?.position || "Unknown",
-                // Provide a fallback for employeeManagerId as required by the Employee type
-                employeeManagerId: assignment.employee?.employeeManagerId || "",
+                managerId: assignment.employee?.managerId || "",
+                employeeManagerId: assignment.employee?.employeeManagerId || null,
               })) || updatedShift.employees,
             allDay: updatedShift.allDay,
             title: result.title || updatedShift.title,
             isNew: false,
+            managerId: updatedShift.managerId,
           };
           setShifts((prevShifts) =>
             prevShifts.map((shift) =>
@@ -157,7 +157,6 @@ const ShiftBoardManager: React.FC = () => {
 
   return (
     <div className="p-4">
-      {/* Delete Modal */}
       <DeleteModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -166,13 +165,11 @@ const ShiftBoardManager: React.FC = () => {
         message="Are you sure you want to delete this shift?"
       />
 
-      {/* Shift Modal */}
       {isShiftModalOpen && selectedShift && (
         <ShiftModal
           isOpen={isShiftModalOpen}
           onClose={() => setIsShiftModalOpen(false)}
           onSave={handleSaveShift}
-          // Pass the onDelete callback if on mobile
           onDelete={isMobile ? handleModalDelete : undefined}
           shift={selectedShift}
           employees={employees}
@@ -216,7 +213,6 @@ const ShiftBoardManager: React.FC = () => {
         />
       )}
 
-      {/* Render either the mobile or desktop calendar */}
       {isMobile ? (
         <MobileFullCalendar
           shifts={shifts}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, Info, X, Calendar, UserPlus, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search } from "lucide-react";
+import { Phone, X, Calendar, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search } from "lucide-react";
 import { Shift, Employee } from "../../../types";
 import useIsMobile from "../../../hooks/useIsMobile";
 import { format, parseISO, setHours, setMinutes, startOfDay, addDays } from "date-fns";

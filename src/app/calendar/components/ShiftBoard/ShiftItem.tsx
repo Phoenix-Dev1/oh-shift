@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Shift } from "../../../types";
-import { Users, Clock, CornerLeftUp } from "lucide-react";
+import { Clock, CornerLeftUp } from "lucide-react";
 import { format, parseISO, addMinutes } from "date-fns";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";

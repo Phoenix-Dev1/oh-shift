@@ -6,11 +6,13 @@ export interface User {
   email: string | null;
   image: string | null;
   role: Role;
+  businessDayStartHour?: number;
 }
 
 export interface Employee {
   id: string;
   name: string;
+  email: string | null;
   phone: string | null;
   position: string | null;
   managerId: string;
@@ -25,6 +27,7 @@ export interface Shift {
   title: string | null;
   managerId: string;
   employees: Employee[];
+  isNew?: boolean;
 }
 
 export interface ShiftAssignment {

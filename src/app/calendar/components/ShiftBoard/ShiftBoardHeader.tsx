@@ -25,7 +25,7 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
   onPrevious,
   onNext
 }) => {
-  const modes: { id: ViewMode; label: string; icon: any }[] = [
+  const modes: { id: ViewMode; label: string; icon: React.ElementType }[] = [
     { id: 'day', label: 'Day', icon: List },
     { id: 'week', label: 'Week', icon: LayoutGrid },
     { id: 'month', label: 'Month', icon: CalendarDays },

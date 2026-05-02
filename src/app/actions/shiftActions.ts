@@ -3,6 +3,7 @@
 import prisma from "../libs/prismadb";
 import getCurrentUser from "./getCurrentUser";
 import { revalidatePath } from "next/cache";
+import { Prisma } from "@prisma/client";
 
 export async function getManagerShifts() {
   const currentUser = await getCurrentUser();
@@ -83,7 +84,7 @@ export async function updateShift(data: {
     adjustedEnd.setHours(23, 59, 59, 999);
   }
 
-  const updateData: any = {
+  const updateData: Prisma.ShiftUpdateInput = {
     startTime: adjustedStart,
     endTime: adjustedEnd,
     allDay: allDay ?? false,

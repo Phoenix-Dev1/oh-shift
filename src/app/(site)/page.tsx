@@ -55,7 +55,7 @@ export default function Home() {
             Sign in to your workspace
           </h2>
           <p className="text-slate-500 dark:text-slate-400 mt-3 text-sm font-medium leading-relaxed">
-            Manage your organization's shift scheduling with precision and security.
+            Manage your organization&apos;s shift scheduling with precision and security.
           </p>
         </motion.div>
 

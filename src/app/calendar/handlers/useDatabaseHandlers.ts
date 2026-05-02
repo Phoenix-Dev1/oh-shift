@@ -7,8 +7,11 @@ interface Assignment {
   employee?: {
     id: string;
     name: string;
-    position: string;
-    employeeManagerId: string;
+    email: string | null;
+    phone: string | null;
+    position: string | null;
+    managerId: string;
+    employeeManagerId: string | null;
   } | null;
 }
 
@@ -42,8 +45,8 @@ export const saveShiftToDB = async (
         startTime: shift.startTime,
         endTime: shift.endTime,
         employees: shift.employees.map((emp) => emp.id),
-        allDay: shift.allDay, // <-- Add this
-        title: shift.title, // <-- And this
+        allDay: shift.allDay,
+        title: shift.title,
       }),
     });
 
@@ -77,8 +80,8 @@ export const updateShiftInDB = async (
 
     if (!timeOnly) {
       payload.employees = shift.employees.map((emp) => emp.id);
-      payload.allDay = shift.allDay; // <-- Include for non-time-only updates
-      payload.title = shift.title; // <-- Include for non-time-only updates
+      payload.allDay = shift.allDay;
+      payload.title = shift.title;
     }
 
     const response = await fetch("/api/shifts/manager", {
@@ -116,14 +119,18 @@ export const fetchShiftsFromDB = async (
       id: shift.id,
       startTime: shift.startTime,
       endTime: shift.endTime,
-      allDay: shift.allDay, // Add this line
-      title: shift.title ?? undefined, // Convert null to undefined
+      allDay: shift.allDay,
+      title: shift.title,
+      managerId: "",
       employees:
         shift.assignments?.map((assignment: Assignment) => ({
           id: assignment.employee?.id ?? "unknown",
           name: assignment.employee?.name ?? "Unnamed",
+          email: assignment.employee?.email ?? null,
+          phone: assignment.employee?.phone ?? null,
           position: assignment.employee?.position ?? "Unknown",
-          employeeManagerId: assignment.employee?.employeeManagerId ?? "",
+          managerId: assignment.employee?.managerId ?? "",
+          employeeManagerId: assignment.employee?.employeeManagerId ?? null,
         })) ?? [],
     }));
 
