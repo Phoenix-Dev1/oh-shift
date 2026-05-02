@@ -1,5 +1,5 @@
 // src\app\calendar\handlers\useDatabaseHandlers.ts
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Shift } from "../../types/index";
 
 // Define the shape of a shift returned from the API

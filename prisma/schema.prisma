@@ -22,6 +22,8 @@ model User {
   employeeManagerId  String?    @db.ObjectId
   managedSchedules   Schedule[] @relation("ManagedSchedules")
   employees          Employee[] @relation("ManagerEmployees")
+  recentShiftTitles  String[]   @default([])
+  businessDayStartHour Int      @default(7)
   Shift              Shift[]
   
   // Optional back-relation for the one-to-one assignment

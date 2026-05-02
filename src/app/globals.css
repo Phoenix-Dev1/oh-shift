@@ -73,6 +73,18 @@ body {
   @apply bg-slate-950 text-slate-50;
 }
 
+@layer base {
+  /* Global Focus States */
+  :focus-visible {
+    @apply outline-none ring-2 ring-indigo-500 ring-offset-2 dark:ring-offset-slate-950 transition-all;
+  }
+
+  /* Interactive Elements */
+  a, button, input, select, textarea {
+    @apply focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950;
+  }
+}
+
 /* Bento Grid Card */
 .bento-card {
   @apply bg-white border border-slate-200 rounded-xl p-6 shadow-sm transition-all duration-300;
@@ -117,30 +129,44 @@ body {
 
 /* Custom Scrollbar */
 @layer base {
+  /* Webkit browsers (Chrome, Safari, Edge) */
   ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-slate-50 dark:bg-slate-950;
+    @apply bg-transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-slate-300 dark:bg-slate-800 rounded-full border-2 border-slate-50 dark:border-slate-950 transition-colors;
+    @apply bg-slate-300 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-slate-400 dark:bg-slate-700;
+    @apply bg-slate-400;
+  }
+
+  /* Dark mode support for Webkit */
+  .dark ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    @apply bg-slate-800 rounded-full border-[1px] border-slate-700;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-700;
   }
 
   /* Firefox */
   * {
     scrollbar-width: thin;
-    scrollbar-color: theme('colors.slate.300') theme('colors.slate.50');
+    scrollbar-color: theme('colors.slate.300') transparent;
   }
 
   .dark * {
-    scrollbar-color: theme('colors.slate.800') theme('colors.slate.950');
+    scrollbar-color: theme('colors.slate.800') transparent;
   }
 }

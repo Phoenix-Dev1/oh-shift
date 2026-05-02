@@ -8,7 +8,7 @@ import Input from "../../components/inputs/Input";
 import Button from "../../components/Button";
 import AuthSocialButton from "./AuthSocialButton";
 import { signIn, useSession } from "next-auth/react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -38,7 +38,7 @@ const AuthForm = () => {
     defaultValues: {
       name: "",
       email: "demo@gmail.com",
-      password: "1q2w3e4r",
+      password: "WhiteFlag15@",
     },
   });
 
@@ -82,9 +82,9 @@ const AuthForm = () => {
 
   return (
     <motion.div layout className="space-y-6">
-      <motion.form 
-        layout 
-        className="space-y-4" 
+      <motion.form
+        layout
+        className="space-y-4"
         onSubmit={handleSubmit(onSubmit)}
       >
         <AnimatePresence>
@@ -119,7 +119,7 @@ const AuthForm = () => {
           disabled={isLoading}
           required
         />
-        
+
         <Input
           id="password"
           label="Password"

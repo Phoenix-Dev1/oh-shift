@@ -1,4 +1,4 @@
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Shift } from "../../types/index";
 
 interface EmployeeFromAssignment {

@@ -7,7 +7,7 @@ import HoverModal from "./HoverModal";
 import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";
 import useIsMobile from "../../../hooks/useIsMobile";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Employee, Shift } from "../../../types/index";
 import { deleteShift } from "../../handlers/useDeleteHandlers";
 import { fetchEmployees } from "../../handlers/useEmployeeHandlers";

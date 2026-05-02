@@ -34,7 +34,6 @@ export async function createShift(data: {
   }
 
   const { startTime, endTime, employees, allDay, title } = data;
-
   const adjustedStart = new Date(startTime);
   const adjustedEnd = new Date(endTime);
   if (allDay) {
@@ -48,7 +47,7 @@ export async function createShift(data: {
       endTime: adjustedEnd,
       managerId: currentUser.id,
       allDay: allDay ?? false,
-      title: allDay ? title || "New All Day Shift" : null,
+      title: title || (allDay ? "New All Day Shift" : "Standard Shift"),
       assignments: {
         create: employees.map((employeeId: string) => ({
           employee: { connect: { id: employeeId } },
@@ -88,7 +87,7 @@ export async function updateShift(data: {
     startTime: adjustedStart,
     endTime: adjustedEnd,
     allDay: allDay ?? false,
-    title: allDay ? title || "New All Day Shift" : null,
+    title: title || (allDay ? "New All Day Shift" : "Standard Shift"),
   };
 
   if (employees && Array.isArray(employees)) {

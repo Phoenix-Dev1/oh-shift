@@ -2,22 +2,26 @@
 
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { AlertTriangle, X } from "lucide-react";
+import { HelpCircle, X } from "lucide-react";
 
-interface DeleteModalProps {
+interface ConfirmationModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  title?: string;
-  message?: string;
+  title: string;
+  message: string;
+  confirmText?: string;
+  cancelText?: string;
 }
 
-const DeleteModal: React.FC<DeleteModalProps> = ({
+const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
-  title = "Confirm Deletion",
-  message = "Are you sure you want to delete this shift?",
+  title,
+  message,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
 }) => {
   return (
     <AnimatePresence>
@@ -41,8 +45,8 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
           >
             <div className="p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/10 flex items-center justify-center text-red-600 dark:text-red-500 flex-shrink-0">
-                  <AlertTriangle className="w-5 h-5" />
+                <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-500 flex-shrink-0">
+                  <HelpCircle className="w-5 h-5" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
@@ -66,13 +70,13 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
                   onClick={onClose}
                   className="flex-1 py-2.5 text-sm font-bold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
                 >
-                  Cancel
+                  {cancelText}
                 </button>
                 <button
                   onClick={onConfirm}
-                  className="flex-1 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-red-500/20 active:scale-95"
+                  className="flex-1 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
                 >
-                  Confirm Delete
+                  {confirmText}
                 </button>
               </div>
             </div>
@@ -83,4 +87,4 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
   );
 };
 
-export default DeleteModal;
+export default ConfirmationModal;

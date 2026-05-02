@@ -10,7 +10,7 @@ import useIsMobile from "../../../hooks/useIsMobile";
 const sidebarLinks = [
   { name: "Dashboard", href: "/dashboard/employee", icon: Home },
   { name: "Calendar", href: "/calendar", icon: Calendar },
-  { name: "Settings", href: "/calendar", icon: Settings },
+  { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 export default function Sidebar() {

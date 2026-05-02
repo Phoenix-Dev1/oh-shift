@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Employee } from "../../../../types/index";
 import Sidebar from "../../../manager/components/Sidebar";
 import ManagerInfo from "../../components/ManagerInfo";

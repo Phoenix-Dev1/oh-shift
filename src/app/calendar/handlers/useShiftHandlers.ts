@@ -1,7 +1,7 @@
 // src/handlers/useShiftHandlers.ts
 import { Shift } from "../../types";
 import { updateShiftInDB, saveShiftToDB } from "./useDatabaseHandlers";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface DateSelectInfo {
   startStr: string;
