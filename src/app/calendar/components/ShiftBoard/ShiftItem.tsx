@@ -19,6 +19,7 @@ interface ShiftItemProps {
   isClippedEnd?: boolean;
   overlapCount?: number;
   overlapIndex?: number;
+  colorIndex?: number;
 }
 
 const formatName = (fullName: string) => {
@@ -28,20 +29,20 @@ const formatName = (fullName: string) => {
 };
 
 const STRIPE_COLORS = [
-  'border-l-indigo-500',
-  'border-l-blue-500',
-  'border-l-cyan-500',
-  'border-l-teal-500',
-  'border-l-violet-500',
-  'border-l-emerald-500',
-  'border-l-rose-500',
-  'border-l-amber-500'
+  '#0ea5e9', // Sky Blue
+  '#10b981', // Emerald Green
+  '#b6e1ecff', // White
+  '#f43f5e', // Rose Red
+  '#6366f1', // Indigo Purple
+  '#f97316', // Orange
+  '#d946ef', // Fuchsia Pink
 ];
 
-const getStripeColor = (title: string | null | undefined = "Standard Shift") => {
+const getStripeColor = (title: string | null | undefined = "Standard Shift", index: number = 0): string => {
   const normalizedTitle = title || "Standard Shift";
-  const hash = normalizedTitle.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  return STRIPE_COLORS[hash % STRIPE_COLORS.length];
+  const hash = normalizedTitle.split('').reduce((acc, char, i) => acc + (char.charCodeAt(0) * (i + 1)), 0);
+  const colorIndex = Math.abs(hash * 31 + index * 17) % STRIPE_COLORS.length;
+  return STRIPE_COLORS[colorIndex];
 };
 
 const ShiftItem: React.FC<ShiftItemProps> = ({
@@ -55,7 +56,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   isClippedStart = false,
   isClippedEnd = false,
   overlapCount = 1,
-  overlapIndex = 0
+  overlapIndex = 0,
+  colorIndex = 0
 }) => {
   const [currentHeight, setCurrentHeight] = useState(initialHeight);
   const [isResizing, setIsResizing] = useState(false);
@@ -113,6 +115,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
     }
   };
 
+  const stripeColor = getStripeColor(shift.title, colorIndex);
+
   const style = {
     top: isOverlay ? 0 : `${top}px`,
     height: `${currentHeight}px`,
@@ -121,6 +125,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.3 : 1,
     zIndex: isResizing || isDragging || isHovered ? 50 : 10,
+    borderLeftColor: stripeColor,
   };
 
   return (
@@ -132,9 +137,9 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={style}
-      className={`absolute group bg-indigo-50/80 dark:bg-indigo-950/30 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 shadow-sm transition-all duration-200 ease-in-out overflow-hidden flex flex-col border-l-4 ${getStripeColor(shift.title)} border-r border-r-indigo-100 dark:border-r-indigo-800/50 ${isClippedStart
-          ? "rounded-t-none border-t-2 border-t-dashed border-t-indigo-200 dark:border-t-indigo-800/50"
-          : "rounded-t-md border-t border-t-indigo-100 dark:border-t-indigo-800/50"
+      className={`absolute group bg-indigo-50/80 dark:bg-indigo-950/30 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 shadow-sm transition-all duration-200 ease-in-out overflow-hidden flex flex-col border-l-4 border-r border-r-indigo-100 dark:border-r-indigo-800/50 ${isClippedStart
+        ? "rounded-t-none border-t-2 border-t-dashed border-t-indigo-200 dark:border-t-indigo-800/50"
+        : "rounded-t-md border-t border-t-indigo-100 dark:border-t-indigo-800/50"
         } ${isClippedEnd
           ? "rounded-b-none border-b-0"
           : "rounded-b-md border-b border-b-indigo-100 dark:border-b-indigo-800/50"
@@ -212,13 +217,12 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
               })
               .slice(0, 8)
               .map((emp) => (
-                <div 
-                  key={emp?.id || Math.random().toString()} 
-                  className={`text-xs font-medium truncate flex items-center gap-1 ${
-                    emp?.id === shift.shiftLeadId 
-                      ? "text-amber-700 dark:text-amber-300 font-bold" 
-                      : "text-indigo-900/70 dark:text-indigo-100/70"
-                  }`}
+                <div
+                  key={emp?.id || Math.random().toString()}
+                  className={`text-xs font-medium truncate flex items-center gap-1 ${emp?.id === shift.shiftLeadId
+                    ? "text-amber-700 dark:text-amber-300 font-bold"
+                    : "text-indigo-900/70 dark:text-indigo-100/70"
+                    }`}
                 >
                   {emp?.id === shift.shiftLeadId && <span className="text-[10px]">⭐</span>}
                   {formatName(emp?.name || "Unknown")}

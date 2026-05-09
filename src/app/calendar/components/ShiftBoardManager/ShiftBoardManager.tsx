@@ -173,6 +173,7 @@ const ShiftBoardManager: React.FC = () => {
           onDelete={isMobile ? handleModalDelete : undefined}
           shift={selectedShift}
           employees={employees}
+          shifts={shifts}
         />
       )}
 

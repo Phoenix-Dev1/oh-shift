@@ -12,9 +12,7 @@ import {
   isSameMonth,
   areIntervalsOverlapping,
   addHours,
-  addDays,
-  isBefore,
-  isAfter 
+  addDays
 } from "date-fns";
 import { 
   generateWeekDays, 
@@ -422,6 +420,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                   });
 
                   const processedShifts: (Shift & { overlapCount: number; overlapIndex: number })[] = [];
+                  const colIdxMap = new Map<string, number>();
                   clusters.forEach(cluster => {
                     const columns: Shift[][] = [];
                     cluster.forEach(shift => {
@@ -443,19 +442,19 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                         }
                         colIdx++;
                       }
-                      (shift as any)._colIdx = colIdx;
+                      colIdxMap.set(shift.id, colIdx);
                     });
                     const overlapCount = columns.length;
                     cluster.forEach(shift => {
                       processedShifts.push({
                         ...shift,
                         overlapCount,
-                        overlapIndex: (shift as any)._colIdx
+                        overlapIndex: colIdxMap.get(shift.id) || 0
                       });
                     });
                   });
 
-                  return processedShifts.map((shift) => {
+                  return processedShifts.map((shift, dayIndex) => {
                     const pos = calculateShiftPosition(shift.startTime, shift.endTime, day, businessDayStartHour);
                     if (!pos) return null;
                     
@@ -469,6 +468,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                         isClippedEnd={pos.isClippedEnd}
                         overlapCount={shift.overlapCount}
                         overlapIndex={shift.overlapIndex}
+                        colorIndex={dayIndex}
                         onClick={() => onEventClick(shift)}
                         onResizeEnd={(newEndTime: string) => onEventResize({
                           ...shift,

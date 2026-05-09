@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, X, Calendar, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search, Star, Crown, XCircle, UserRoundMinus } from "lucide-react";
+import { X, Calendar, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search, Star, Crown, XCircle, UserRoundMinus } from "lucide-react";
 import { useMemo } from "react";
 import { Shift, Employee } from "../../../types";
 import useIsMobile from "../../../hooks/useIsMobile";
@@ -544,7 +544,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                       </div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white">No matches found</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
-                        No employees found matching "{searchQuery}"
+                        No employees found matching &quot;{searchQuery}&quot;
                       </p>
                       <button
                         onClick={() => setSearchQuery("")}
