@@ -40,13 +40,13 @@ const ShiftBoardManager = () => {
     setIsModalOpen(true);
   };
 
-  const handleDateSelect = (start: Date, end: Date) => {
+  const handleDateSelect = (start: Date, end: Date, allDay: boolean = false) => {
     setSelectedShift({
       id: "new",
       startTime: start.toISOString(),
       endTime: end.toISOString(),
       employees: [],
-      allDay: false,
+      allDay: allDay,
       title: "",
       managerId: "",
       isNew: true,

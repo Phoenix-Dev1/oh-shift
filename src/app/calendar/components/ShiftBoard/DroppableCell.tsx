@@ -16,7 +16,7 @@ const DroppableCell: React.FC<DroppableCellProps> = ({ id, onClick, children, cl
   });
 
   // Default time-slot class
-  const defaultClass = "h-16 border-b border-slate-100 dark:border-slate-800/40 last:border-b-0 transition-colors";
+  const defaultClass = "h-16 border-b border-slate-100 dark:border-slate-800/40 last:border-b-0 transition-colors cursor-pointer";
 
   return (
     <div

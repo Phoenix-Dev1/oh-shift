@@ -41,7 +41,7 @@ interface ShiftBoardCalendarProps {
   onEventClick: (shift: Shift) => void;
   onEventDrop: (shift: Shift) => void;
   onEventResize: (shift: Shift) => void;
-  onDateSelect: (start: Date, end: Date) => void;
+  onDateSelect: (start: Date, end: Date, allDay?: boolean) => void;
   businessDayStartHour?: number;
 }
 
@@ -147,8 +147,8 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                 <DroppableCell 
                   key={`monthday-${day.toISOString()}`}
                   id={`monthday-${day.toISOString()}`}
-                  onClick={() => onDateSelect(startOfDay(day), endOfDay(day))}
-                  className={`border-r border-b border-slate-100 dark:border-slate-800 p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 min-h-0 ${
+                  onClick={() => onDateSelect(startOfDay(day), endOfDay(day), true)}
+                  className={`border-r border-b border-slate-100 dark:border-slate-800 p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 min-h-0 cursor-pointer ${
                     !isCurrentMonth ? "opacity-30 bg-slate-50/50 dark:bg-slate-900/50" : ""
                   }`}
                 >
@@ -223,11 +223,11 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
             <DroppableCell 
               key={`allday-${day.toISOString()}`} 
               id={`allday-${day.toISOString()}`}
-              className="relative border-r border-slate-200 dark:border-slate-800 last:border-r-0 p-1.5 flex flex-col gap-1 min-h-[56px] hover:bg-indigo-500/5 transition-colors"
+              className="relative border-r border-slate-200 dark:border-slate-800 last:border-r-0 p-1.5 flex flex-col gap-1 min-h-[56px] hover:bg-indigo-500/5 transition-colors cursor-pointer"
               onClick={() => {
                 const start = startOfDay(day);
                 const end = endOfDay(day);
-                onDateSelect(start, end);
+                onDateSelect(start, end, true);
               }}
             >
               {shifts
@@ -297,7 +297,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                       onClick={() => {
                         const end = new Date(cellDate);
                         end.setHours(hour + 1);
-                        onDateSelect(cellDate, end);
+                        onDateSelect(cellDate, end, false);
                       }}
                     />
                   );
