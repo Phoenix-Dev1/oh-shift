@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Shift } from "../../../types";
-import { Clock, CornerLeftUp } from "lucide-react";
+import { Clock, CornerLeftUp, Edit3, Trash2 } from "lucide-react";
 import { format, parseISO, addMinutes } from "date-fns";
 import { useDraggable } from "@dnd-kit/core";
 import { CSS } from "@dnd-kit/utilities";
@@ -13,9 +13,12 @@ interface ShiftItemProps {
   height: number;
   onClick: () => void;
   onResizeEnd?: (newEndTime: string) => void;
+  onDelete?: () => void;
   isOverlay?: boolean;
   isClippedStart?: boolean;
   isClippedEnd?: boolean;
+  overlapCount?: number;
+  overlapIndex?: number;
 }
 
 const formatName = (fullName: string) => {
@@ -24,18 +27,39 @@ const formatName = (fullName: string) => {
   return `${parts[0]} ${parts[1].charAt(0)}.`;
 };
 
+const STRIPE_COLORS = [
+  'border-l-indigo-500',
+  'border-l-blue-500',
+  'border-l-cyan-500',
+  'border-l-teal-500',
+  'border-l-violet-500',
+  'border-l-emerald-500',
+  'border-l-rose-500',
+  'border-l-amber-500'
+];
+
+const getStripeColor = (title: string | null | undefined = "Standard Shift") => {
+  const normalizedTitle = title || "Standard Shift";
+  const hash = normalizedTitle.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  return STRIPE_COLORS[hash % STRIPE_COLORS.length];
+};
+
 const ShiftItem: React.FC<ShiftItemProps> = ({
   shift,
   top,
   height: initialHeight,
   onClick,
   onResizeEnd,
+  onDelete,
   isOverlay = false,
   isClippedStart = false,
-  isClippedEnd = false
+  isClippedEnd = false,
+  overlapCount = 1,
+  overlapIndex = 0
 }) => {
   const [currentHeight, setCurrentHeight] = useState(initialHeight);
   const [isResizing, setIsResizing] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const startYRef = useRef<number>(0);
   const startHeightRef = useRef<number>(0);
 
@@ -92,9 +116,11 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   const style = {
     top: isOverlay ? 0 : `${top}px`,
     height: `${currentHeight}px`,
+    width: isOverlay ? "100%" : `calc(100% / ${overlapCount} - 4px)`,
+    left: isOverlay ? "0" : `calc((100% / ${overlapCount}) * ${overlapIndex} + 2px)`,
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.3 : 1,
-    zIndex: isResizing || isDragging ? 50 : 10,
+    zIndex: isResizing || isDragging || isHovered ? 50 : 10,
   };
 
   return (
@@ -103,48 +129,104 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
       {...listeners}
       {...attributes}
       onClick={isResizing ? undefined : onClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={style}
-      className={`absolute left-1 right-1 bg-white dark:bg-slate-900 shadow-sm transition-shadow overflow-hidden flex flex-col border-l-4 border-l-indigo-500 border-r border-r-slate-200 dark:border-r-slate-800 ${isClippedStart
-          ? "rounded-t-none border-t-2 border-t-dashed border-t-slate-300 dark:border-t-slate-700"
-          : "rounded-t-md border-t border-t-slate-200 dark:border-t-slate-800"
+      className={`absolute group bg-indigo-50/80 dark:bg-indigo-950/30 hover:bg-indigo-100/80 dark:hover:bg-indigo-900/40 shadow-sm transition-all duration-200 ease-in-out overflow-hidden flex flex-col border-l-4 ${getStripeColor(shift.title)} border-r border-r-indigo-100 dark:border-r-indigo-800/50 ${isClippedStart
+          ? "rounded-t-none border-t-2 border-t-dashed border-t-indigo-200 dark:border-t-indigo-800/50"
+          : "rounded-t-md border-t border-t-indigo-100 dark:border-t-indigo-800/50"
         } ${isClippedEnd
           ? "rounded-b-none border-b-0"
-          : "rounded-b-md border-b border-b-slate-200 dark:border-b-slate-800"
+          : "rounded-b-md border-b border-b-indigo-100 dark:border-b-indigo-800/50"
         } ${isOverlay ? "relative w-full opacity-100 shadow-xl" : ""
-        } ${isResizing ? "ring-2 ring-indigo-500 shadow-lg cursor-ns-resize z-50" : "hover:shadow-md cursor-grab active:cursor-grabbing"}`}
+        } ${isResizing ? "ring-2 ring-indigo-500 shadow-lg cursor-ns-resize z-50" : "hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 hover:z-50 cursor-grab active:cursor-grabbing"}`}
     >
       <div className="p-3 flex flex-col h-full select-none">
         {/* Phase 1: Title/Role Prominence */}
         <div className="flex items-start justify-between gap-2 mb-1">
-          <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-tight truncate">
+          <p className="text-xs font-black text-indigo-950 dark:text-indigo-50 uppercase tracking-tight truncate">
             {shift.title || "Standard Shift"}
           </p>
+
+          {/* Phase 2: Contextual Quick Action Bar */}
+          {!isOverlay && (
+            <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-md shadow-sm p-1 z-30">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick();
+                }}
+                className="p-1 hover:bg-indigo-50 dark:hover:bg-indigo-900/40 text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition-colors"
+                title="Edit Shift"
+              >
+                <Edit3 className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete?.();
+                }}
+                className="p-1 hover:bg-red-50 dark:hover:bg-red-900/40 text-slate-500 hover:text-red-600 dark:hover:text-red-400 rounded transition-colors"
+                title="Delete Shift"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Phase 3: Typographic / Icon Indication */}
         {isClippedStart ? (
-          <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 mb-2 font-medium">
-            <CornerLeftUp className="w-3 h-3" />
-            <span>Continue from {format(parseISO(shift.startTime), "HH:mm")}</span>
+          <div className="flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 mb-2 font-medium whitespace-nowrap overflow-hidden">
+            <CornerLeftUp className="w-3 h-3 shrink-0" />
+            <span className="truncate">Cont. {format(parseISO(shift.startTime), "HH:mm")}</span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-2">
-            <Clock className="w-3 h-3" />
-            {format(parseISO(shift.startTime), "HH:mm")} - {format(parseISO(shift.endTime), "HH:mm")}
+          <div className={`flex ${overlapCount > 1 ? 'flex-col gap-0.5' : 'items-center gap-1.5'} mb-2`}>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300/80 whitespace-nowrap">
+              <Clock className="w-3 h-3 shrink-0" />
+              <span>{format(parseISO(shift.startTime), "HH:mm")}</span>
+              {overlapCount === 1 && <span className="mx-0.5">-</span>}
+            </div>
+            {overlapCount > 1 ? (
+              <div className="flex items-center gap-1.5 text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300/80 whitespace-nowrap opacity-70">
+                <div className="w-3 shrink-0" /> {/* Alignment spacer */}
+                <span>{format(parseISO(shift.endTime), "HH:mm")}</span>
+              </div>
+            ) : (
+              <span className="text-[10px] font-bold text-indigo-700/80 dark:text-indigo-300/80">
+                {format(parseISO(shift.endTime), "HH:mm")}
+              </span>
+            )}
           </div>
         )}
 
         {/* Phase 2 & 3: Clean Name List */}
         {!isOverlay && shift.employees.length > 0 && currentHeight > 48 && (
           <div className="flex flex-col gap-1 mt-3 overflow-hidden">
-            {shift.employees.slice(0, 4).map((emp) => (
-              <div key={emp?.id || Math.random().toString()} className="text-xs font-medium text-slate-600 dark:text-slate-300 truncate">
-                {formatName(emp?.name || "Unknown")}
-              </div>
-            ))}
-            {shift.employees.length > 4 && (
+            {[...shift.employees]
+              .sort((a, b) => {
+                if (a.id === shift.shiftLeadId) return -1;
+                if (b.id === shift.shiftLeadId) return 1;
+                return 0;
+              })
+              .slice(0, 8)
+              .map((emp) => (
+                <div 
+                  key={emp?.id || Math.random().toString()} 
+                  className={`text-xs font-medium truncate flex items-center gap-1 ${
+                    emp?.id === shift.shiftLeadId 
+                      ? "text-amber-700 dark:text-amber-300 font-bold" 
+                      : "text-indigo-900/70 dark:text-indigo-100/70"
+                  }`}
+                >
+                  {emp?.id === shift.shiftLeadId && <span className="text-[10px]">⭐</span>}
+                  {formatName(emp?.name || "Unknown")}
+                </div>
+              ))}
+            {shift.employees.length > 8 && (
               <div className="text-[10px] font-semibold text-indigo-500 dark:text-indigo-400 mt-1">
-                +{shift.employees.length - 4} more
+                +{shift.employees.length - 8} more
               </div>
             )}
           </div>
@@ -158,7 +240,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
             onPointerUp={handlePointerUp}
             className="absolute bottom-0 left-0 right-0 h-3 cursor-ns-resize flex items-center justify-center group/handle"
           >
-            <div className="w-6 h-1 bg-slate-100 dark:bg-slate-800 group-hover/handle:bg-indigo-500/30 rounded-full transition-colors" />
+            {/* Phase 3: Resize Handle Affordance */}
+            <div className="w-8 h-1 bg-slate-300 dark:bg-slate-600 opacity-0 group-hover:opacity-100 rounded-full transition-all duration-200" />
           </div>
         )}
       </div>

@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Phone, X, Calendar, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search } from "lucide-react";
+import { Phone, X, Calendar, Save, Trash2, Clock, Check, ChevronRight, History, Loader2, AlertCircle, Search, Star, Crown, XCircle, UserRoundMinus } from "lucide-react";
+import { useMemo } from "react";
 import { Shift, Employee } from "../../../types";
 import useIsMobile from "../../../hooks/useIsMobile";
-import { format, parseISO, setHours, setMinutes, startOfDay, addDays } from "date-fns";
+import { format, parseISO, setHours, setMinutes, startOfDay, addDays, isSameDay } from "date-fns";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getRecentShiftTitles, saveRecentShiftTitle, removeRecentShiftTitle } from "../../../actions/shiftMemoryActions";
 
@@ -18,10 +19,12 @@ interface ShiftModalProps {
     allDay: boolean;
     startTime?: string;
     endTime?: string;
+    shiftLeadId?: string | null;
   }) => void;
   onDelete?: () => void;
   shift?: Shift | null;
   employees: Employee[];
+  shifts: Shift[];
 }
 
 const ShiftModal: React.FC<ShiftModalProps> = ({
@@ -31,6 +34,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   onDelete,
   employees,
   shift,
+  shifts,
 }) => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
@@ -40,12 +44,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   const [startTime, setStartTime] = useState<string>("09:00");
   const [endTime, setEndTime] = useState<string>("17:00");
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>([]);
+  const [shiftLeadId, setShiftLeadId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   
   // Confirmation state for title deletion
   const [titleToDelete, setTitleToDelete] = useState<string | null>(null);
-  const [employeeSearch, setEmployeeSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Phase 3: TanStack Query Integration
   const { data: recentTitles = [], isLoading: isLoadingTitles } = useQuery({
@@ -83,8 +88,42 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
       setEndTime(format(end, "HH:mm"));
       
       setSelectedEmployeeIds(shift.employees?.map((emp) => emp.id) || []);
+      setShiftLeadId(shift.shiftLeadId || null);
     }
   }, [shift]);
+
+  useEffect(() => {
+    if (shiftLeadId && !selectedEmployeeIds.includes(shiftLeadId)) {
+      setShiftLeadId(null);
+    }
+  }, [selectedEmployeeIds, shiftLeadId]);
+
+  // Phase 1: Optimized Filtering Engine
+  const filteredAndSortedEmployees = useMemo(() => {
+    const searchLower = searchQuery.toLowerCase().trim();
+    
+    // 1. Filter by Search Query
+    const filtered = employees.filter(emp => 
+      emp.name.toLowerCase().includes(searchLower) || 
+      (emp.position?.toLowerCase() || "").includes(searchLower)
+    );
+
+    // 2. Apply "Lead-First" and "Selected-First" Sorting
+    return filtered.sort((a, b) => {
+      // Shift Lead First
+      if (a.id === shiftLeadId) return -1;
+      if (b.id === shiftLeadId) return 1;
+      
+      // Selected Employees Next
+      const aSelected = selectedEmployeeIds.includes(a.id);
+      const bSelected = selectedEmployeeIds.includes(b.id);
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      
+      // Alphabetical for tie-break
+      return a.name.localeCompare(b.name);
+    });
+  }, [employees, searchQuery, selectedEmployeeIds, shiftLeadId]);
 
   const handleSave = () => {
     const trimmedTitle = localTitle.trim();
@@ -126,7 +165,8 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
       employees: selectedEmployees,
       allDay: allDay,
       startTime: finalStartTime,
-      endTime: finalEndTime
+      endTime: finalEndTime,
+      shiftLeadId: shiftLeadId
     });
   };
 
@@ -325,8 +365,11 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
               {/* Date & Time Row */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6 bg-slate-50/50 dark:bg-slate-800/20 rounded-2xl border border-slate-100 dark:border-slate-800">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1">
-                    Scheduled Date
+                  <label className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest ml-1 flex justify-between items-center">
+                    <span>Scheduled Date</span>
+                    <span className="text-indigo-600 dark:text-indigo-400 font-bold">
+                      {selectedDate ? format(parseISO(selectedDate), "EEEE") : ""}
+                    </span>
                   </label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -380,73 +423,137 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   </div>
                   <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">
                     {selectedEmployeeIds.length} Selected
+                    {selectedEmployeeIds.length} Selected
                   </span>
                 </div>
-                
-                {/* Employee Search Filter */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <input
-                    type="text"
-                    value={employeeSearch}
-                    onChange={(e) => setEmployeeSearch(e.target.value)}
-                    placeholder="Search employees..."
-                    className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                  />
+
+                {/* Phase 2: Search Input Implementation */}
+                <div className="relative sticky top-0 z-20 bg-white dark:bg-slate-900 pb-2">
+                  <div className="relative">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search team members by name or role..."
+                      className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-xl py-3 pl-11 pr-10 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
+                    />
+                    {searchQuery.length > 0 && (
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-indigo-500 transition-colors"
+                      >
+                        <XCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 
-                <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-4 max-h-[300px] overflow-y-auto pr-2`}>
-                  {employees
-                    .filter(emp => emp.name.toLowerCase().includes(employeeSearch.toLowerCase()))
-                    .map((emp) => {
-                    const isSelected = selectedEmployeeIds.includes(emp.id);
-                    return (
-                      <motion.div
-                        key={emp.id}
-                        layout
-                        onClick={() =>
-                          setSelectedEmployeeIds((prev) =>
-                            prev.includes(emp.id)
-                              ? prev.filter((e) => e !== emp.id)
-                              : [...prev, emp.id]
-                          )
-                        }
-                        className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
-                          isSelected
-                            ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/20"
-                            : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3 overflow-hidden">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                              isSelected ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
-                            }`}>
-                              {emp.name.charAt(0)}
+                <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-4 max-h-[400px] overflow-y-auto pr-2`}>
+                  {filteredAndSortedEmployees.length > 0 ? (
+                    filteredAndSortedEmployees.map((emp) => {
+                      const isSelected = selectedEmployeeIds.includes(emp.id);
+                      const isLead = shiftLeadId === emp.id;
+                      
+                      // Phase 4: Conflict Prevention
+                      const conflictShift = shifts.find(s => 
+                        s.id !== shift?.id && 
+                        s.employees.some(e => e.id === emp.id) &&
+                        isSameDay(parseISO(s.startTime), parseISO(selectedDate))
+                      );
+
+                      return (
+                        <motion.div
+                          key={emp.id}
+                          onClick={() =>
+                            setSelectedEmployeeIds((prev) =>
+                              prev.includes(emp.id)
+                                ? prev.filter((e) => e !== emp.id)
+                                : [...prev, emp.id]
+                            )
+                          }
+                          className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
+                            isLead
+                              ? "bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-500/20"
+                              : isSelected
+                              ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-500/20"
+                              : conflictShift 
+                              ? "bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-60"
+                              : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:border-indigo-500/50 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                          }`}
+                        >
+                          {/* Phase 2: Shift Lead Badge */}
+                          {isLead && (
+                            <div className="absolute top-2 right-2 flex items-center gap-1 bg-white/20 px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter">
+                              <Crown className="w-2.5 h-2.5" />
+                              Shift Lead
                             </div>
-                            <div className="overflow-hidden">
-                              <p className={`text-sm font-bold truncate ${isSelected ? "text-white" : "text-slate-900 dark:text-white"}`}>
-                                {emp.name}
-                              </p>
-                              <div className="flex flex-col mt-0.5 gap-0.5">
-                                <p className={`text-[10px] font-medium truncate ${isSelected ? "text-white/70" : "text-slate-500"}`}>
-                                  {emp.position || "Staff"}
+                          )}
+
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
+                                isSelected || isLead ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+                              }`}>
+                                {emp.name.charAt(0)}
+                              </div>
+                              <div className="overflow-hidden">
+                                <p className={`text-sm font-bold truncate ${isSelected || isLead ? "text-white" : "text-slate-900 dark:text-white"}`}>
+                                  {emp.name}
                                 </p>
-                                {emp.phone && (
-                                  <div className={`flex items-center gap-1 text-[10px] font-medium truncate ${isSelected ? "text-white/70" : "text-slate-500"}`}>
-                                    <Phone className="w-2.5 h-2.5 shrink-0" />
-                                    <span className="truncate">{emp.phone}</span>
-                                  </div>
-                                )}
+                                <div className="flex flex-col mt-0.5 gap-0.5">
+                                  <p className={`text-[10px] font-medium truncate ${isSelected || isLead ? "text-white/70" : "text-slate-500"}`}>
+                                    {emp.position || "Staff"}
+                                  </p>
+                                  
+                                  {/* Phase 4: Conflict Warning */}
+                                  {conflictShift && !isSelected && !isLead && (
+                                    <p className="text-[8px] font-black text-amber-500 flex items-center gap-1 mt-0.5">
+                                      <AlertCircle className="w-2.5 h-2.5" />
+                                      Scheduled {format(parseISO(conflictShift.startTime), "HH:mm")}
+                                    </p>
+                                  )}
+                                </div>
                               </div>
                             </div>
+                            
+                            {/* Phase 2: Make Lead Action */}
+                            {isSelected && !isLead && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShiftLeadId(emp.id);
+                                }}
+                                className="p-1.5 bg-white/20 hover:bg-white/40 rounded-lg text-white transition-all group/lead"
+                                title="Set as Lead"
+                              >
+                                <Star className="w-4 h-4 group-hover/lead:fill-white" />
+                              </button>
+                            )}
+
+                            {isSelected && !isLead && <Check className="w-4 h-4 text-white shrink-0 ml-2" />}
                           </div>
-                          
-                          {isSelected && <Check className="w-4 h-4 text-white shrink-0" />}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                        </motion.div>
+                      );
+                    })
+                  ) : (
+                    /* Phase 3: Empty State Polish */
+                    <div className="col-span-full py-12 flex flex-col items-center justify-center text-center">
+                      <div className="w-16 h-16 rounded-full bg-slate-50 dark:bg-slate-800/50 flex items-center justify-center text-slate-300 dark:text-slate-600 mb-4">
+                        <UserRoundMinus className="w-8 h-8" />
+                      </div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">No matches found</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
+                        No employees found matching "{searchQuery}"
+                      </p>
+                      <button
+                        onClick={() => setSearchQuery("")}
+                        className="mt-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                      >
+                        Clear search filter
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

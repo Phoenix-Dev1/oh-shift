@@ -27,6 +27,7 @@ export interface Shift {
   title: string | null;
   managerId: string;
   employees: Employee[];
+  shiftLeadId?: string | null;
   isNew?: boolean;
 }
 

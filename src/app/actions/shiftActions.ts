@@ -28,6 +28,7 @@ export async function createShift(data: {
   employees: string[];
   allDay: boolean;
   title?: string | null;
+  shiftLeadId?: string | null;
 }) {
   const currentUser = await getCurrentUser();
   if (!currentUser || currentUser.role !== "MANAGER") {
@@ -42,19 +43,22 @@ export async function createShift(data: {
     adjustedEnd.setHours(23, 59, 59, 999);
   }
 
-  const newShift = await prisma.shift.create({
-    data: {
-      startTime: adjustedStart,
-      endTime: adjustedEnd,
-      managerId: currentUser.id,
-      allDay: allDay ?? false,
-      title: title || (allDay ? "New All Day Shift" : "Standard Shift"),
-      assignments: {
-        create: employees.map((employeeId: string) => ({
-          employee: { connect: { id: employeeId } },
-        })),
-      },
+  const createData: Prisma.ShiftUncheckedCreateInput = {
+    startTime: adjustedStart,
+    endTime: adjustedEnd,
+    managerId: currentUser.id,
+    allDay: allDay ?? false,
+    title: title || (allDay ? "New All Day Shift" : "Standard Shift"),
+    shiftLeadId: data.shiftLeadId,
+    assignments: {
+      create: employees.map((employeeId: string) => ({
+        employeeId: employeeId,
+      })),
     },
+  };
+
+  const newShift = await prisma.shift.create({
+    data: createData,
     include: { assignments: { include: { employee: true } } },
   });
 
@@ -69,6 +73,7 @@ export async function updateShift(data: {
   employees?: string[];
   allDay?: boolean;
   title?: string | null;
+  shiftLeadId?: string | null;
 }) {
   const currentUser = await getCurrentUser();
   if (!currentUser || currentUser.role !== "MANAGER") {
@@ -84,18 +89,19 @@ export async function updateShift(data: {
     adjustedEnd.setHours(23, 59, 59, 999);
   }
 
-  const updateData: Prisma.ShiftUpdateInput = {
+  const updateData: Prisma.ShiftUncheckedUpdateInput = {
     startTime: adjustedStart,
     endTime: adjustedEnd,
     allDay: allDay ?? false,
     title: title || (allDay ? "New All Day Shift" : "Standard Shift"),
+    shiftLeadId: data.shiftLeadId,
   };
 
   if (employees && Array.isArray(employees)) {
     updateData.assignments = {
       deleteMany: {},
       create: employees.map((employeeId: string) => ({
-        employee: { connect: { id: employeeId } },
+        employeeId: employeeId,
       })),
     };
   }

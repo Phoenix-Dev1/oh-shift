@@ -12,7 +12,9 @@ import {
   isSameMonth,
   areIntervalsOverlapping,
   addHours,
-  addDays 
+  addDays,
+  isBefore,
+  isAfter 
 } from "date-fns";
 import { 
   generateWeekDays, 
@@ -41,6 +43,7 @@ interface ShiftBoardCalendarProps {
   onEventClick: (shift: Shift) => void;
   onEventDrop: (shift: Shift) => void;
   onEventResize: (shift: Shift) => void;
+  onEventDelete?: (shift: Shift) => void;
   onDateSelect: (start: Date, end: Date, allDay?: boolean) => void;
   businessDayStartHour?: number;
 }
@@ -52,6 +55,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   onEventClick,
   onEventDrop,
   onEventResize,
+  onEventDelete,
   onDateSelect,
   businessDayStartHour = 7,
 }) => {
@@ -66,6 +70,17 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   // Phase 1: The Business Hours Array
   const BUSINESS_HOURS = useMemo(() => Array.from({ length: 24 }, (_, i) => (i + businessDayStartHour) % 24), [businessDayStartHour]);
   const [activeShift, setActiveShift] = useState<Shift | null>(null);
+  const [selection, setSelection] = React.useState<{
+    active: boolean;
+    date: Date | null;
+    startIndex: number;
+    endIndex: number;
+  }>({
+    active: false,
+    date: null,
+    startIndex: -1,
+    endIndex: -1
+  });
   
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -117,6 +132,54 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
       });
     }
   };
+
+  const handlePointerDown = (date: Date, index: number) => {
+    setSelection({
+      active: true,
+      date,
+      startIndex: index,
+      endIndex: index
+    });
+  };
+
+  const handlePointerEnter = (date: Date, index: number) => {
+    if (selection.active && selection.date && isSameDay(date, selection.date)) {
+      setSelection(prev => ({ ...prev, endIndex: index }));
+    }
+  };
+
+  React.useEffect(() => {
+    const handleGlobalPointerUp = () => {
+      if (selection.active && selection.date) {
+        const minIdx = Math.min(selection.startIndex, selection.endIndex);
+        const maxIdx = Math.max(selection.startIndex, selection.endIndex);
+        
+        const startHour = BUSINESS_HOURS[minIdx];
+        const endHour = BUSINESS_HOURS[maxIdx];
+
+        let start = startOfDay(selection.date);
+        if (startHour < businessDayStartHour) start = addDays(start, 1);
+        start.setHours(startHour, 0, 0, 0);
+
+        let end = startOfDay(selection.date);
+        if (endHour < businessDayStartHour) end = addDays(end, 1);
+        end.setHours(endHour + 1, 0, 0, 0);
+
+        onDateSelect(start, end, false);
+      }
+      setSelection({ active: false, date: null, startIndex: -1, endIndex: -1 });
+    };
+
+    if (selection.active) {
+      window.addEventListener("pointerup", handleGlobalPointerUp);
+      window.addEventListener("pointercancel", handleGlobalPointerUp);
+    }
+    
+    return () => {
+      window.removeEventListener("pointerup", handleGlobalPointerUp);
+      window.removeEventListener("pointercancel", handleGlobalPointerUp);
+    };
+  }, [selection, BUSINESS_HOURS, businessDayStartHour, onDateSelect]);
 
   // Helper to ensure robust date comparison regardless of exact time
   const isShiftOnDay = (shiftDateStr: string, dayDate: Date) => {
@@ -194,7 +257,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
       onDragStart={handleDragStart} 
       onDragEnd={handleDragEnd}
     >
-      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[800px]">
+      <div className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden flex flex-col h-[800px] ${selection.active ? "touch-none select-none" : ""}`}>
         {/* Grid Header */}
         <div className={`grid ${gridColsClass} border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30 sticky top-0 z-20 overflow-y-scroll [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-transparent`}>
           <div className="p-4 border-r border-slate-200 dark:border-slate-800" />
@@ -278,6 +341,22 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                 key={day.toISOString()} 
                 className="relative border-r border-slate-200 dark:border-slate-800 last:border-r-0 h-full"
               >
+                {/* Ghost Selection Overlay */}
+                {selection.active && selection.date && isSameDay(day, selection.date) && (
+                  <div 
+                    className="absolute left-1 right-1 bg-indigo-500/20 dark:bg-indigo-500/30 border-2 border-indigo-500/50 rounded-xl pointer-events-none z-40 transition-all duration-75"
+                    style={{
+                      top: `${Math.min(selection.startIndex, selection.endIndex) * 64}px`,
+                      height: `${(Math.abs(selection.endIndex - selection.startIndex) + 1) * 64}px`
+                    }}
+                  >
+                    <div className="p-3">
+                      <div className="h-4 w-24 bg-indigo-500/30 rounded mb-2 animate-pulse"></div>
+                      <div className="h-3 w-16 bg-indigo-500/20 rounded opacity-50 animate-pulse"></div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Droppable Slots */}
                 {BUSINESS_HOURS.map((hour) => {
                   let cellDate = startOfDay(day);
@@ -296,16 +375,18 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                       id={cellDate.toISOString()}
                       onClick={() => {
                         const end = new Date(cellDate);
-                        end.setHours(hour + 1);
+                        end.setHours(BUSINESS_HOURS[BUSINESS_HOURS.indexOf(hour)] + 1);
                         onDateSelect(cellDate, end, false);
                       }}
+                      onPointerDown={() => handlePointerDown(day, BUSINESS_HOURS.indexOf(hour))}
+                      onPointerEnter={() => handlePointerEnter(day, BUSINESS_HOURS.indexOf(hour))}
                     />
                   );
                 })}
 
                 {/* Shifts - Filtered by Logical Day bounds */}
-                {shifts
-                  .filter((shift) => {
+                {(() => {
+                  const dayShifts = shifts.filter((shift) => {
                     const opStart = addHours(startOfDay(day), businessDayStartHour);
                     const opEnd = addHours(opStart, 24);
                     
@@ -314,8 +395,67 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                       { start: opStart, end: opEnd }
                     );
                     return overlap && shift.allDay !== true;
-                  })
-                  .map((shift) => {
+                  });
+
+                  // Phase 1: Overlap Calculation Engine
+                  const sortedShifts = [...dayShifts].sort((a, b) => 
+                    parseISO(a.startTime).getTime() - parseISO(b.startTime).getTime()
+                  );
+
+                  const clusters: Shift[][] = [];
+                  sortedShifts.forEach(shift => {
+                    let placed = false;
+                    for (const cluster of clusters) {
+                      const overlaps = cluster.some(s => 
+                        areIntervalsOverlapping(
+                          { start: parseISO(s.startTime), end: parseISO(s.endTime) },
+                          { start: parseISO(shift.startTime), end: parseISO(shift.endTime) }
+                        )
+                      );
+                      if (overlaps) {
+                        cluster.push(shift);
+                        placed = true;
+                        break;
+                      }
+                    }
+                    if (!placed) clusters.push([shift]);
+                  });
+
+                  const processedShifts: (Shift & { overlapCount: number; overlapIndex: number })[] = [];
+                  clusters.forEach(cluster => {
+                    const columns: Shift[][] = [];
+                    cluster.forEach(shift => {
+                      let colIdx = 0;
+                      while (true) {
+                        if (!columns[colIdx]) {
+                          columns[colIdx] = [shift];
+                          break;
+                        }
+                        const overlapsInCol = columns[colIdx].some(s => 
+                          areIntervalsOverlapping(
+                            { start: parseISO(s.startTime), end: parseISO(s.endTime) },
+                            { start: parseISO(shift.startTime), end: parseISO(shift.endTime) }
+                          )
+                        );
+                        if (!overlapsInCol) {
+                          columns[colIdx].push(shift);
+                          break;
+                        }
+                        colIdx++;
+                      }
+                      (shift as any)._colIdx = colIdx;
+                    });
+                    const overlapCount = columns.length;
+                    cluster.forEach(shift => {
+                      processedShifts.push({
+                        ...shift,
+                        overlapCount,
+                        overlapIndex: (shift as any)._colIdx
+                      });
+                    });
+                  });
+
+                  return processedShifts.map((shift) => {
                     const pos = calculateShiftPosition(shift.startTime, shift.endTime, day, businessDayStartHour);
                     if (!pos) return null;
                     
@@ -327,14 +467,18 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                         height={pos.height}
                         isClippedStart={pos.isClippedStart}
                         isClippedEnd={pos.isClippedEnd}
+                        overlapCount={shift.overlapCount}
+                        overlapIndex={shift.overlapIndex}
                         onClick={() => onEventClick(shift)}
                         onResizeEnd={(newEndTime: string) => onEventResize({
                           ...shift,
                           endTime: newEndTime
                         })}
+                        onDelete={() => onEventDelete?.(shift)}
                       />
                     );
-                  })}
+                  });
+                })()}
               </div>
             ))}
           </div>

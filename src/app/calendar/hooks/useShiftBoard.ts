@@ -22,6 +22,7 @@ interface PrismaShift {
   allDay: boolean;
   title: string | null;
   managerId: string;
+  shiftLeadId: string | null;
   assignments: PrismaAssignment[];
 }
 
@@ -72,6 +73,7 @@ export const useShiftBoard = () => {
         startTime: s.startTime.toISOString(),
         endTime: s.endTime.toISOString(),
         employees: s.assignments.map((a: PrismaAssignment) => a.employee),
+        shiftLeadId: s.shiftLeadId,
       })) as Shift[];
     },
   });

@@ -49,6 +49,7 @@ const ShiftBoardManager = () => {
       allDay: allDay,
       title: "",
       managerId: "",
+      shiftLeadId: null,
       isNew: true,
     });
     setIsModalOpen(true);
@@ -60,6 +61,7 @@ const ShiftBoardManager = () => {
     allDay: boolean;
     startTime?: string;
     endTime?: string;
+    shiftLeadId?: string | null;
   }) => {
     if (!selectedShift) return;
 
@@ -69,6 +71,7 @@ const ShiftBoardManager = () => {
       allDay: data.allDay !== undefined ? data.allDay : selectedShift.allDay,
       employees: data.employees || selectedShift.employees || [],
       title: data.title || selectedShift.title,
+      shiftLeadId: data.shiftLeadId !== undefined ? data.shiftLeadId : selectedShift.shiftLeadId,
     };
 
     if (selectedShift.id === "new") {
@@ -78,6 +81,7 @@ const ShiftBoardManager = () => {
         employees: finalData.employees.map((e: Employee) => e.id),
         allDay: finalData.allDay,
         title: finalData.title,
+        shiftLeadId: finalData.shiftLeadId,
       });
     } else {
       updateShift({
@@ -87,6 +91,7 @@ const ShiftBoardManager = () => {
         employees: finalData.employees.map((e: Employee) => e.id),
         allDay: finalData.allDay,
         title: finalData.title,
+        shiftLeadId: finalData.shiftLeadId,
       });
     }
     setIsModalOpen(false);
@@ -138,6 +143,10 @@ const ShiftBoardManager = () => {
             setPendingShift(updatedShift);
             setIsConfirmModalOpen(true);
           }}
+          onEventDelete={(shift) => {
+            setSelectedShift(shift);
+            setIsDeleteModalOpen(true);
+          }}
           onDateSelect={handleDateSelect}
         />
       </div>
@@ -150,6 +159,7 @@ const ShiftBoardManager = () => {
           onDelete={() => setIsDeleteModalOpen(true)}
           shift={selectedShift}
           employees={employees}
+          shifts={shifts}
         />
       )}
 
