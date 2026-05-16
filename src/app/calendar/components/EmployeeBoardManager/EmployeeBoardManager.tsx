@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Calendar, Clock, Users, Layout } from "lucide-react";
+import { Calendar, Layout } from "lucide-react";
 import HoverModal from "../ShiftBoardManager/HoverModal";
 import CustomFullCalendar from "./CustomFullCalendar";
 import MobileFullCalendar from "./MobileFullCalendar";

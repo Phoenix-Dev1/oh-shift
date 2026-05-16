@@ -62,7 +62,7 @@ export const useShiftBoard = () => {
       }
 
       // Map Prisma response to our Shift type
-      return data.map((s: any) => ({
+      return data.map((s: PrismaShift) => ({
         ...s,
         startTime: typeof s.startTime === 'string' ? s.startTime : s.startTime.toISOString(),
         endTime: typeof s.endTime === 'string' ? s.endTime : s.endTime.toISOString(),
