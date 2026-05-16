@@ -1,5 +1,4 @@
 import ShiftBoardManager from "./components/ShiftBoard/ShiftBoardManager";
-import EmployeeBoardManager from "./components/EmployeeBoardManager/EmployeeBoardManager";
 import getCurrentUser from "../actions/getCurrentUser";
 
 export default async function ShiftsPage() {
@@ -58,7 +57,7 @@ export default async function ShiftsPage() {
         {role === "MANAGER" ? (
           <ShiftBoardManager />
         ) : role === "EMPLOYEE" ? (
-          <EmployeeBoardManager />
+          <ShiftBoardManager />
         ) : (
           <div className="text-center text-red-500">
             Unauthorized: Role not recognized

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { toast } from "sonner";
 import useIsMobile from "../../../hooks/useIsMobile";
-import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
+import DashboardSkeleton from "./DashboardSkeleton";
 import { Calendar, BarChart3, Clock, Users } from "lucide-react";
 
 interface EmployeeAggregate {
@@ -115,7 +115,7 @@ export default function EmployeeAggregatesPage() {
 
   useEffect(() => { fetchAggregates(); }, [fetchAggregates]);
 
-  if (loading) return <div className="flex justify-center items-center h-[400px]"><InfinityLoader /></div>;
+  if (loading) return <DashboardSkeleton />;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">

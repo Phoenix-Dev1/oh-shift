@@ -14,6 +14,7 @@ interface ShiftBoardHeaderProps {
   onToday: () => void;
   onPrevious: () => void;
   onNext: () => void;
+  isReadOnly?: boolean;
 }
 
 const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
@@ -23,7 +24,8 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
   currentDate,
   onToday,
   onPrevious,
-  onNext
+  onNext,
+  isReadOnly = false,
 }) => {
   const modes: { id: ViewMode; label: string; icon: React.ElementType }[] = [
     { id: 'day', label: 'Day', icon: List },
@@ -97,15 +99,18 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
           ))}
         </div>
 
-        <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />
-
-        <button
-          onClick={onAddShift}
-          className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
-        >
-          <Plus className="w-4 h-4" />
-          Create Shift
-        </button>
+        {!isReadOnly && (
+          <>
+            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />
+            <button
+              onClick={onAddShift}
+              className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              Create Shift
+            </button>
+          </>
+        )}
       </div>
     </header>
   );

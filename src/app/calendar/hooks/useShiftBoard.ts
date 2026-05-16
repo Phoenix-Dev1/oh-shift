@@ -8,6 +8,7 @@ import { getEmployees } from "../../actions/getEmployees";
 import { Shift, Employee } from "../../types";
 import { toast } from "sonner";
 import useIsMobile from "../../hooks/useIsMobile";
+import { useSession } from "next-auth/react";
 
 export type ViewMode = 'month' | 'week' | 'day';
 
@@ -29,6 +30,8 @@ interface PrismaShift {
 export const useShiftBoard = () => {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
+  const { data: session } = useSession();
+  const role = session?.user?.role;
   
   // Phase 2: View Management State
   const [viewMode, setViewMode] = useState<ViewMode>('week');
@@ -42,6 +45,55 @@ export const useShiftBoard = () => {
       setViewMode('week');
     }
   }, [isMobile]);
+
+  // Queries
+  const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
+    queryKey: ["shifts", role],
+    enabled: !!role,
+    queryFn: async () => {
+      let data: PrismaShift[] = [];
+      if (role === "MANAGER") {
+        data = await getManagerShifts() as unknown as PrismaShift[];
+      } else if (role === "EMPLOYEE") {
+        // Fetch shifts for employee using the API or a new action
+        const response = await fetch("/api/shifts/employee");
+        if (!response.ok) throw new Error("Failed to fetch employee shifts");
+        data = await response.json();
+      }
+
+      // Map Prisma response to our Shift type
+      return data.map((s: any) => ({
+        ...s,
+        startTime: typeof s.startTime === 'string' ? s.startTime : s.startTime.toISOString(),
+        endTime: typeof s.endTime === 'string' ? s.endTime : s.endTime.toISOString(),
+        employees: s.assignments?.map((a: PrismaAssignment) => a.employee) || [],
+        shiftLeadId: s.shiftLeadId,
+      })) as Shift[];
+    },
+  });
+
+  const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
+    queryKey: ["employees", role],
+    enabled: !!role,
+    queryFn: async () => {
+      if (role === "MANAGER") {
+        const data = await getEmployees();
+        return data as Employee[];
+      }
+      return []; // Employees don't necessarily need the full employee list for management
+    },
+  });
+
+  const { data: userSettings, isLoading: isLoadingSettings } = useQuery({
+    queryKey: ["userSettings"],
+    queryFn: async () => {
+      // Inline import to avoid circular dependencies if any
+      const { getUserSettings } = await import("../../actions/userSettingsActions");
+      return await getUserSettings();
+    },
+  });
+
+  const businessDayStartHour = userSettings?.businessDayStartHour ?? 7;
 
   // Phase 1: Navigation Logic
   const handleToday = () => setCurrentDate(new Date());
@@ -61,41 +113,6 @@ export const useShiftBoard = () => {
       return addMonths(prev, 1);
     });
   };
-
-  // Queries
-  const { data: shifts = [], isLoading: isLoadingShifts } = useQuery({
-    queryKey: ["shifts"],
-    queryFn: async () => {
-      const data = await getManagerShifts() as unknown as PrismaShift[];
-      // Map Prisma response to our Shift type
-      return data.map((s: PrismaShift) => ({
-        ...s,
-        startTime: s.startTime.toISOString(),
-        endTime: s.endTime.toISOString(),
-        employees: s.assignments.map((a: PrismaAssignment) => a.employee),
-        shiftLeadId: s.shiftLeadId,
-      })) as Shift[];
-    },
-  });
-
-  const { data: employees = [], isLoading: isLoadingEmployees } = useQuery({
-    queryKey: ["employees"],
-    queryFn: async () => {
-      const data = await getEmployees();
-      return data as Employee[];
-    },
-  });
-
-  const { data: userSettings, isLoading: isLoadingSettings } = useQuery({
-    queryKey: ["userSettings"],
-    queryFn: async () => {
-      // Inline import to avoid circular dependencies if any
-      const { getUserSettings } = await import("../../actions/userSettingsActions");
-      return await getUserSettings();
-    },
-  });
-
-  const businessDayStartHour = userSettings?.businessDayStartHour ?? 7;
 
   // Mutations
   const createMutation = useMutation({
@@ -183,6 +200,8 @@ export const useShiftBoard = () => {
     handlePrevious,
     handleNext,
     businessDayStartHour,
+    role,
+    isReadOnly: role === "EMPLOYEE",
     createShift: createMutation.mutate,
     updateShift: updateMutation.mutate,
     deleteShift: deleteMutation.mutate,

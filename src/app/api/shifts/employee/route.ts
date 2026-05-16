@@ -6,17 +6,46 @@ export async function GET() {
   try {
     const currentUser = await getCurrentUser();
 
-    if (
-      !currentUser ||
-      currentUser.role !== "EMPLOYEE" ||
-      !currentUser.employeeManagerId
-    ) {
+    if (!currentUser || currentUser.role !== "EMPLOYEE") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    // Attempt to resolve managerId more robustly
+    let managerId = currentUser.employeeManagerId;
+
+    if (!managerId) {
+      // Find the employee record linked to this user
+      const employee = await prisma.employee.findFirst({
+        where: {
+          assignment: {
+            userId: currentUser.id
+          }
+        }
+      });
+      managerId = employee?.managerId || null;
+    }
+
+    if (!managerId) {
+      console.warn(`No manager or employee record found for user ${currentUser.id}`);
+      return NextResponse.json([], { status: 200 });
     }
 
     const shifts = await prisma.shift.findMany({
       where: {
-        managerId: currentUser.employeeManagerId,
+        OR: [
+          { managerId: managerId || undefined },
+          {
+            assignments: {
+              some: {
+                employee: {
+                  assignment: {
+                    userId: currentUser.id
+                  }
+                }
+              }
+            }
+          }
+        ]
       },
       include: {
         assignments: {

@@ -25,6 +25,7 @@ interface ShiftModalProps {
   shift?: Shift | null;
   employees: Employee[];
   shifts: Shift[];
+  isReadOnly?: boolean;
 }
 
 const ShiftModal: React.FC<ShiftModalProps> = ({
@@ -35,6 +36,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   employees,
   shift,
   shifts,
+  isReadOnly = false,
 }) => {
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
@@ -56,7 +58,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   const { data: recentTitles = [], isLoading: isLoadingTitles } = useQuery({
     queryKey: ["recentShiftTitles"],
     queryFn: () => getRecentShiftTitles(),
-    enabled: isOpen,
+    enabled: isOpen && !isReadOnly,
   });
 
   const saveTitleMutation = useMutation({
@@ -126,6 +128,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
   }, [employees, searchQuery, selectedEmployeeIds, shiftLeadId]);
 
   const handleSave = () => {
+    if (isReadOnly) return;
     const trimmedTitle = localTitle.trim();
     
     // Phase 3: Submit Logic - Execute Database Mutation
@@ -199,7 +202,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                 </div>
                 <div>
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white tracking-tight">
-                    {shift?.id === "new" ? "Create New Shift" : "Edit Shift Configuration"}
+                    {isReadOnly ? "Shift Details" : shift?.id === "new" ? "Create New Shift" : "Edit Shift Configuration"}
                   </h2>
                   <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] mt-0.5">
                     {allDay ? "Global Scheduling" : "Timed Assignment"}
@@ -225,9 +228,10 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   <div className="relative">
                     <input
                       type="text"
+                      readOnly={isReadOnly}
                       value={localTitle}
                       onChange={(e) => setLocalTitle(e.target.value)}
-                      onFocus={() => setIsDropdownOpen(true)}
+                      onFocus={() => !isReadOnly && setIsDropdownOpen(true)}
                       onBlur={(e) => {
                         // Only close if the new focus target is outside the dropdown container
                         if (dropdownRef.current && !dropdownRef.current.contains(e.relatedTarget as Node)) {
@@ -235,13 +239,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                           setTitleToDelete(null);
                         }
                       }}
-                      placeholder="e.g. Lead Server, Bar Manager..."
-                      className="w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
+                      placeholder={isReadOnly ? "" : "e.g. Lead Server, Bar Manager..."}
+                      className={`w-full bg-slate-50/50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-sm text-slate-900 dark:text-white focus:outline-none transition-all font-medium ${isReadOnly ? "cursor-default" : "focus:ring-2 focus:ring-indigo-500/20"}`}
                     />
                     
                     {/* Phase 3: Autocomplete Dropdown with DB Fetching */}
                     <AnimatePresence>
-                      {isDropdownOpen && (
+                      {!isReadOnly && isDropdownOpen && (
                         <motion.ul
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
@@ -335,9 +339,9 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                   <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.2em] ml-1">
                     Duration Type
                   </label>
-                  <div className="flex bg-slate-100 dark:bg-slate-950/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800">
+                  <div className={`flex bg-slate-100 dark:bg-slate-950/80 p-1 rounded-xl border border-slate-200 dark:border-slate-800 ${isReadOnly ? "opacity-70 pointer-events-none" : ""}`}>
                     <button
-                      onClick={() => setAllDay(false)}
+                      onClick={() => !isReadOnly && setAllDay(false)}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${
                         !allDay 
                           ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm" 
@@ -348,7 +352,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                       Timed
                     </button>
                     <button
-                      onClick={() => setAllDay(true)}
+                      onClick={() => !isReadOnly && setAllDay(true)}
                       className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-lg transition-all ${
                         allDay 
                           ? "bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 shadow-sm" 
@@ -375,9 +379,10 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                       type="date"
+                      readOnly={isReadOnly}
                       value={selectedDate}
                       onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
+                      className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white transition-all font-medium ${isReadOnly ? "cursor-default" : "focus:ring-2 focus:ring-indigo-500/20"}`}
                     />
                   </div>
                 </div>
@@ -390,10 +395,11 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                     <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                       type="time"
+                      readOnly={isReadOnly}
                       value={startTime}
-                      disabled={allDay}
+                      disabled={allDay || isReadOnly}
                       onChange={(e) => setStartTime(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
+                      className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white transition-all font-medium ${isReadOnly ? "cursor-default" : "focus:ring-2 focus:ring-indigo-500/20"}`}
                     />
                   </div>
                 </div>
@@ -406,10 +412,11 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                     <ChevronRight className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                     <input
                       type="time"
+                      readOnly={isReadOnly}
                       value={endTime}
-                      disabled={allDay}
+                      disabled={allDay || isReadOnly}
                       onChange={(e) => setEndTime(e.target.value)}
-                      className="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
+                      className={`w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-3 pl-10 text-sm text-slate-900 dark:text-white transition-all font-medium ${isReadOnly ? "cursor-default" : "focus:ring-2 focus:ring-indigo-500/20"}`}
                     />
                   </div>
                 </div>
@@ -422,13 +429,13 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Team Assignment</h3>
                   </div>
                   <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded">
-                    {selectedEmployeeIds.length} Selected
-                    {selectedEmployeeIds.length} Selected
+                    {selectedEmployeeIds.length} Assigned
                   </span>
                 </div>
 
                 {/* Phase 2: Search Input Implementation */}
-                <div className="relative sticky top-0 z-20 bg-white dark:bg-slate-900 pb-2">
+                {!isReadOnly && (
+                  <div className="relative sticky top-0 z-20 bg-white dark:bg-slate-900 pb-2">
                   <div className="relative">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                     <input
@@ -448,6 +455,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                     )}
                   </div>
                 </div>
+                )}
                 
                 <div className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-4 max-h-[400px] overflow-y-auto pr-2`}>
                   {filteredAndSortedEmployees.length > 0 ? (
@@ -466,13 +474,15 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                         <motion.div
                           key={emp.id}
                           onClick={() =>
-                            setSelectedEmployeeIds((prev) =>
+                            !isReadOnly && setSelectedEmployeeIds((prev) =>
                               prev.includes(emp.id)
                                 ? prev.filter((e) => e !== emp.id)
                                 : [...prev, emp.id]
                             )
                           }
-                          className={`group p-4 rounded-xl border transition-all cursor-pointer relative ${
+                          className={`group p-4 rounded-xl border transition-all relative ${
+                            isReadOnly ? "cursor-default" : "cursor-pointer"
+                          } ${
                             isLead
                               ? "bg-amber-500 border-amber-600 text-white shadow-md shadow-amber-500/20"
                               : isSelected
@@ -518,7 +528,7 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                             </div>
                             
                             {/* Phase 2: Make Lead Action */}
-                            {isSelected && !isLead && (
+                            {isSelected && !isLead && !isReadOnly && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -544,14 +554,16 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
                       </div>
                       <h4 className="text-sm font-bold text-slate-900 dark:text-white">No matches found</h4>
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-[200px]">
-                        No employees found matching &quot;{searchQuery}&quot;
+                        {searchQuery ? `No employees found matching "${searchQuery}"` : "No assigned employees for this shift"}
                       </p>
-                      <button
-                        onClick={() => setSearchQuery("")}
-                        className="mt-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
-                      >
-                        Clear search filter
-                      </button>
+                      {!isReadOnly && searchQuery && (
+                        <button
+                          onClick={() => setSearchQuery("")}
+                          className="mt-4 text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline"
+                        >
+                          Clear search filter
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -560,31 +572,44 @@ const ShiftModal: React.FC<ShiftModalProps> = ({
 
             {/* Actions Footer */}
             <div className="px-8 py-6 bg-slate-50/50 dark:bg-slate-800/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-4">
-              <div className="flex gap-3">
-                <button
-                  onClick={onClose}
-                  className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
-                >
-                  Discard
-                </button>
-                {onDelete && (
+              {isReadOnly ? (
+                <div className="w-full flex justify-end">
                   <button
-                    onClick={onDelete}
-                    className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2"
+                    onClick={onClose}
+                    className="px-8 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white rounded-xl text-sm font-bold transition-all shadow-sm active:scale-95"
                   >
-                    <Trash2 className="w-4 h-4" />
-                    {!isMobile && <span className="text-xs font-bold">Delete Shift</span>}
+                    Close Details
                   </button>
-                )}
-              </div>
-              
-              <button
-                onClick={handleSave}
-                className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95 flex items-center gap-2"
-              >
-                <Save className="w-4 h-4" />
-                Commit Shift
-              </button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={onClose}
+                      className="px-6 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all"
+                    >
+                      Discard
+                    </button>
+                    {onDelete && (
+                      <button
+                        onClick={onDelete}
+                        className="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all flex items-center gap-2"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                        {!isMobile && <span className="text-xs font-bold">Delete Shift</span>}
+                      </button>
+                    )}
+                  </div>
+                  
+                  <button
+                    onClick={handleSave}
+                    className="px-8 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95 flex items-center gap-2"
+                  >
+                    <Save className="w-4 h-4" />
+                    Commit Shift
+                  </button>
+                </>
+              )}
             </div>
           </motion.div>
         </div>

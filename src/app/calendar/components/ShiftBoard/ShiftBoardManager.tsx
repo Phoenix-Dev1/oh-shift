@@ -24,7 +24,8 @@ const ShiftBoardManager = () => {
     businessDayStartHour,
     handleToday,
     handlePrevious,
-    handleNext
+    handleNext,
+    isReadOnly
   } = useShiftBoard();
 
   const [selectedShift, setSelectedShift] = useState<Shift | null>(null);
@@ -41,6 +42,7 @@ const ShiftBoardManager = () => {
   };
 
   const handleDateSelect = (start: Date, end: Date, allDay: boolean = false) => {
+    if (isReadOnly) return;
     setSelectedShift({
       id: "new",
       startTime: start.toISOString(),
@@ -63,7 +65,7 @@ const ShiftBoardManager = () => {
     endTime?: string;
     shiftLeadId?: string | null;
   }) => {
-    if (!selectedShift) return;
+    if (!selectedShift || isReadOnly) return;
 
     const finalData = {
       startTime: data.startTime || selectedShift.startTime,
@@ -98,7 +100,7 @@ const ShiftBoardManager = () => {
   };
 
   const handleDelete = () => {
-    if (selectedShift?.id) {
+    if (selectedShift?.id && !isReadOnly) {
       deleteShift(selectedShift.id);
     }
     setIsDeleteModalOpen(false);
@@ -106,7 +108,7 @@ const ShiftBoardManager = () => {
   };
 
   const handleConfirmUpdate = () => {
-    if (pendingShift) {
+    if (pendingShift && !isReadOnly) {
       updateShift({
         ...pendingShift,
         employees: pendingShift.employees.map((e: Employee) => e.id),
@@ -126,6 +128,7 @@ const ShiftBoardManager = () => {
         onToday={handleToday}
         onPrevious={handlePrevious}
         onNext={handleNext}
+        isReadOnly={isReadOnly}
       />
       
       <div className="grid grid-cols-1 gap-8">
@@ -134,16 +137,20 @@ const ShiftBoardManager = () => {
           viewMode={viewMode}
           currentDate={currentDate}
           businessDayStartHour={businessDayStartHour}
+          isReadOnly={isReadOnly}
           onEventClick={handleEventClick}
           onEventDrop={(updatedShift) => {
+            if (isReadOnly) return;
             setPendingShift(updatedShift);
             setIsConfirmModalOpen(true);
           }}
           onEventResize={(updatedShift) => {
+            if (isReadOnly) return;
             setPendingShift(updatedShift);
             setIsConfirmModalOpen(true);
           }}
           onEventDelete={(shift) => {
+            if (isReadOnly) return;
             setSelectedShift(shift);
             setIsDeleteModalOpen(true);
           }}
@@ -160,6 +167,7 @@ const ShiftBoardManager = () => {
           shift={selectedShift}
           employees={employees}
           shifts={shifts}
+          isReadOnly={isReadOnly}
         />
       )}
 

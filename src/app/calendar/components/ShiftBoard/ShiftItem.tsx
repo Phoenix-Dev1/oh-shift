@@ -20,6 +20,7 @@ interface ShiftItemProps {
   overlapCount?: number;
   overlapIndex?: number;
   colorIndex?: number;
+  isReadOnly?: boolean;
 }
 
 const formatName = (fullName: string) => {
@@ -57,7 +58,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   isClippedEnd = false,
   overlapCount = 1,
   overlapIndex = 0,
-  colorIndex = 0
+  colorIndex = 0,
+  isReadOnly = false
 }) => {
   const [currentHeight, setCurrentHeight] = useState(initialHeight);
   const [isResizing, setIsResizing] = useState(false);
@@ -68,7 +70,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: shift.id,
     data: shift,
-    disabled: isResizing
+    disabled: isResizing || isReadOnly
   });
 
   useEffect(() => {
@@ -77,6 +79,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
 
   // Phase 4: Custom Pointer Logic for Resizing
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (isReadOnly) return;
     e.stopPropagation();
     e.preventDefault();
     setIsResizing(true);
@@ -88,7 +91,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (!isResizing) return;
+    if (!isResizing || isReadOnly) return;
 
     const deltaY = e.clientY - startYRef.current;
 
@@ -103,7 +106,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
-    if (!isResizing) return;
+    if (!isResizing || isReadOnly) return;
 
     setIsResizing(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
@@ -131,8 +134,8 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
   return (
     <div
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
+      {...(isReadOnly ? {} : listeners)}
+      {...(isReadOnly ? {} : attributes)}
       onClick={isResizing ? undefined : onClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -144,7 +147,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
           ? "rounded-b-none border-b-0"
           : "rounded-b-md border-b border-b-indigo-100 dark:border-b-indigo-800/50"
         } ${isOverlay ? "relative w-full opacity-100 shadow-xl" : ""
-        } ${isResizing ? "ring-2 ring-indigo-500 shadow-lg cursor-ns-resize z-50" : "hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 hover:z-50 cursor-grab active:cursor-grabbing"}`}
+        } ${isResizing ? "ring-2 ring-indigo-500 shadow-lg cursor-ns-resize z-50" : isReadOnly ? "hover:shadow-md cursor-pointer" : "hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600 hover:z-50 cursor-grab active:cursor-grabbing"}`}
     >
       <div className="p-3 flex flex-col h-full select-none">
         {/* Phase 1: Title/Role Prominence */}
@@ -154,7 +157,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
           </p>
 
           {/* Phase 2: Contextual Quick Action Bar */}
-          {!isOverlay && (
+          {!isOverlay && !isReadOnly && (
             <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm border border-slate-200 dark:border-slate-700 rounded-md shadow-sm p-1 z-30">
               <button
                 onClick={(e) => {
@@ -237,7 +240,7 @@ const ShiftItem: React.FC<ShiftItemProps> = ({
         )}
 
         {/* Phase 4: Stable Resize Handle - Disabled if segment is clipped at the end */}
-        {!isOverlay && !isClippedEnd && (
+        {!isOverlay && !isClippedEnd && !isReadOnly && (
           <div
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}

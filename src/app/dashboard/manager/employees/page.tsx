@@ -6,7 +6,6 @@ import { editEmployee } from "../../../actions/editEmployee";
 import { deleteEmployee } from "../../../actions/deleteEmployee";
 import { deleteAssignedShifts } from "../../../actions/deleteAssignedShifts";
 import { toast } from "sonner";
-import Sidebar from "../components/Sidebar";
 import CreateEmployeeForm from "../components/CreateEmployeeForm";
 import EditEmployeeModal from "../components/EditEmployeeModal";
 import DeleteModal from "../../../calendar/components/ShiftBoardManager/DeleteModal";
@@ -126,11 +125,7 @@ export default function EmployeesPage() {
   );
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
-      <Sidebar />
-
-      <main className="flex-1 overflow-y-auto overflow-x-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
@@ -303,43 +298,41 @@ export default function EmployeesPage() {
               </div>
             )}
           </div>
+
+          {/* Modals */}
+          <EditEmployeeModal
+            employee={editingEmployee}
+            name={name}
+            position={position}
+            phone={phone}
+            setName={setName}
+            setPosition={setPosition}
+            setPhone={setPhone}
+            onClose={() => setEditingEmployee(null)}
+            onSave={handleEdit}
+          />
+
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => {
+              setIsDeleteModalOpen(false);
+              setEmployeeToDelete(null);
+            }}
+            onConfirm={handleDelete}
+            title="Delete Team Member"
+            message="This will permanently remove the employee from the system. This action cannot be undone."
+          />
+
+          <DeleteModal
+            isOpen={isAssignedDeleteModalOpen}
+            onClose={() => {
+              setIsAssignedDeleteModalOpen(false);
+              setEmployeeToDeleteShifts(null);
+            }}
+            onConfirm={handleConfirmDeleteAssignedShifts}
+            title="Clear Assignments"
+            message="This employee is currently assigned to active shifts. Clearing assignments will remove them from the schedule but keep their profile active."
+          />
         </div>
-
-        {/* Modals */}
-        <EditEmployeeModal
-          employee={editingEmployee}
-          name={name}
-          position={position}
-          phone={phone}
-          setName={setName}
-          setPosition={setPosition}
-          setPhone={setPhone}
-          onClose={() => setEditingEmployee(null)}
-          onSave={handleEdit}
-        />
-
-        <DeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => {
-            setIsDeleteModalOpen(false);
-            setEmployeeToDelete(null);
-          }}
-          onConfirm={handleDelete}
-          title="Delete Team Member"
-          message="This will permanently remove the employee from the system. This action cannot be undone."
-        />
-
-        <DeleteModal
-          isOpen={isAssignedDeleteModalOpen}
-          onClose={() => {
-            setIsAssignedDeleteModalOpen(false);
-            setEmployeeToDeleteShifts(null);
-          }}
-          onConfirm={handleConfirmDeleteAssignedShifts}
-          title="Clear Assignments"
-          message="This employee is currently assigned to active shifts. Clearing assignments will remove them from the schedule but keep their profile active."
-        />
-      </main>
-    </div>
-  );
+    );
 }

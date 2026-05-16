@@ -44,6 +44,7 @@ interface ShiftBoardCalendarProps {
   onEventDelete?: (shift: Shift) => void;
   onDateSelect: (start: Date, end: Date, allDay?: boolean) => void;
   businessDayStartHour?: number;
+  isReadOnly?: boolean;
 }
 
 const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
@@ -56,6 +57,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   onEventDelete,
   onDateSelect,
   businessDayStartHour = 7,
+  isReadOnly = false,
 }) => {
   const baseDate = currentDate;
   
@@ -89,11 +91,13 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (isReadOnly) return;
     const shift = event.active.data.current as Shift;
     setActiveShift(shift);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (isReadOnly) return;
     setActiveShift(null);
     const { active, over } = event;
     
@@ -132,6 +136,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   };
 
   const handlePointerDown = (date: Date, index: number) => {
+    if (isReadOnly) return;
     setSelection({
       active: true,
       date,
@@ -141,6 +146,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
   };
 
   const handlePointerEnter = (date: Date, index: number) => {
+    if (isReadOnly) return;
     if (selection.active && selection.date && isSameDay(date, selection.date)) {
       setSelection(prev => ({ ...prev, endIndex: index }));
     }
@@ -208,8 +214,10 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                 <DroppableCell 
                   key={`monthday-${day.toISOString()}`}
                   id={`monthday-${day.toISOString()}`}
-                  onClick={() => onDateSelect(startOfDay(day), endOfDay(day), true)}
-                  className={`border-r border-b border-slate-100 dark:border-slate-800 p-2 flex flex-col gap-1 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 min-h-0 cursor-pointer ${
+                  onClick={() => !isReadOnly && onDateSelect(startOfDay(day), endOfDay(day), true)}
+                  className={`border-r border-b border-slate-100 dark:border-slate-800 p-2 flex flex-col gap-1 transition-colors min-h-0 ${
+                    !isReadOnly ? "hover:bg-slate-50 dark:hover:bg-slate-800/30 cursor-pointer" : "cursor-default"
+                  } ${
                     !isCurrentMonth ? "opacity-30 bg-slate-50/50 dark:bg-slate-900/50" : ""
                   }`}
                 >
@@ -284,8 +292,9 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
             <DroppableCell 
               key={`allday-${day.toISOString()}`} 
               id={`allday-${day.toISOString()}`}
-              className="relative border-r border-slate-200 dark:border-slate-800 last:border-r-0 p-1.5 flex flex-col gap-1 min-h-[56px] hover:bg-indigo-500/5 transition-colors cursor-pointer"
+              className={`relative border-r border-slate-200 dark:border-slate-800 last:border-r-0 p-1.5 flex flex-col gap-1 min-h-[56px] transition-colors ${!isReadOnly ? "hover:bg-indigo-500/5 cursor-pointer" : "cursor-default"}`}
               onClick={() => {
+                if (isReadOnly) return;
                 const start = startOfDay(day);
                 const end = endOfDay(day);
                 onDateSelect(start, end, true);
@@ -367,19 +376,21 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                   
                   cellDate.setHours(hour, 0, 0, 0);
                   
-                  return (
-                    <DroppableCell 
-                      key={cellDate.toISOString()} 
-                      id={cellDate.toISOString()}
-                      onClick={() => {
-                        const end = new Date(cellDate);
-                        end.setHours(BUSINESS_HOURS[BUSINESS_HOURS.indexOf(hour)] + 1);
-                        onDateSelect(cellDate, end, false);
-                      }}
-                      onPointerDown={() => handlePointerDown(day, BUSINESS_HOURS.indexOf(hour))}
-                      onPointerEnter={() => handlePointerEnter(day, BUSINESS_HOURS.indexOf(hour))}
-                    />
-                  );
+                    return (
+                      <DroppableCell 
+                        key={cellDate.toISOString()} 
+                        id={cellDate.toISOString()}
+                        onClick={() => {
+                          if (isReadOnly) return;
+                          const end = new Date(cellDate);
+                          end.setHours(BUSINESS_HOURS[BUSINESS_HOURS.indexOf(hour)] + 1);
+                          onDateSelect(cellDate, end, false);
+                        }}
+                        onPointerDown={() => handlePointerDown(day, BUSINESS_HOURS.indexOf(hour))}
+                        onPointerEnter={() => handlePointerEnter(day, BUSINESS_HOURS.indexOf(hour))}
+                        className={!isReadOnly ? "cursor-crosshair" : "cursor-default"}
+                      />
+                    );
                 })}
 
                 {/* Shifts - Filtered by Logical Day bounds */}
@@ -469,6 +480,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                         overlapCount={shift.overlapCount}
                         overlapIndex={shift.overlapIndex}
                         colorIndex={dayIndex}
+                        isReadOnly={isReadOnly}
                         onClick={() => onEventClick(shift)}
                         onResizeEnd={(newEndTime: string) => onEventResize({
                           ...shift,

@@ -2,7 +2,7 @@
 
 import AuthForm from "./components/AuthForm";
 import ThemeToggle from "./components/ThemeToggle";
-import { Zap, ShieldCheck } from "lucide-react";
+import { Calendar, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -44,7 +44,7 @@ export default function Home() {
         <motion.div variants={itemVariants} className="mb-12">
           <div className="flex items-center gap-3 mb-8">
             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/20">
-              <Zap className="w-5 h-5" fill="currentColor" />
+              <Calendar className="w-5 h-5" fill="currentColor" />
             </div>
 
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white uppercase">

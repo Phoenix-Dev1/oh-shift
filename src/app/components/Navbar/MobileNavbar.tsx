@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X, Sun, Moon, LogOut, Zap } from "lucide-react";
+import { Menu, X, Sun, Moon, LogOut, Calendar } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
@@ -44,7 +44,7 @@ const MobileNavbar = () => {
           </button>
           <Link href="/" className="flex items-center gap-2 active:scale-95 transition-transform">
             <div className="w-8 h-8 bg-indigo-600 dark:bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-500/20">
-              <Zap size={18} fill="currentColor" />
+              <Calendar size={18} fill="currentColor" />
             </div>
           </Link>
         </div>

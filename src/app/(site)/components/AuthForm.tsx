@@ -11,6 +11,7 @@ import { signIn, useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { Calendar } from "lucide-react";
 
 type Variant = "LOGIN" | "REGISTER";
 
@@ -19,9 +20,11 @@ const AuthForm = () => {
   const router = useRouter();
   const [variant, setVariant] = useState<Variant>("LOGIN");
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
     if (session?.status === "authenticated") {
+      setIsRedirecting(true);
       router.push("/calendar");
     }
   }, [session?.status, router]);
@@ -49,8 +52,10 @@ const AuthForm = () => {
       axios
         .post("/api/register", data)
         .then(() => signIn("credentials", { ...data, redirect: false }))
-        .catch(() => toast.error("Registration failed"))
-        .finally(() => setIsLoading(false));
+        .catch(() => {
+          toast.error("Registration failed");
+          setIsLoading(false);
+        });
     } else {
       signIn("credentials", {
         ...data,
@@ -59,13 +64,15 @@ const AuthForm = () => {
         .then((callback) => {
           if (callback?.error) {
             toast.error("Invalid credentials");
+            setIsLoading(false);
           }
           if (callback?.ok && !callback.error) {
+            // Set redirecting immediately — don't wait for useSession to update
+            setIsRedirecting(true);
             toast.success("Welcome back!");
             router.push("/calendar");
           }
-        })
-        .finally(() => setIsLoading(false));
+        });
     }
   };
 
@@ -75,13 +82,46 @@ const AuthForm = () => {
       .then((callback) => {
         if (callback?.error) {
           toast.error("Authentication failed");
+          setIsLoading(false);
         }
-      })
-      .finally(() => setIsLoading(false));
+      });
   };
 
+  // Show full-screen overlay as soon as we know we're redirecting
+  const showOverlay = isRedirecting;
+
   return (
-    <motion.div layout className="space-y-6">
+    <motion.div layout className="relative space-y-6">
+      {/* Full-Screen Redirecting Overlay — triggered by isRedirecting, not session state */}
+      <AnimatePresence>
+        {showOverlay && (
+          <motion.div
+            key="auth-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-slate-950"
+          >
+            <div className="flex flex-col items-center gap-6">
+              <div className="relative">
+                <div className="w-16 h-16 border-[3px] border-slate-200 dark:border-slate-800 border-t-indigo-600 rounded-full animate-spin" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-indigo-600" />
+                </div>
+              </div>
+              <div className="text-center space-y-1">
+                <p className="text-sm font-semibold text-slate-900 dark:text-white tracking-tight">
+                  Preparing your workspace
+                </p>
+                <p className="text-xs text-slate-400">
+                  Loading your schedule...
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <motion.form
         layout
         className="space-y-4"
@@ -131,8 +171,12 @@ const AuthForm = () => {
         />
 
         <motion.div layout className="pt-2">
-          <Button disabled={isLoading} fullWidth type="submit">
-            {variant === "LOGIN" ? "Sign in" : "Create account"}
+          <Button disabled={isLoading || isRedirecting} fullWidth type="submit">
+            {isRedirecting 
+              ? "Redirecting..."
+              : isLoading 
+                ? "Authenticating..." 
+                : variant === "LOGIN" ? "Sign in" : "Create account"}
           </Button>
         </motion.div>
       </motion.form>
