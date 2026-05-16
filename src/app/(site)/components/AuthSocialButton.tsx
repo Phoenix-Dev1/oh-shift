@@ -13,24 +13,9 @@ const AuthSocialButton: React.FC<AuthSocialButtonProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className="
-      inline-flex
-      w-full
-      justify-center
-      rounded-md
-      bg-white
-      px-4
-      py-2
-      text-gray-500
-      shadow-sm
-      ring-1
-      ring-inset
-      ring-gray-300
-      hover:bg-gray-50
-      focus:outline-offset-0
-      "
+      className="inline-flex w-full justify-center rounded-lg bg-white dark:bg-slate-950 px-4 py-2 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-900 transition-all active:scale-95 focus:outline-none"
     >
-      <Icon />
+      <Icon className="w-5 h-5" />
     </button>
   );
 };

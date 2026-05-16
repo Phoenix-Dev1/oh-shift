@@ -1,6 +1,5 @@
 // src\app\dashboard\employee\page
 
-import Sidebar from "./components/Sidebar";
 import getCurrentUser from "../../actions/getCurrentUser";
 import EmployeeData from "./components/EmployeeData";
 
@@ -8,16 +7,17 @@ export default async function ManagerDashboardPage() {
   const user = await getCurrentUser();
 
   return (
-    <div className="flex h-screen bg-bg-full">
-      {/* Sidebar */}
-      <Sidebar />
-      {/* Main Content */}
-      <main className="flex-1 overflow-y-auto p-6 bg-bg-800 text-text-primary">
-        <h1 className="text-3xl font-bold mb-6 text-center">
-          {user?.name} Shifts
+    <div className="p-6 sm:p-8 lg:p-10 max-w-7xl mx-auto">
+      <div className="mb-10">
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+          Welcome back, {user?.name || "Team Member"}
         </h1>
-        <EmployeeData />
-      </main>
+        <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium leading-relaxed">
+          View your upcoming shifts and summary for the month.
+        </p>
+      </div>
+      
+      <EmployeeData />
     </div>
   );
 }

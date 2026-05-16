@@ -1,16 +1,17 @@
 // app/layout.tsx
 import type { Metadata } from "next";
-import ThemeProvider from "./components/ThemeProvider";
+import { ThemeProvider } from "./context/ThemeContext";
 import NavSwitcher from "./components/Navbar/NavSwitcher";
 import "./globals.css";
 import ScrollToTop from "./components/ScrollToTop";
 import Footer from "./components/Footer";
 import AuthContext from "./context/AuthContext";
 import ToastProvider from "./context/ToastProvider";
+import ReactQueryProvider from "./context/ReactQueryProvider";
 
 export const metadata: Metadata = {
   title: "Oh-Shift",
-  description: "It's only logical",
+  description: "Enterprise shift management made simple.",
 };
 
 export default function RootLayout({
@@ -19,16 +20,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className="h-screen bg-bg-900 dark:bg-bg-800 flex flex-col min-h-screen">
+    <html lang="en" suppressHydrationWarning>
+      <body className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans antialiased">
         <ThemeProvider>
           <AuthContext>
-            <NavSwitcher />
-            <ToastProvider />
-            <main className="flex-1">{children}</main>
-            <ScrollToTop />
+            <ReactQueryProvider>
+              <ToastProvider />
+              <div className="flex flex-col min-h-screen">
+                <NavSwitcher />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
+              <ScrollToTop />
+            </ReactQueryProvider>
           </AuthContext>
-          <Footer />
         </ThemeProvider>
       </body>
     </html>

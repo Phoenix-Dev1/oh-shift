@@ -1,5 +1,5 @@
 // src/handlers/useEmployeeHandlers.ts
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Employee } from "../../types";
 
 export const fetchEmployees = async (

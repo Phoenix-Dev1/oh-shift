@@ -1,5 +1,5 @@
 // src/handlers/useDeleteHandlers.ts
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import { Shift } from "../../types/index";
 
 // Define an interface for the event object passed to handleEventDidMount

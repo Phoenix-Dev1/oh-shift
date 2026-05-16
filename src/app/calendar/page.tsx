@@ -1,5 +1,4 @@
-import ShiftBoardManager from "./components/ShiftBoardManager/ShiftBoardManager";
-import EmployeeBoardManager from "./components/EmployeeBoardManager/EmployeeBoardManager";
+import ShiftBoardManager from "./components/ShiftBoard/ShiftBoardManager";
 import getCurrentUser from "../actions/getCurrentUser";
 
 export default async function ShiftsPage() {
@@ -8,7 +7,7 @@ export default async function ShiftsPage() {
 
   if (user?.role !== "MANAGER" && user?.employeeManagerId === null) {
     return (
-      <div className="flex h-screen items-center justify-center bg-bg-900 dark:bg-bg-800 text-text-primary p-6">
+      <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 p-6">
         <div className="max-w-3xl text-center bg-white dark:bg-bg-700 p-8 rounded-lg shadow-lg">
           <h1 className="text-3xl sm:text-4xl font-bold text-highlight">
             Welcome to Oh-Shift!
@@ -53,12 +52,12 @@ export default async function ShiftsPage() {
   }
 
   return (
-    <div className="flex h-screen dark:bg-bg-800 mb-6 dark:text-text-primary">
+    <div className="flex min-h-screen dark:bg-slate-950 dark:text-slate-100">
       <div className="flex-1 p-2">
         {role === "MANAGER" ? (
           <ShiftBoardManager />
         ) : role === "EMPLOYEE" ? (
-          <EmployeeBoardManager />
+          <ShiftBoardManager />
         ) : (
           <div className="text-center text-red-500">
             Unauthorized: Role not recognized

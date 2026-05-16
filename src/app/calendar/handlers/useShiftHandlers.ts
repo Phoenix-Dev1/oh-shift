@@ -1,7 +1,7 @@
 // src/handlers/useShiftHandlers.ts
-import { Shift } from "../../types";
+import { Shift, Employee } from "../../types";
 import { updateShiftInDB, saveShiftToDB } from "./useDatabaseHandlers";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 
 interface DateSelectInfo {
   startStr: string;
@@ -32,8 +32,11 @@ interface AssignmentResponse {
   employee?: {
     id: string;
     name: string;
-    position: string;
-    employeeManagerId: string;
+    email: string | null;
+    phone: string | null;
+    position: string | null;
+    managerId: string;
+    employeeManagerId: string | null;
   } | null;
 }
 
@@ -59,6 +62,7 @@ export const handleDateSelect = async (
     isNew: true,
     allDay: isAllDay,
     title: isAllDay ? "New All Day Shift" : "",
+    managerId: "",
   };
 
   setShifts([...shifts, tempShift]);
@@ -75,12 +79,16 @@ export const handleDateSelect = async (
           persistedShift.assignments?.map((assignment: AssignmentResponse) => ({
             id: assignment.employee?.id || "unknown",
             name: assignment.employee?.name || "Unnamed",
+            email: assignment.employee?.email || null,
+            phone: assignment.employee?.phone || null,
             position: assignment.employee?.position || "Unknown",
-            employeeManagerId: assignment.employee?.employeeManagerId || "",
+            managerId: assignment.employee?.managerId || "",
+            employeeManagerId: assignment.employee?.employeeManagerId || null,
           })) || [],
         isNew: false,
         allDay: isAllDay,
         title: persistedShift.title || (isAllDay ? "New All Day Shift" : ""),
+        managerId: "",
       };
 
       setShifts((prevShifts) =>
@@ -95,6 +103,7 @@ export const handleDateSelect = async (
     setShifts((prevShifts) => prevShifts.filter((s) => s.id !== tempShift.id));
   }
 };
+
 export const handleEventClick = (
   clickInfo: EventClickInfo,
   shifts: Shift[],
@@ -116,15 +125,12 @@ export const handleEventDrop = async (
   const { event } = dropInfo;
   const shiftId = event.id;
 
-  // Find the shift in local state
   const shift = shifts.find((s) => s.id === shiftId);
   if (!shift) {
     toast.error("Shift not found.");
     return;
   }
 
-  // Create an updated shift object with new start and end times;
-  // keep the existing employees from local state.
   const updatedShift: Shift = {
     ...shift,
     startTime: event.start ? event.start.toISOString() : shift.startTime,
@@ -132,17 +138,15 @@ export const handleEventDrop = async (
     employees: shift.employees || [],
   };
 
-  // Optimistically update local state
   setShifts((prevShifts) =>
     prevShifts.map((s) => (s.id === shiftId ? updatedShift : s))
   );
   toast.info("Shift moved locally... updating database.");
 
   try {
-    // Call updateShiftInDB with timeOnly = true so no employees payload is sent.
     const result = await updateShiftInDB(updatedShift, true);
     if (result) {
-      let employees = shift.employees;
+      let employees: Employee[] = shift.employees;
       if (
         result.assignments &&
         Array.isArray(result.assignments) &&
@@ -152,27 +156,31 @@ export const handleEventDrop = async (
           (assignment: AssignmentResponse) => ({
             id: assignment.employee?.id || "unknown",
             name: assignment.employee?.name || "Unnamed",
+            email: assignment.employee?.email || null,
+            phone: assignment.employee?.phone || null,
             position: assignment.employee?.position || "Unknown",
-            employeeManagerId: assignment.employee?.employeeManagerId || "",
+            managerId: assignment.employee?.managerId || "",
+            employeeManagerId: assignment.employee?.employeeManagerId || null,
           })
         );
       }
 
       const formattedShift: Shift = {
+        ...shift,
         id: result.id,
         startTime: result.startTime,
         endTime: result.endTime,
         employees,
+        allDay: result.allDay,
+        title: result.title,
       };
 
-      // Update state with the formatted shift.
       setShifts((prevShifts) =>
         prevShifts.map((s) => (s.id === shiftId ? formattedShift : s))
       );
     }
   } catch {
     toast.error("Failed to update shift in database.");
-    // Optionally, revert the optimistic update by re-fetching shifts.
   }
 };
 
@@ -199,7 +207,6 @@ const generateUUID = (): string => {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
     return crypto.randomUUID();
   }
-  // fallback: combine timestamp and random string
   return (
     Date.now().toString() + "-" + Math.random().toString(36).substring(2, 15)
   );

@@ -22,6 +22,8 @@ model User {
   employeeManagerId  String?    @db.ObjectId
   managedSchedules   Schedule[] @relation("ManagedSchedules")
   employees          Employee[] @relation("ManagerEmployees")
+  recentShiftTitles  String[]   @default([])
+  businessDayStartHour Int      @default(7)
   Shift              Shift[]
   
   // Optional back-relation for the one-to-one assignment
@@ -58,6 +60,7 @@ model Employee {
 
   // Back-relation for the one-to-one connection via EmployeeUserAssignment
   assignment EmployeeUserAssignment? @relation("EmployeeUser")
+  ledShifts  Shift[]                 @relation("ShiftLeader")
 }
 
 model Shift {
@@ -71,6 +74,8 @@ model Shift {
   assignments ShiftAssignment[]
   managerId   String   @db.ObjectId
   manager     User     @relation(fields: [managerId], references: [id])
+  shiftLeadId String?  @db.ObjectId
+  shiftLead   Employee? @relation("ShiftLeader", fields: [shiftLeadId], references: [id])
 }
 
 model ShiftAssignment {

@@ -1,0 +1,10 @@
+{
+  "css.customData": [],
+  "css.validate": false,
+  "tailwindCSS.includeLanguages": {
+    "plaintext": "ts"
+  },
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
+}

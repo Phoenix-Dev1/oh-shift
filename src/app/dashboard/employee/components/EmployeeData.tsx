@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { toast } from "sonner";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import InfinityLoader from "@/src/app/components/LoadingInfinity/InfinityLoader";
+import EmployeeSkeleton from "./EmployeeSkeleton";
 
 interface Employee {
   id: string;
@@ -80,11 +80,11 @@ export default function EmployeeData() {
     fetchShiftSummary();
   }, [selectedMonth]);
 
-  if (loading) return <InfinityLoader />;
+  if (loading) return <EmployeeSkeleton />;
   if (!employee) return <p className="text-center">Employee not found.</p>;
 
   return (
-    <div className="min-h-screen bg-bg-800 text-text-primary p-6">
+    <div className="p-6">
       {/* Employee Details */}
       <div className="max-w-xl mx-auto bg-white dark:bg-bg-700 p-6 shadow-lg rounded-lg">
         <h1 className="text-2xl font-bold mb-4">{employee.name}</h1>
