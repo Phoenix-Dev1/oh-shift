@@ -25,6 +25,7 @@ const ShiftBoardManager = () => {
     handleToday,
     handlePrevious,
     handleNext,
+    isMobile,
     isReadOnly
   } = useShiftBoard();
 
@@ -129,6 +130,7 @@ const ShiftBoardManager = () => {
         onPrevious={handlePrevious}
         onNext={handleNext}
         isReadOnly={isReadOnly}
+        isMobile={isMobile}
       />
       
       <div className="grid grid-cols-1 gap-8">

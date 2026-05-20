@@ -201,6 +201,7 @@ export const useShiftBoard = () => {
     handleNext,
     businessDayStartHour,
     role,
+    isMobile,
     isReadOnly: role === "EMPLOYEE",
     createShift: createMutation.mutate,
     updateShift: updateMutation.mutate,
