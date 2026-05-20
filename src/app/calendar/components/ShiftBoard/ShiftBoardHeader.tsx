@@ -15,6 +15,7 @@ interface ShiftBoardHeaderProps {
   onPrevious: () => void;
   onNext: () => void;
   isReadOnly?: boolean;
+  isMobile?: boolean;
 }
 
 const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
@@ -26,6 +27,7 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
   onPrevious,
   onNext,
   isReadOnly = false,
+  isMobile = false,
 }) => {
   const modes: { id: ViewMode; label: string; icon: React.ElementType }[] = [
     { id: 'day', label: 'Day', icon: List },
@@ -41,13 +43,13 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
   };
 
   return (
-    <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-6 bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
+    <header className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4 md:gap-6 bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-xl bg-indigo-600/10 dark:bg-indigo-400/10 hidden md:flex items-center justify-center text-indigo-600 dark:text-indigo-400">
           <CalendarIcon className="w-6 h-6" />
         </div>
         <div>
-          {/* Phase 3: Navigation Group */}
+          {/* Navigation Group */}
           <div className="flex items-center gap-2 mb-1">
             <button
               onClick={onToday}
@@ -67,7 +69,7 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight ml-2">
+            <h1 className="text-base md:text-xl font-bold text-slate-900 dark:text-white tracking-tight ml-2">
               {getDisplayedDateRange()}
             </h1>
           </div>
@@ -75,33 +77,35 @@ const ShiftBoardHeader: React.FC<ShiftBoardHeaderProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-        {/* Phase 2: Segmented Control Toggle */}
-        <div className="flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 relative">
-          {modes.map((mode) => (
-            <button
-              key={mode.id}
-              onClick={() => setViewMode(mode.id)}
-              className={`relative z-10 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${viewMode === mode.id
-                  ? "text-indigo-600 dark:text-indigo-400 shadow-sm"
-                  : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
-                }`}
-            >
-              <mode.icon className="w-3.5 h-3.5" />
-              {mode.label}
-              {viewMode === mode.id && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg -z-10"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
+        {/* View Toggle - hidden on mobile since only day view is available */}
+        {!isMobile && (
+          <div className="hidden md:flex bg-slate-100 dark:bg-slate-950 p-1 rounded-xl border border-slate-200 dark:border-slate-800 relative">
+            {modes.map((mode) => (
+              <button
+                key={mode.id}
+                onClick={() => setViewMode(mode.id)}
+                className={`relative z-10 flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-lg transition-all ${viewMode === mode.id
+                    ? "text-indigo-600 dark:text-indigo-400 shadow-sm"
+                    : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                  }`}
+              >
+                <mode.icon className="w-3.5 h-3.5" />
+                {mode.label}
+                {viewMode === mode.id && (
+                  <motion.div
+                    layoutId="activeTab"
+                    className="absolute inset-0 bg-white dark:bg-slate-800 rounded-lg -z-10"
+                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        )}
 
         {!isReadOnly && (
           <>
-            <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />
+            {!isMobile && <div className="h-6 w-px bg-slate-200 dark:bg-slate-800 hidden sm:block mx-1" />}
             <button
               onClick={onAddShift}
               className="flex items-center justify-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-indigo-500/20 active:scale-95"
