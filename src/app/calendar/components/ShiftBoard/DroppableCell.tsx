@@ -24,7 +24,7 @@ const DroppableCell: React.FC<DroppableCellProps> = ({
     id: id,
   });
 
-  // Default time-slot class
+  // Default time-slot class used when no className is provided
   const defaultClass = "h-16 border-b border-slate-100 dark:border-slate-800/40 last:border-b-0 transition-colors cursor-pointer";
 
   return (
@@ -33,7 +33,7 @@ const DroppableCell: React.FC<DroppableCellProps> = ({
       onClick={onClick}
       onPointerDown={onPointerDown}
       onPointerEnter={onPointerEnter}
-      className={`${className || defaultClass} ${
+      className={`${className ? className : defaultClass} ${
         isOver ? "bg-indigo-500/10 dark:bg-indigo-500/20" : ""
       }`}
     >

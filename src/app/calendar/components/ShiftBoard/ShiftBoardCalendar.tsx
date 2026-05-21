@@ -388,7 +388,7 @@ const ShiftBoardCalendar: React.FC<ShiftBoardCalendarProps> = ({
                         }}
                         onPointerDown={() => handlePointerDown(day, BUSINESS_HOURS.indexOf(hour))}
                         onPointerEnter={() => handlePointerEnter(day, BUSINESS_HOURS.indexOf(hour))}
-                        className={!isReadOnly ? "cursor-crosshair" : "cursor-default"}
+                        className={`h-16 border-b border-slate-100 dark:border-slate-800/40 last:border-b-0 transition-colors ${!isReadOnly ? "cursor-crosshair" : "cursor-default"}`}
                       />
                     );
                 })}
